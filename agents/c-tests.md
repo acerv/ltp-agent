@@ -45,9 +45,10 @@ When reviewing or writing C tests, verify ALL of the following:
 - Code MUST follow Linux kernel coding style
 - `make check` or `make check-$TCID` MUST pass (uses vendored `checkpatch.pl`)
 - MUST use C99 features where appropriate
-- Variables declared after statements (C99/C11 style) are allowed. Declaring
-  at the top of the block is preferred but NOT mandatory — do NOT flag
-  mixed declarations as errors
+- Variables declared after statements (C99/C11 style) are allowed and MUST
+  NOT be flagged as errors or style issues. NEVER suggest moving a variable
+  declaration to the top of the function — this is an explicit exception to
+  the kernel coding style rule
 - Identifiers e.g. function, variable, macro names must not start with
   underscore since these are reserved for compiler, kernel, and libc
 - MUST NOT use curly braces around single line statements
