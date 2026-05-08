@@ -206,11 +206,25 @@ static struct tst_test test = { .test_all = run };
 #endif
 ```
 
-### 16. Deprecated Features
+### 16. Commit Messages
+
+Do NOT flag an empty commit body when the patch is trivially
+self-explanatory from the subject line alone. Examples include, but are
+not limited to:
+
+- Adding a fallback `#ifndef` / `#define` in `include/lapi/` headers
+- Fixing a typo
+- Updating a `.gitignore` entry
+- Adding a missing `#include`
+
+Only flag an empty commit body when understanding **why** the change was
+made requires explanation beyond what the subject line conveys.
+
+### 17. Deprecated Features
 
 - MUST NOT define `[Description]` in the test description section
 
-### 17. Test high-level description
+### 18. Test high-level description
 
 - The `/*\ ... */` doc comment MUST explain _what_ syscall, feature, or
   behavior is being tested (this block is exported to documentation).
