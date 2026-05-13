@@ -107,6 +107,9 @@ on static variable re-initialization).
 ### 7. Safe Macros
 
 - MUST use `SAFE_*` macros for system calls that have a `SAFE_*` version in `include/`
+- EXCEPTION: when the syscall is the **subject** of the test (e.g. testing
+  `close()` error paths), using the raw syscall is correct — `SAFE_*` wrappers
+  abort on failure, which defeats testing failure behavior
 - Safe macros are defined in `include/` directory (search `tst_*.h` headers)
 - If no `SAFE_*` version exists, verify whether one can be added; otherwise use manual error handling
 - `SAFE_CLOSE()` sets the variable to `-1`, so the `cleanup()` guards are safe
