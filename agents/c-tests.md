@@ -112,8 +112,6 @@ on static variable re-initialization).
   abort on failure, which defeats testing failure behavior
 - Safe macros are defined in `include/` directory (search `tst_*.h` headers)
 - If no `SAFE_*` version exists, verify whether one can be added; otherwise use manual error handling
-- `SAFE_CLOSE()` sets the variable to `-1`, so the `cleanup()` guards are safe
-  even if `run()` already closed the fd before the abort.
 
 ### 8. Kernel Version Handling
 
@@ -526,11 +524,9 @@ static struct tst_test test = {
 
 #### No manual reset after SAFE_CLOSE
 
-`SAFE_CLOSE()` is a macro that calls `safe_close()` AND sets the variable
-to `-1` in a single step. This applies everywhere — in `cleanup()`, in
-`run()`, in thread functions, and in any other context. NEVER manually
-reset the variable after `SAFE_CLOSE()`, and NEVER flag a missing
-`fd = -1` after `SAFE_CLOSE(fd)` as a bug — the macro already does it.
+`SAFE_CLOSE()` is a macro that calls `safe_close()` AND sets the passed
+argument file descriptor to `-1` in a single step. This applies everywhere in
+the code.
 
 ```c
 /* WRONG: redundant reset — SAFE_CLOSE() already sets fd = -1 */
