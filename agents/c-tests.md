@@ -242,6 +242,7 @@ made requires explanation beyond what the subject line conveys.
   in our [test catalog](https://linux-test-project.readthedocs.io/en/latest/users/test_catalog.html).
 - Ordered and bulleted lists MUST be separated from the previous text by a
   blank line.
+- Copyright line MUST be present with year and author
 
 ## New Syscalls Testing
 
