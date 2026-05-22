@@ -15,10 +15,11 @@ expected (correct) result.
 
 ## Rule 2: No Sleep-Based Synchronization
 
-Code MUST NOT use `sleep()`/`nanosleep()` for synchronization.
+Code MUST NOT use `sleep()`/`usleep()`/`nanosleep()` for synchronization.
 
 NEVER use sleep to synchronize between processes. It causes rare flaky failures,
-wastes CI time, and breaks under load.
+wastes CI time, and breaks under load. Tests that sleep as part of testing
+timer APIs are exempt.
 
 **Use instead:**
 
@@ -94,4 +95,6 @@ default test suites until the kernel code is finalized and released.
 
 **Before flagging a test as staging**, verify whether the kernel version has
 actually been released. Do NOT assume a version is unreleased based on the
-number alone. Check https://kernel.org to confirm the latest stable release.
+number alone. Check `https://kernel.org` to confirm the latest stable release.
+Conversely, if the feature IS in a released kernel, flag any `[STAGING]`
+prefix or `runtest/staging` entry as incorrect.
