@@ -23,10 +23,10 @@ timer APIs are exempt.
 
 **Use instead:**
 
-- Parent waits for child to finish → `waitpid()` / `SAFE_WAITPID()`
-- Child must reach code point before parent continues → `TST_CHECKPOINT_WAIT()` / `TST_CHECKPOINT_WAKE()`
-- Child must be sleeping in a syscall → `TST_PROCESS_STATE_WAIT()`
-- Async or deferred kernel actions → Exponential-backoff polling loop
+- Parent waits for child to finish → `waitpid()`
+- Child must reach a code point before parent continues → checkpoint synchronization
+- Child must be sleeping in a syscall → process state polling
+- Async or deferred kernel actions → exponential-backoff polling loop
 
 ## Rule 3: Runtime Feature Detection Only
 
@@ -63,14 +63,13 @@ Every test MUST leave the system exactly as it found it:
 - Loop devices → Detach
 - Ulimits → Restore
 
-**Prefer library helpers:** `.needs_tmpdir`, `.save_restore`, `.needs_device`,
-`.restore_wallclock`, `.needs_cgroup_ctrls`
+Prefer framework helpers over manual setup/teardown when available.
 
 ## Rule 6: Write Portable Code
 
 - MUST NOT use nonstandard libc APIs when portable equivalent exists
 - MUST NOT assume 64-bit, page size, endianness, or tool versions
-- Architecture-specific tests MUST still compile everywhere (use `.supported_archs`)
+- Architecture-specific tests MUST still compile everywhere
 - Shell tests MUST be portable POSIX shell (no bash-isms)
 
 Verify with `make check`.
