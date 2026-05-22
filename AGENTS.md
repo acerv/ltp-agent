@@ -89,24 +89,12 @@ patch.
 
 **Action**: Run the `/ltp-review-smoke` skill.
 
-### Task: Email Reply
-
-**Trigger**: User requests a mailing list reply or email for a patch review.
-
-**Action**: Run the `/ltp-email-reply` skill.
-
 ### Task: Convert Old Test API
 
 **Trigger**: User requests converting a test from old API (`test.h`) to new
 API (`tst_test.h`).
 
 **Action**: Run the `/ltp-convert` skill.
-
-### Task: CI Report
-
-**Trigger**: User requests a CI report or GitHub Actions summary for a review.
-
-**Action**: Run the `/ltp-ci-report` skill.
 
 ### Task: Write or Modify Open POSIX Tests
 

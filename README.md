@@ -113,17 +113,6 @@ After applying a patch, run:
 This compiles the changed tests, runs them with increasing iteration counts
 (`-i 0`, `-i 10`, `-i 100`), and analyzes any build or runtime failures.
 
-### Generating a Mailing List Reply
-
-After running `/ltp-review` (and optionally `/ltp-review-smoke`), generate a
-ready-to-send email reply:
-
-```
-/ltp-email-reply
-```
-
-This produces a plain-text inline review in Linux kernel mailing list style.
-
 ### Converting Old Tests to New API
 
 To convert a test from the legacy `test.h` API to the modern `tst_test.h` API:

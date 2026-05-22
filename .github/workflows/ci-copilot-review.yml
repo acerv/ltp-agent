@@ -129,7 +129,7 @@ jobs:
             SILENT_FLAG="-s"
           fi
 
-          copilot -p "The latest stable kernel release is ${LATEST_KERNEL}. Use this for G7 staging checks instead of fetching kernel.org. Run /ltp-review, then run /ltp-ci-report. Print only the final CI report output." \
+          copilot -p "The latest stable kernel release is ${LATEST_KERNEL}. Use this for staging checks instead of fetching kernel.org. Run /ltp-review." \
             --allow-tool='shell(git log:*)' \
             --allow-tool='shell(git show:*)' \
             --allow-tool='shell(git diff:*)' \
@@ -204,11 +204,7 @@ jobs:
             exit 0
           fi
 
-          body=$(awk '
-            /^## Email Reply/ { found = 1; next }
-            found && /^```/ { if (in_block) exit; in_block = 1; next }
-            found && in_block { print }
-          ' /tmp/review-output.txt)
+          body=$(sed -n '/^Hi /,$ p' /tmp/review-output.txt)
 
           if [ -z "$body" ]; then
             echo "Could not extract email body, skipping email send"

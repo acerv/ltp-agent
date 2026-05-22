@@ -100,11 +100,7 @@ If you notice pre-existing issues unrelated to the patch, list them separately
 under a **### Pre-existing (optional)** section after the main review. These
 are informational only and do NOT affect the verdict.
 
-### Checklist
-
-Check EACH rule below. Mark ✅, ❌, or N/A.
-
-### Ground Rules (MANDATORY - any ❌ = reject)
+### Ground Rules (MANDATORY — any violation = reject)
 
 Apply ALL rules from `agents/ground-rules.md` (loaded in Step 1.1).
 
@@ -162,37 +158,109 @@ Apply ALL rules from `agents/openposix.md` (loaded in Step 1.3).
 
 ## Phase 4: Output
 
-ALWAYS output in this EXACT format:
+Compose a plain-text inline email review reply in the style of Linux kernel
+mailing list responses. This is the ONLY output — do not print a structured
+review before the email.
+
+### Format rules
+
+- Use plain text, no markdown, no HTML.
+- Quote the patch inline using `>` prefix, standard mailing list style.
+- Insert review comments directly below the relevant quoted line(s),
+  separated by a blank line before and after.
+- Do NOT quote the entire patch — only quote the lines directly relevant to
+  each comment. Use `[...]` to indicate skipped context.
+- If the verdict is Approved, say so clearly and add a
+  `Reviewed-by:` trailer using git config user details.
+- If the verdict is Needs revision, list each issue inline in the patch
+  and close with a brief summary of what needs fixing.
+- If the verdict is Needs discussion, raise the open question clearly.
+
+### Tone
+
+- Be terse. Kernel mailing list replies are short and to the point.
+- Each inline comment should be 1-2 sentences max.
+- Do NOT repeat what the code already shows.
+- Do NOT add filler like "Good improvement" or "The rest looks correct".
+- Positive feedback is only included if it adds information (e.g. "Tested
+  on x86_64 with -i 100, all pass").
+
+### Structure (single patch or single-patch series)
 
 ```
-## Review: <patch-subject>
+Hi <firstname>,
 
-### Commit Messages
-- <hash>: <subject> — ✅ / ❌ <issue>
+On <date>, <author> wrote:
+> <patch subject line>
 
-### Code Review
-- Ground rules: ✅ all pass / ❌ <list violations>
-- [LTP C test rules / LTP shell test rules / Open POSIX test rules]: ✅ all pass / ❌ <list violations>
+> [relevant diff hunk or code line]
 
-### Issues Found
-1. **<rule-id>** `<file>:<line>` — <issue description>
-   (or "None" if no issues)
+<comment>
 
-### Verdict
+> [next relevant hunk]
 
-**Approved** ✅ / **Needs revision** ❌ / **Needs discussion** ⚠️
+<comment>
 
-<one-line-reason>
+[...]
 
-### Pre-existing (optional)
-1. `<file>:<line>` — <issue description>
-   (omit this section entirely if nothing was noticed)
+[if Approved:]
+Reviewed-by: LTP AI Reviewer <ltp-ai@noreply.github.com>
+
+<postamble>
 ```
 
-## Decision Rules
+### Structure (multi-patch series)
 
-- ANY ground rule violation → **Needs revision** ❌
-- ANY commit message violation → **Needs revision** ❌
-- ANY test rule violation (C, shell, or Open POSIX) → **Needs revision** ❌
-- All checks pass → **Approved** ✅
-- Uncertain about rule → **Needs discussion** ⚠️
+One email replying to the first patch. Use `--- [PATCH N/M] ---` markers
+between per-patch comments. Only include patches that have findings.
+If ALL patches are approved, omit markers and include a single Reviewed-by.
+
+### Postamble
+
+Every email MUST end with:
+
+```
+---
+Note:
+
+Our agent completed the review of the patch. The full review can be
+found at: <review_url>
+
+The agent can sometimes produce false positives although often its
+findings are genuine. If you find issues with the review, please
+comment this email or ignore the suggestions.
+
+Regards,
+LTP AI Reviewer
+```
+
+`<review_url>` is built from the environment variable `REVIEW_URL` if
+set, otherwise omit the "The full review can be found at:" sentence.
+
+### Pre-existing issues
+
+If you noticed pre-existing issues in surrounding code (not introduced
+by this patch), include them at the end of the email before the postamble:
+
+```
+Pre-existing issues noticed in the surrounding code (not introduced
+by this patch):
+
+- <file>:<line> — <issue>
+```
+
+If none were noticed, do NOT include this block.
+
+### Smoke test findings
+
+If `/ltp-review-smoke` was run before this review, incorporate any
+runtime findings as additional inline comments. If smoke test passed,
+mention it in the closing.
+
+### Decision Rules
+
+- ANY ground rule violation → Needs revision
+- ANY commit message violation → Needs revision
+- ANY test rule violation (C, shell, or Open POSIX) → Needs revision
+- All checks pass → Approved
+- Uncertain about rule → Needs discussion
