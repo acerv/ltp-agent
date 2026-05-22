@@ -113,7 +113,7 @@ Additional detection guidance:
 - **Runtime feature detection**: For each `#ifdef` or `#if defined` in the
   patch, evaluate whether it is a fallback API definition in `include/lapi/`
   (allowed), a file-level `#ifdef HAVE_*` guard with `TST_TEST_TCONF` in the
-  `#else` branch (allowed — see c-tests.md §15), or a feature gate that
+  `#else` branch (allowed — see c-tests.md §16), or a feature gate that
   should use runtime detection instead (flag).
 - **Root privilege check**: Read the test code and identify whether any
   operation requires root privileges (mount/umount, chown/chroot, raw sockets,

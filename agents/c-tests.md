@@ -81,14 +81,22 @@ calls (e.g. resetting a pointer to `NULL` after `SAFE_MUNMAP()` in
 double-free it).
 
 Conversely, `.test` / `.test_all` may run many times, so any state
-modified during a test iteration MUST be safe for re-entry (see rule 11
+modified during a test iteration MUST be safe for re-entry (see rule 12
 on static variable re-initialization).
 
-### 4. Syscall Usage
+### 4. Synchronization
+
+- MUST NOT use `sleep()`, `usleep()`, or `nanosleep()` for synchronization
+  (tests that sleep as part of testing timer APIs are exempt)
+- Use instead: `SAFE_WAITPID()`, `TST_CHECKPOINT_WAIT()` /
+  `TST_CHECKPOINT_WAKE()`, `TST_PROCESS_STATE_WAIT()`, or
+  exponential-backoff polling
+
+### 5. Syscall Correctness
 
 - Syscall usage MUST match man pages and kernel code
 
-### 5. File Organization
+### 6. File Organization
 
 - New test binary MUST be added to corresponding `.gitignore`
 - Datafiles go in `datafiles/` subdirectory (installed to `testcases/data/$TCID`)
@@ -97,14 +105,14 @@ on static variable re-initialization).
 - Sub-executables MUST use `$TESTNAME_` prefix
 - MUST use `.needs_tmpdir = 1` for temp files (work in current directory)
 
-### 6. Result Reporting
+### 7. Result Reporting
 
 - MUST use `tst_res()` for results: `TPASS`, `TFAIL`, `TCONF`, `TBROK`, `TINFO`
 - MUST use `tst_brk()` for fatal errors that abort the test
 - MUST use `TEST()` macro to capture return value (`TST_RET`) and errno (`TST_ERR`)
 - MUST return `TCONF` (not `TFAIL`) when feature is unavailable
 
-### 7. Safe Macros
+### 8. Safe Macros
 
 - MUST use `SAFE_*` macros for system calls that have a `SAFE_*` version in `include/`
 - EXCEPTION: when the syscall is the **subject** of the test (e.g. testing
@@ -113,44 +121,48 @@ on static variable re-initialization).
 - Safe macros are defined in `include/` directory (search `tst_*.h` headers)
 - If no `SAFE_*` version exists, verify whether one can be added; otherwise use manual error handling
 
-### 8. Kernel Version Handling
+### 9. Runtime Feature Detection
 
-- MUST use `.min_kver` for kernel version gating
 - MUST prefer runtime checks over compile-time checks
+- MUST use `.min_kver` for kernel version gating
+- `configure.ac` compile-time checks may ONLY enable fallback API definitions
+  in `include/lapi/`
+- Runtime detection methods: errno checks (`ENOSYS`/`EINVAL`), `.min_kver`,
+  `.needs_kconfigs`, kernel `.config` parsing
 
-### 9. Tagging
+### 10. Tagging
 
 - Regression tests MUST include `.tags` in `struct tst_test`
 - Do NOT suggest adding GitHub PRs or GitHub issue URLs to `.tags`
 
-### 10. Cleanup
+### 11. Cleanup
 
 - Cleanup MUST run on ALL exit paths
 - MUST unmount, restore sysctls, delete temp files, kill processes
 
-### 11. Static Variables
+### 12. Static Variables
 
 - Static variables MUST be initialized before use in test logic (for `-i` option)
 - Static allocated variables MUST be released in cleanup if allocated in setup
 
-### 12. Memory Allocation
+### 13. Memory Allocation
 
 - Memory MUST be correctly deallocated
 - EXCEPTION: If `.bufs` is used, ignore check for memory allocated with it
 
-### 13. String Handling
+### 14. String Handling
 
 - MUST use `snprintf()` when combining strings
 - MUST use `PATH_MAX` for path buffers, NOT custom size macros
 
-### 14. Architecture-Specific Tests
+### 15. Architecture-Specific Tests
 
 - MUST use `.supported_archs` in `struct tst_test` when the target architectures
   are supported by the framework (see `lib/tst_arch.c`)
 - `#if defined(...)` arch guards are only acceptable when the target architecture
   is not supported by the framework
 
-### 15. Compile-time Feature Guards (`HAVE_*`)
+### 16. Compile-time Feature Guards (`HAVE_*`)
 
 When the entire test depends on a compile-time feature flag (e.g. `HAVE_NUMA_V2`,
 `HAVE_SYS_XATTR_H`), the `#ifdef` MUST wrap ALL test code at the file level —
@@ -207,7 +219,7 @@ static struct tst_test test = { .test_all = run };
 #endif
 ```
 
-### 16. Commit Messages
+### 17. Commit Messages
 
 Do NOT flag an empty commit body when the patch is trivially
 self-explanatory from the subject line alone. Examples include, but are
@@ -221,11 +233,11 @@ not limited to:
 Only flag an empty commit body when understanding **why** the change was
 made requires explanation beyond what the subject line conveys.
 
-### 17. Deprecated Features
+### 18. Deprecated Features
 
 - MUST NOT define `[Description]` in the test description section
 
-### 18. Test high-level description
+### 19. Test high-level description
 
 - The `/*\ ... */` doc comment MUST explain _what_ syscall, feature, or
   behavior is being tested (this block is exported to documentation).

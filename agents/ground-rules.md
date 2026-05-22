@@ -15,15 +15,15 @@ expected (correct) result.
 
 ## Rule 2: No Sleep-Based Synchronization
 
-Code MUST NOT use `sleep()`/`usleep()`/`nanosleep()` for synchronization.
+Code MUST NOT use timed waits for synchronization.
 
-NEVER use sleep to synchronize between processes. It causes rare flaky failures,
-wastes CI time, and breaks under load. Tests that sleep as part of testing
-timer APIs are exempt.
+NEVER use sleep or delay calls to synchronize between processes. It causes
+rare flaky failures, wastes CI time, and breaks under load. Tests that use
+timed waits as part of testing timer APIs are exempt.
 
 **Use instead:**
 
-- Parent waits for child to finish → `waitpid()`
+- Parent waits for child to finish → blocking wait
 - Child must reach a code point before parent continues → checkpoint synchronization
 - Child must be sleeping in a syscall → process state polling
 - Async or deferred kernel actions → exponential-backoff polling loop
@@ -32,15 +32,15 @@ timer APIs are exempt.
 
 Code MUST use runtime checks, NOT compile-time assumptions.
 
-Compile-time checks (`configure.ac`) may ONLY enable fallback API definitions
-in `include/lapi/`. NEVER assume compile-time results reflect the running kernel.
+Compile-time checks may ONLY enable fallback API definitions. NEVER assume
+compile-time results reflect the running kernel.
 
 **Runtime detection methods:**
 
-- errno checks (`ENOSYS` / `EINVAL`)
-- `.min_kver` in test struct
-- `.needs_kconfigs` in test struct
-- Kernel `.config` parsing
+- Error code checks at call site
+- Minimum kernel version gating
+- Kernel configuration requirements
+- Kernel config file parsing
 
 ## Rule 4: Minimize Root Usage
 
