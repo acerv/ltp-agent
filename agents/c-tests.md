@@ -370,147 +370,41 @@ void *safe_mysyscall(const char *file, const int lineno,
 
 ### Temporary folder
 
-NEVER create files in the currently local folder:
+Tests that create files MUST set `.needs_tmpdir = 1` in `struct tst_test`.
+The framework creates a temporary directory and `chdir`s into it before
+calling `.setup`. NEVER create files in the current directory without it:
 
 ```c
-static int fd = -1;
-
-static void setup(void) {
-    fd = SAFE_OPEN("myfile", O_RDWR | O_CREAT, 0777);
-}
-
-static void cleanup(void) {
-    if (fd != -1)
-        SAFE_CLOSE(fd);
-}
-
 static struct tst_test test = {
     .setup = setup,
     .cleanup = cleanup,
     .test_all = run,
-    /* WRONG: missing `.needs_tmpdir = 1` */
-};
-```
-
-ALWAYS create files in the temporary folder:
-
-```c
-static int fd = -1;
-
-static void setup(void) {
-    fd = SAFE_OPEN("myfile", O_RDWR | O_CREAT, 0777);
-}
-
-static void cleanup(void) {
-    if (fd != -1)
-        SAFE_CLOSE(fd);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    .cleanup = cleanup,
-    .test_all = run,
-    /* CORRECT: create files in the temporary folder */
     .needs_tmpdir = 1,
 };
 ```
 
 ### File descriptors
 
-#### Initialization
+#### Initialization and cleanup
 
-NEVER initialize file descriptors to valid values:
-
-```c
-/* WRONG: zero value file descriptor is a valid value (stdin) */
-static int fd;
-
-static void run(void) {
-    /* here we use fd */
-}
-
-static void setup(void) {
-    fd = SAFE_OPEN("myfile", O_RDWR | O_CREAT, 0777);
-}
-
-static void cleanup(void) {
-    if (fd != -1)
-        SAFE_CLOSE(fd);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    .cleanup = cleanup,
-    .test_all = run,
-    .needs_tmpdir = 1,
-};
-```
-
-ALWAYS set file descriptors to an invalid value:
+File descriptors MUST be initialized to `-1` (not left as `0`, which is
+stdin) and MUST be closed in `cleanup()` with a `fd != -1` guard:
 
 ```c
-/* CORRECT: initialize file descriptor to an invalid value */
+/* WRONG */
+static int fd;     /* zero is a valid fd (stdin) */
+/* also WRONG: no .cleanup to close the fd */
+
+/* CORRECT: init to -1, open in setup, close in cleanup */
 static int fd = -1;
 
-static void run(void) {
-    /* here we use fd */
-}
-
-static void setup(void) {
+static void setup(void)
+{
     fd = SAFE_OPEN("myfile", O_RDWR | O_CREAT, 0777);
 }
 
-static void cleanup(void) {
-    if (fd != -1)
-        SAFE_CLOSE(fd);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    .cleanup = cleanup,
-    .test_all = run,
-    .needs_tmpdir = 1,
-};
-```
-
-#### Close open file descriptors
-
-NEVER leave test without closing open file descriptors:
-
-```c
-static int fd = -1;
-
-static void run(void) {
-    /* here we use fd */
-}
-
-static void setup(void) {
-    fd = SAFE_OPEN("myfile", O_RDWR | O_CREAT, 0777);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    /* WRONG: missing .cleanup */
-    .test_all = run,
-    .needs_tmpdir = 1,
-};
-```
-
-ALWAYS close file descriptors at cleanup:
-
-```c
-static int fd = -1;
-
-static void run(void) {
-    /* here we use fd */
-}
-
-static void setup(void) {
-    fd = SAFE_OPEN("myfile", O_RDWR | O_CREAT, 0777);
-}
-
-/* CORRECT: close file descriptors at cleanup */
-static void cleanup(void) {
+static void cleanup(void)
+{
     if (fd != -1)
         SAFE_CLOSE(fd);
 }
@@ -727,338 +621,77 @@ static void run(void)
 }
 ```
 
-#### TPASS on numbers equality
+#### Use `TST_EXP_*` macros instead of manual `TEST()` + `if/else` + `tst_res()`
 
-ALWAYS prefer `TST_EXP_EQ_LI` over numeric equality statements which are
-combined with `tst_res(TPASS, ...)`:
+ALWAYS prefer `TST_EXP_*` macros over manual `TEST()` + `if/else` +
+`tst_res()` blocks. `TEST()` is only appropriate when the test needs custom
+logic beyond what any `TST_EXP_*` macro provides (e.g. multiple side-effect
+checks after one syscall).
 
-```c
-/* WRONG: multiple lines don't bring any useful information */
-if (uid == CHILD2UID)
-    tst_res(TPASS, "Read UID matches Child2 UID");
-else
-    tst_res(TFAIL, "Read UID doesn't match Child2 UID");
-
-/* CORRECT: one line check is short and streamlined */
-TST_EXP_EQ_LI(uid, CHILD2UID);
-```
-
-#### TPASS on string equality
-
-ALWAYS prefer `TST_EXP_EQ_STR` or `TST_EXP_EQ_STRN` over `strcmp()` or
-`strncmp()` statements which are combined with `tst_res(TPASS, ...)`:
+WRONG — manual check and reporting:
 
 ```c
-/* WRONG: verbose string comparison with manual result reporting */
-if (strcmp(buf, expected) == 0)
-    tst_res(TPASS, "Buffer matches expected value");
-else
-    tst_res(TFAIL, "Buffer doesn't match expected value");
+TEST(syscall(args));
 
-/* CORRECT: use TST_EXP_EQ_STR for null-terminated string comparison */
-TST_EXP_EQ_STR(buf, expected);
-
-/* CORRECT: use TST_EXP_EQ_STRN for length-limited string comparison */
-TST_EXP_EQ_STRN(buf, expected, sizeof(expected));
-```
-
-#### TPASS on real file descriptor
-
-ALWAYS use `TST_EXP_FD` when we need to check if returned value is a real
-file descriptor:
-
-```c
-/* WRONG: manual check and reporting */
-TEST(fd = open("file", O_RDONLY));
-if (TST_RET < 0)
-    tst_res(TFAIL | TTERRNO, "open failed");
-else
-    tst_res(TPASS, "open returned %ld", TST_RET);
-
-/* CORRECT: use TST_EXP_FD */
-TST_EXP_FD(open("file", O_RDONLY));
-```
-
-#### TPASS on unsigned numbers equality
-
-ALWAYS prefer `TST_EXP_EQ_LU` for unsigned long long comparisons:
-
-```c
-/* WRONG: manual unsigned comparison */
-if (size == expected_size)
-    tst_res(TPASS, "Size matches");
-else
-    tst_res(TFAIL, "Size doesn't match");
-
-/* CORRECT: use TST_EXP_EQ_LU for unsigned long long */
-TST_EXP_EQ_LU(size, expected_size);
-```
-
-#### TPASS on size_t equality
-
-ALWAYS prefer `TST_EXP_EQ_SZ` for size_t comparisons:
-
-```c
-/* WRONG: manual size_t comparison */
-if (len == expected_len)
-    tst_res(TPASS, "Length matches");
-else
-    tst_res(TFAIL, "Length doesn't match");
-
-/* CORRECT: use TST_EXP_EQ_SZ for size_t values */
-TST_EXP_EQ_SZ(len, expected_len);
-```
-
-#### TPASS on ssize_t equality
-
-ALWAYS prefer `TST_EXP_EQ_SSZ` for ssize_t comparisons:
-
-```c
-/* WRONG: manual ssize_t comparison */
-if (ret == expected_ret)
-    tst_res(TPASS, "Return value matches");
-else
-    tst_res(TFAIL, "Return value doesn't match");
-
-/* CORRECT: use TST_EXP_EQ_SSZ for ssize_t values */
-TST_EXP_EQ_SSZ(ret, expected_ret);
-```
-
-#### TPASS on positive syscall return
-
-ALWAYS use `TST_EXP_POSITIVE` when syscall should return >= 0:
-
-```c
-/* WRONG: manual positive check */
-TEST(ret = syscall(args));
-if (TST_RET < 0)
+if (TST_RET == -1) {
     tst_res(TFAIL | TTERRNO, "syscall failed");
-else
-    tst_res(TPASS, "syscall returned %ld", TST_RET);
+    return;
+}
 
-/* CORRECT: use TST_EXP_POSITIVE */
-TST_EXP_POSITIVE(syscall(args));
+tst_res(TPASS, "syscall returned %ld", TST_RET);
 ```
 
-#### TPASS on PID return
-
-ALWAYS use `TST_EXP_PID` when syscall returns a process ID:
+CORRECT — use the appropriate `TST_EXP_*` macro:
 
 ```c
-/* WRONG: manual pid check */
-TEST(pid = fork());
-if (TST_RET < 0)
-    tst_res(TFAIL | TTERRNO, "fork failed");
-else
-    tst_res(TPASS, "fork returned pid %ld", TST_RET);
-
-/* CORRECT: use TST_EXP_PID */
-pid_t pid = TST_EXP_PID(fork());
+TST_EXP_PASS(syscall(args));
 ```
 
-#### TPASS on specific return value
+Use the following table to pick the right macro. The same principle applies
+to every entry: replace manual `if/else` + `tst_res()` with the one-liner.
 
-ALWAYS use `TST_EXP_VAL` when expecting a specific return value:
+**Success macros:**
 
-```c
-/* WRONG: manual value check */
-TEST(ret = getuid());
-if (TST_RET != expected_uid)
-    tst_res(TFAIL, "getuid returned %ld, expected %d", TST_RET, expected_uid);
-else
-    tst_res(TPASS, "getuid returned expected value");
+| Scenario                                         | Macro                              |
+| ------------------------------------------------ | ---------------------------------- |
+| Syscall returns 0 on success                     | `TST_EXP_PASS(syscall(...))`       |
+| Syscall returns positive (fd, pid, byte count)   | `TST_EXP_POSITIVE(syscall(...))`   |
+| Syscall returns a PID                            | `TST_EXP_PID(fork())`              |
+| Syscall returns a file descriptor                | `TST_EXP_FD(open(...))`            |
+| Expect a specific return value                   | `TST_EXP_VAL(getuid(), expected)`  |
+| Syscall returns valid pointer (not `(void *)-1`) | `TST_EXP_PASS_PTR_VOID(mmap(...))` |
+| Boolean expression check                         | `TST_EXP_EXPR(uid > 0, "msg")`     |
 
-/* CORRECT: use TST_EXP_VAL */
-TST_EXP_VAL(getuid(), expected_uid);
-```
+**Equality macros:**
 
-#### TPASS on syscall success (return 0)
+| Scenario                              | Macro                      |
+| ------------------------------------- | -------------------------- |
+| Signed long long equality             | `TST_EXP_EQ_LI(a, b)`      |
+| Unsigned long long equality           | `TST_EXP_EQ_LU(a, b)`      |
+| `size_t` equality                     | `TST_EXP_EQ_SZ(a, b)`      |
+| `ssize_t` equality                    | `TST_EXP_EQ_SSZ(a, b)`     |
+| Null-terminated string equality       | `TST_EXP_EQ_STR(a, b)`     |
+| Length-limited string/buffer equality | `TST_EXP_EQ_STRN(a, b, n)` |
 
-ALWAYS use `TST_EXP_PASS` when syscall should return 0 on success:
+Also use `TST_EXP_EQ_STRN` instead of manual `memcmp()` + `tst_res()`, and
+`TST_EXP_EQ_STR` instead of manual `strcmp()` + `tst_res()`.
 
-```c
-/* WRONG: manual success check */
-TEST(ret = close(fd));
-if (TST_RET != 0)
-    tst_res(TFAIL | TTERRNO, "close failed");
-else
-    tst_res(TPASS, "close succeeded");
+**Failure macros:**
 
-/* CORRECT: use TST_EXP_PASS */
-TST_EXP_PASS(close(fd));
-```
+| Scenario                                                     | Macro                                             |
+| ------------------------------------------------------------ | ------------------------------------------------- |
+| Syscall fails with errno (returns -1 on error, 0 on success) | `TST_EXP_FAIL(open(...), ENOENT)`                 |
+| Syscall fails with errno (returns positive on success)       | `TST_EXP_FAIL2(fork(), EAGAIN)`                   |
+| Fails with one of several errnos                             | `TST_EXP_FAIL_ARR(syscall(...), errnos, cnt)`     |
+| Fail returning `NULL`                                        | `TST_EXP_FAIL_PTR_NULL(fn(...), ENOMEM)`          |
+| Fail returning `(void *)-1`                                  | `TST_EXP_FAIL_PTR_VOID(mmap(...), ENOMEM)`        |
+| Fail `NULL` + multiple errnos                                | `TST_EXP_FAIL_PTR_NULL_ARR(fn(...), errs, cnt)`   |
+| Fail `(void *)-1` + multiple errnos                          | `TST_EXP_FAIL_PTR_VOID_ARR(mmap(...), errs, cnt)` |
+| FD on success or expected errno on failure                   | `TST_EXP_FD_OR_FAIL(open(...), ENOENT)`           |
 
-#### TPASS on valid pointer return
-
-ALWAYS use `TST_EXP_PASS_PTR_VOID` when syscall returns a valid pointer
-(not `(void *)-1`):
-
-```c
-/* WRONG: manual pointer check */
-TEST(ptr = mmap(NULL, size, prot, flags, fd, 0));
-if (TST_RET_PTR == MAP_FAILED)
-    tst_res(TFAIL | TTERRNO, "mmap failed");
-else
-    tst_res(TPASS, "mmap returned %p", TST_RET_PTR);
-
-/* CORRECT: use TST_EXP_PASS_PTR_VOID */
-void *ptr = TST_EXP_PASS_PTR_VOID(mmap(NULL, size, prot, flags, fd, 0));
-```
-
-#### TFAIL on expected syscall failure
-
-ALWAYS use `TST_EXP_FAIL` when syscall should fail with specific errno
-(returns 0 on success):
-
-```c
-/* WRONG: manual failure check */
-TEST(ret = open("/nonexistent", O_RDONLY));
-if (TST_RET != -1 || TST_ERR != ENOENT)
-    tst_res(TFAIL | TTERRNO, "Expected ENOENT");
-else
-    tst_res(TPASS | TTERRNO, "open failed as expected");
-
-/* CORRECT: use TST_EXP_FAIL */
-TST_EXP_FAIL(open("/nonexistent", O_RDONLY), ENOENT);
-```
-
-#### TFAIL on expected syscall failure (positive success)
-
-ALWAYS use `TST_EXP_FAIL2` when syscall returns positive on success (e.g.
-returns a PID, fd, or byte count). Use `TST_EXP_FAIL` (without `2`) when
-syscall returns 0 on success.
-
-```c
-/* WRONG: manual failure check for fork */
-TEST(pid = fork());
-if (TST_RET >= 0 || TST_ERR != EAGAIN)
-    tst_res(TFAIL | TTERRNO, "Expected EAGAIN");
-else
-    tst_res(TPASS | TTERRNO, "fork failed as expected");
-
-/* CORRECT: use TST_EXP_FAIL2 */
-TST_EXP_FAIL2(fork(), EAGAIN);
-```
-
-#### TFAIL on expected failure with multiple possible errnos
-
-ALWAYS use `TST_EXP_FAIL_ARR` when syscall can fail with one of several errnos:
-
-```c
-/* WRONG: multiple errno checks */
-TEST(ret = syscall(args));
-if (TST_RET != -1 || (TST_ERR != EINVAL && TST_ERR != ENOSYS))
-    tst_res(TFAIL | TTERRNO, "Expected EINVAL or ENOSYS");
-else
-    tst_res(TPASS | TTERRNO, "syscall failed as expected");
-
-/* CORRECT: use TST_EXP_FAIL_ARR */
-int expected_errnos[] = {EINVAL, ENOSYS};
-TST_EXP_FAIL_ARR(syscall(args), expected_errnos, 2);
-```
-
-#### TFAIL on expected NULL pointer failure
-
-ALWAYS use `TST_EXP_FAIL_PTR_NULL` when syscall should fail and return NULL:
-
-```c
-/* WRONG: manual NULL check */
-TEST(ptr = malloc_huge(size));
-if (TST_RET_PTR != NULL || TST_ERR != ENOMEM)
-    tst_res(TFAIL | TTERRNO, "Expected ENOMEM");
-else
-    tst_res(TPASS | TTERRNO, "malloc failed as expected");
-
-/* CORRECT: use TST_EXP_FAIL_PTR_NULL */
-TST_EXP_FAIL_PTR_NULL(malloc_huge(size), ENOMEM);
-```
-
-#### TFAIL on expected (void \*)-1 failure
-
-ALWAYS use `TST_EXP_FAIL_PTR_VOID` when syscall should fail and return
-`(void *)-1`:
-
-```c
-/* WRONG: manual MAP_FAILED check */
-TEST(ptr = mmap(NULL, huge_size, prot, flags, fd, 0));
-if (TST_RET_PTR != MAP_FAILED || TST_ERR != ENOMEM)
-    tst_res(TFAIL | TTERRNO, "Expected ENOMEM");
-else
-    tst_res(TPASS | TTERRNO, "mmap failed as expected");
-
-/* CORRECT: use TST_EXP_FAIL_PTR_VOID */
-TST_EXP_FAIL_PTR_VOID(mmap(NULL, huge_size, prot, flags, fd, 0), ENOMEM);
-```
-
-#### TFAIL on expected failure with NULL and multiple errnos
-
-ALWAYS use `TST_EXP_FAIL_PTR_NULL_ARR` when syscall should fail with NULL and
-one of several errnos:
-
-```c
-/* WRONG: multiple errno checks with manual NULL pointer check */
-TEST(ptr = malloc_invalid(size));
-if (TST_RET_PTR != NULL || (TST_ERR != EINVAL && TST_ERR != ENOMEM))
-    tst_res(TFAIL | TTERRNO, "Expected EINVAL or ENOMEM");
-else
-    tst_res(TPASS | TTERRNO, "malloc_invalid failed as expected");
-
-/* CORRECT: check NULL return with multiple possible errors */
-int errors[] = {EINVAL, ENOMEM};
-TST_EXP_FAIL_PTR_NULL_ARR(malloc_invalid(size), errors, 2);
-```
-
-#### TFAIL on expected failure with (void \*)-1 and multiple errnos
-
-ALWAYS use `TST_EXP_FAIL_PTR_VOID_ARR` when syscall should fail with
-`(void *)-1` and one of several errnos:
-
-```c
-/* WRONG: multiple errno checks with manual MAP_FAILED check */
-TEST(ptr = mmap_invalid(NULL, size, prot, flags, -1, 0));
-if (TST_RET_PTR != MAP_FAILED || (TST_ERR != EINVAL && TST_ERR != ENOMEM))
-    tst_res(TFAIL | TTERRNO, "Expected EINVAL or ENOMEM");
-else
-    tst_res(TPASS | TTERRNO, "mmap_invalid failed as expected");
-
-/* CORRECT: check MAP_FAILED with multiple possible errors */
-int errors[] = {EINVAL, ENOMEM};
-TST_EXP_FAIL_PTR_VOID_ARR(mmap_invalid(NULL, size, prot, flags, -1, 0), errors, 2);
-```
-
-#### TPASS on FD or TFAIL on expected error
-
-ALWAYS use `TST_EXP_FD_OR_FAIL` when syscall should return FD or fail with
-expected errno:
-
-```c
-/* WRONG: manual fd or fail check */
-TEST(fd = open("file", O_RDONLY));
-if (TST_RET == -1 && TST_ERR == ENOENT)
-    tst_res(TPASS | TTERRNO, "open failed as expected");
-else if (TST_RET < 0)
-    tst_res(TFAIL | TTERRNO, "Unexpected error");
-else
-    tst_res(TPASS, "open returned fd %ld", TST_RET);
-
-/* CORRECT: use TST_EXP_FD_OR_FAIL */
-int fd = TST_EXP_FD_OR_FAIL(open("file", O_RDONLY), ENOENT);
-```
-
-#### TPASS on boolean expression
-
-ALWAYS use `TST_EXP_EXPR` for boolean expression checks:
-
-```c
-/* WRONG: manual expression check */
-if (uid > 0 && gid > 0)
-    tst_res(TPASS, "IDs are valid");
-else
-    tst_res(TFAIL, "IDs are invalid");
-
-/* CORRECT: use TST_EXP_EXPR */
-TST_EXP_EXPR(uid > 0 && gid > 0, "IDs should be positive");
-```
+**`TST_EXP_FAIL` vs `TST_EXP_FAIL2`:** use `TST_EXP_FAIL` when the syscall
+returns 0 on success (e.g. `close`, `chmod`). Use `TST_EXP_FAIL2` when it
+returns a positive value on success (e.g. `open`, `fork`, `read`).
 
 #### TBROK for syscall failures, not TINFO | TERRNO
 
@@ -1091,151 +724,27 @@ if (ptr == MAP_FAILED) {
 }
 ```
 
-#### Prefer TST_EXP_PASS over TEST() with manual success check
-
-When a `TST_EXP_*` macro can replace a `TEST()` + `if/else` +
-`tst_res()` block, ALWAYS prefer the macro. `TEST()` is still
-appropriate when the test needs custom logic beyond what any
-`TST_EXP_*` macro provides (e.g. multiple side-effect checks after
-one syscall).
-
-```c
-/* WRONG: TEST() with manual success check */
-TEST(syscall(args));
-
-if (TST_RET == -1) {
-    tst_res(TFAIL | TTERRNO, "syscall failed");
-    return;
-}
-
-tst_res(TPASS, "syscall returned %ld", TST_RET);
-
-/* CORRECT: use TST_EXP_PASS */
-TST_EXP_PASS(syscall(args));
-```
-
-#### Prefer TST_EXP_EQ_SSZ over TEST() with manual size comparison
-
-```c
-/* WRONG: manual size comparison after TEST() */
-TEST(syscall(args));
-
-if (TST_RET != expected_size) {
-    tst_res(TFAIL, "syscall returned %ld, expected %d", TST_RET, expected_size);
-    return;
-}
-
-tst_res(TPASS, "syscall returned expected size");
-
-/* CORRECT: use TST_EXP_PASS + TST_EXP_EQ_SSZ */
-TST_EXP_PASS(syscall(args));
-TST_EXP_EQ_SSZ(TST_RET, expected_size);
-```
-
-#### Prefer TST_EXP_EQ_STRN over manual memcmp
-
-```c
-/* WRONG: manual memcmp with tst_res */
-if (memcmp(write_buf, read_buf, SIZE)) {
-    tst_res(TFAIL, "data mismatch");
-    return;
-}
-
-tst_res(TPASS, "data matches");
-
-/* CORRECT: use TST_EXP_EQ_STRN */
-TST_EXP_EQ_STRN(write_buf, read_buf, SIZE);
-```
-
-#### Prefer TST_EXP_EQ_STR over manual strcmp
-
-```c
-/* WRONG: manual strcmp with tst_res */
-if (strcmp(buf, expected)) {
-    tst_res(TFAIL, "string mismatch");
-    return;
-}
-
-tst_res(TPASS, "string matches");
-
-/* CORRECT: use TST_EXP_EQ_STR */
-TST_EXP_EQ_STR(buf, expected);
-```
-
 ### Memory Allocations
 
-#### Release mmap() allocations
+#### Release memory allocations in cleanup
 
-NEVER leave `mmap()` allocations without `munmap()` in cleanup:
-
-```c
-/* WRONG: mmap'd memory not released in cleanup */
-static void *addr = NULL;
-
-static void setup(void) {
-    addr = SAFE_MMAP(NULL, size, prot, flags, fd, 0);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    /* WRONG: missing .cleanup to munmap */
-    .test_all = run,
-};
-```
-
-ALWAYS `munmap()` in cleanup when `mmap()` in `setup()`:
+Memory allocated in `setup()` MUST be released in `cleanup()`. This applies
+to `mmap()` / `SAFE_MMAP()` (use `SAFE_MUNMAP()`) and `malloc()` /
+`SAFE_MALLOC()` (use `free()`):
 
 ```c
 /* CORRECT: mmap resources released in cleanup */
 static void *addr = NULL;
 
-static void setup(void) {
+static void setup(void)
+{
     addr = SAFE_MMAP(NULL, size, prot, flags, fd, 0);
 }
 
-static void cleanup(void) {
+static void cleanup(void)
+{
     if (addr != NULL)
         SAFE_MUNMAP(addr, size);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    .cleanup = cleanup,
-    .test_all = run,
-};
-```
-
-#### Release malloc() allocations
-
-NEVER leave malloc'd memory without `free()` in cleanup:
-
-```c
-/* WRONG: malloc'd memory not released in cleanup */
-static char *buffer = NULL;
-
-static void setup(void) {
-    buffer = SAFE_MALLOC(size);
-}
-
-static struct tst_test test = {
-    .setup = setup,
-    /* WRONG: missing .cleanup to free */
-    .test_all = run,
-};
-```
-
-ALWAYS `free()` in cleanup when `malloc()`:
-
-```c
-/* CORRECT: malloc resources released in cleanup */
-static char *buffer = NULL;
-
-static void setup(void) {
-    buffer = SAFE_MALLOC(size);
-}
-
-static void cleanup(void) {
-    free(buffer);
 }
 
 static struct tst_test test = {
