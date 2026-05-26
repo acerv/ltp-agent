@@ -138,7 +138,9 @@ on static variable re-initialization).
 ### 11. Cleanup
 
 - Cleanup MUST run on ALL exit paths
-- MUST unmount, restore sysctls, delete temp files, kill processes
+- MUST unmount, restore sysctls, delete temp files, kill processes,
+  and remove SysV IPC objects (shared memory, semaphores, message queues
+  persist after the process exits and MUST be removed with `IPC_RMID`)
 
 ### 12. Static Variables
 
@@ -1249,4 +1251,55 @@ static void run(void)
 {
     /* use buf_size directly */
 }
+```
+
+### Save/Restore for sysctl and proc values
+
+NEVER manually save and restore `/proc` or `/sys` values in
+setup/cleanup. ALWAYS use `.save_restore` in `struct tst_test`:
+
+```c
+/* WRONG: manual save/restore */
+static char old_val[64];
+
+static void setup(void)
+{
+    SAFE_FILE_SCANF("/proc/sys/kernel/core_pattern", "%s", old_val);
+    SAFE_FILE_PRINTF("/proc/sys/kernel/core_pattern", "./core");
+}
+
+static void cleanup(void)
+{
+    SAFE_FILE_PRINTF("/proc/sys/kernel/core_pattern", "%s", old_val);
+}
+```
+
+```c
+/* CORRECT: framework handles save/restore automatically */
+static struct tst_test test = {
+    .test_all = run,
+    .save_restore = (const struct tst_path_val[]) {
+        {"/proc/sys/kernel/core_pattern", "./core", TST_SR_TCONF},
+        {},
+    },
+};
+```
+
+### TCONF for unsupported features
+
+MUST return `TCONF` (not `TFAIL`) when a syscall or feature is
+unavailable at runtime:
+
+```c
+/* WRONG: TFAIL for unsupported feature */
+TEST(syscall(__NR_foo, args));
+if (TST_RET == -1 && TST_ERR == ENOSYS)
+    tst_res(TFAIL, "foo() not supported");
+```
+
+```c
+/* CORRECT: TCONF for unsupported feature */
+TEST(syscall(__NR_foo, args));
+if (TST_RET == -1 && TST_ERR == ENOSYS)
+    tst_brk(TCONF, "foo() not supported");
 ```
