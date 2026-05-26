@@ -307,6 +307,27 @@ def check_supported_archs(lines):
             return
 
 
+@rule("Use exit() instead of _exit() in child blocks")
+def check_exit_in_child(lines):
+    """
+    Flag _exit() in forked child blocks. LTP requires exit() so the
+    framework can propagate tst_res() results from child to parent.
+    """
+    pattern = re.compile(r"\b_exit\s*\(")
+
+    for line_num, line in enumerate(lines, 1):
+        stripped = line.lstrip()
+        if stripped.startswith("//") or stripped.startswith("*"):
+            continue
+
+        if pattern.search(line):
+            yield (
+                line_num,
+                "use exit() instead of _exit() — _exit() bypasses "
+                "LTP result propagation from child to parent",
+            )
+
+
 @rule("Missing .needs_kconfigs", scope="c_only")
 def check_needs_kconfigs(lines):
     """

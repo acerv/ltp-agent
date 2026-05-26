@@ -7,6 +7,7 @@ from rules_c import (
     check_copyright,
     check_description_tag,
     check_doc_comment,
+    check_exit_in_child,
     check_fd_init,
     check_fd_reset_after_safe_close,
     check_fd_validity,
@@ -460,6 +461,50 @@ class TestCheckNeedsTmpdir:
         """
         lines = ["\tSAFE_OPEN(devpath, O_RDWR);\n"]
         assert list(check_needs_tmpdir(lines)) == []
+
+
+class TestCheckExitInChild:
+    """
+    Tests for the exit() vs _exit() rule.
+    """
+
+    def test_exit_used(self):
+        """
+        Verify no finding when exit(0) is used.
+        """
+        lines = ["\t\texit(0);\n"]
+        assert list(check_exit_in_child(lines)) == []
+
+    def test_underscore_exit_flagged(self):
+        """
+        Verify finding when _exit() is used.
+        """
+        lines = ["\t\t_exit(0);\n"]
+        results = list(check_exit_in_child(lines))
+        assert len(results) == 1
+        assert "exit()" in results[0][1]
+
+    def test_underscore_exit_nonzero(self):
+        """
+        Verify finding when _exit(1) is used.
+        """
+        lines = ["\t\t_exit(1);\n"]
+        results = list(check_exit_in_child(lines))
+        assert len(results) == 1
+
+    def test_comment_skipped(self):
+        """
+        Verify that _exit in comments is ignored.
+        """
+        lines = ["// _exit(0);\n"]
+        assert list(check_exit_in_child(lines)) == []
+
+    def test_doc_comment_skipped(self):
+        """
+        Verify that _exit in doc comments is ignored.
+        """
+        lines = [" * _exit(0) should not be used\n"]
+        assert list(check_exit_in_child(lines)) == []
 
 
 class TestCheckCleanupFnParam:

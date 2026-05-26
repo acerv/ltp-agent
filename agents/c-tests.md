@@ -1164,7 +1164,12 @@ if (!child_pid) {
 /* parent code */
 ```
 
-ALWAYS call `exit(0)` at the end of the child block:
+ALWAYS call `exit(0)` at the end of the child block.
+
+`[LINTER]` MUST NOT use `_exit()` — use `exit(0)` instead so the LTP
+framework can propagate test results from child to parent.
+
+Example:
 
 ```c
 /* CORRECT: child always exits explicitly */
