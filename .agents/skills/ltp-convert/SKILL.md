@@ -87,6 +87,9 @@ from `c-tests.md` as the authoritative guide.
 | `TEST_ERRNO`                                 | `TST_ERR`                                      |
 | `tst_fork()`                                 | `SAFE_FORK()`                                  |
 | `SAFE_*(cleanup, ...)` (old cleanup arg)     | `SAFE_*(...)` (no cleanup arg)                 |
+| `tst_tmpdir()` / `tst_rmdir()`              | `.needs_tmpdir = 1` (remove calls)             |
+| `tst_sig(...)` / `TEST_PAUSE`               | Remove entirely                                |
+| Explicit `waitpid()` for child reaping       | Remove (framework calls `tst_reap_children()`) |
 | Old GPL boilerplate header                   | `// SPDX-License-Identifier: GPL-2.0-or-later` |
 | Old-style doc comment                        | `/*\` RST-formatted doc comment                |
 
@@ -135,121 +138,13 @@ or into per-iteration logic inside `verify(unsigned int n)`.
 **`cleanup()` parameter removal.** All `SAFE_*` macros in the new API do NOT
 take a cleanup function pointer. Remove the `cleanup` argument everywhere.
 
-### 3.3 Resource and Cleanup Rules
+### 3.3 All Other Rules
 
-Follow `c-tests.md` and `ground-rules.md` exactly:
+Apply ALL rules from `c-tests.md` and `ground-rules.md` to the converted
+code — resource cleanup, result reporting, `HAVE_*` guards, fd handling,
+`TST_EXP_*` macros, etc. These files are already loaded from Phase 1.
 
-- All file descriptors MUST be initialised to `-1` and closed in `cleanup()`
-- Use `.needs_tmpdir = 1` for any temp files
-- Use `.forks_child = 1` if the test forks
-- Use `.needs_root = 1` only if truly required; document why in the doc comment
-- Cleanup MUST run on ALL exit paths (the framework calls cleanup on `tst_brk`)
-
-### 3.4 Result Reporting
-
-Apply `c-tests.md` result-reporting rules:
-
-- Use `TST_EXP_FAIL` / `TST_EXP_FAIL2` instead of manual errno checks
-- Use `TST_EXP_EQ_LI`, `TST_EXP_EQ_STR`, etc. for equality checks
-- Use `TST_EXP_FD` when checking fd return values
-- Return `TCONF` (not `TFAIL`) when a feature is unavailable
-
-### 3.5 Conversion Examples
-
-#### `HAVE_*` Feature Guards
-
-The `#ifdef HAVE_*` MUST wrap ALL test code at file level — never inside
-individual functions. `struct tst_test` goes inside the `#ifdef`. The `#else`
-uses `TST_TEST_TCONF("...")` with a human-readable literal string (never a
-macro like `NUMA_ERROR_MSG`).
-
-If a support `.c` file's entire body depends on the same flag, use one
-top-level `#ifdef` wrapping the whole file — never scatter per-function guards.
-
-If the old test guards logic inside a function with an `#else` fallback, lift
-it to file level:
-
-```c
-/* OLD: guard inside function body */
-#include "test.h"
-#include "move_pages_support.h"
-
-static void run(void)
-{
-#ifdef HAVE_NUMA_V2
-    /* test logic */
-#else
-    tst_res(TCONF, NUMA_ERROR_MSG);
-#endif
-}
-
-static struct tst_test test = { .test_all = run };
-```
-
-```c
-/* NEW: guard at file level */
-#include "tst_test.h"
-#include "move_pages_support.h"
-
-#ifdef HAVE_NUMA_V2
-
-static void run(void)
-{
-    /* test logic */
-}
-
-static struct tst_test test = { .test_all = run };
-
-#else
-TST_TEST_TCONF("numa v2 is not supported");
-#endif
-```
-
-If the original test has a `HAVE_*` guard on an optional header, preserve it:
-
-```c
-/* OLD: two separate #ifdef blocks and old fallback main() */
-#include "config.h"
-#ifdef HAVE_SYS_XATTR_H
-# include <sys/xattr.h>
-#endif
-#include "test.h"
-
-#ifdef HAVE_SYS_XATTR_H
-/* test code */
-
-int main(int ac, char **av)
-{
-    /* ... */
-}
-#else
-int main(int ac, char **av)
-{
-    tst_brkm(TCONF, NULL, "<sys/xattr.h> does not exist.");
-}
-#endif
-```
-
-```c
-/* NEW: single #ifdef covering include and all test code */
-#include "config.h"
-#include "tst_test.h"
-
-#ifdef HAVE_SYS_XATTR_H
-# include <sys/xattr.h>
-
-/* test code */
-
-static struct tst_test test = {
-    .test_all = run,
-};
-
-#else
-TST_TEST_TCONF("<sys/xattr.h> does not exist");
-#endif
-```
-
-### 3.6 One Commit Per File
+### 3.4 One Commit Per File
 
 Each converted file MUST be committed separately using `git commit -s` to
 automatically add the correct `Signed-off-by` from the git config:
@@ -268,11 +163,14 @@ Run in this exact order. Fix any errors before proceeding.
 
 ```bash
 # Checkpatch
-make -C testcases/kernel/syscalls/<syscall> check-<testname>
+make -C <test-directory> check-<testname>
 
 # Compile
-make -C testcases/kernel/syscalls/<syscall> <testname>
+make -C <test-directory> <testname>
 ```
+
+Where `<test-directory>` is the directory containing the test (e.g.
+`testcases/kernel/syscalls/open`, `testcases/kernel/fs/ftest`).
 
 If either step fails, fix the issue and re-run before continuing.
 
@@ -281,7 +179,7 @@ If either step fails, fix the issue and re-run before continuing.
 ## Phase 5: Runtime Check
 
 ```bash
-cd testcases/kernel/syscalls/<syscall>
+cd <test-directory>
 
 ./<testname> -i 0
 ./<testname> -i 10
@@ -305,40 +203,3 @@ parametrization style."
 If the reviewer returns **Needs revision**, fix every issue listed, then
 re-run Phase 4 (build) and Phase 5 (runtime) before invoking `/ltp-review`
 again. Repeat until the reviewer returns **Approved**.
-
----
-
-## Phase 7: Output
-
-Report to the user in this format:
-
-```
-## Conversion: <testname>
-
-### Analysis
-- Test purpose: <one line>
-- Test cases: <N cases, what they test>
-- Old API constructs replaced: <list>
-
-### Changes Made
-- <change 1>
-- <change 2>
-- ...
-
-### Build
-- Checkpatch: ✅/❌
-- Compiles: ✅/❌
-
-### Runtime
-- Tests pass (-i 0): ✅/❌/UNKNOWN
-- Tests pass (-i 10): ✅/❌/UNKNOWN
-- Tests pass (-i 100): ✅/❌/UNKNOWN
-
-### Reviewer Output
-<output from /ltp-review>
-
-### Verdict
-**Done** ✅ / **Blocked** ❌
-
-<one-line reason if blocked>
-```
