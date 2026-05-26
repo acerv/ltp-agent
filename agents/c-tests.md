@@ -296,7 +296,6 @@ static void run(void)
     /* test logic */
 }
 #endif
-};
 ```
 
 CORRECT: use `.supported_archs` in `struct tst_test`:
@@ -727,11 +726,11 @@ if (ptr == MAP_FAILED) {
 }
 
 /* CORRECT: use TBROK | TERRNO for syscall errors */
-fd = open(path, O_RDWR);
+fd = SAFE_OPEN(path, O_RDWR);
 if (fd < 0)
     tst_brk(TBROK | TERRNO, "open failed");
 
-ptr = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+ptr = SAFE_MMAP(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
 if (ptr == MAP_FAILED) {
     SAFE_CLOSE(fd);
     tst_brk(TBROK | TERRNO, "mmap failed");
