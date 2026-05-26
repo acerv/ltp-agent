@@ -120,7 +120,6 @@ jobs:
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_TOKEN }}
           LATEST_KERNEL: ${{ steps.kver.outputs.version }}
-          REVIEW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -o pipefail
 
@@ -137,20 +136,21 @@ jobs:
             --allow-tool='shell(git rev-parse:*)' \
             --allow-tool='shell(git format-patch:*)' \
             --allow-tool='shell(man:*)' \
+            --allow-tool='shell(linter/ltp-linter:*)' \
             --allow-tool='read(${{ github.workspace }}/ltp/*)' \
             --allow-tool='read(${{ github.workspace }}/ltp-agent/*)' \
             --allow-tool='read(/usr/src/linux/*)' \
+            --allow-tool='write(${{ github.workspace }}/ltp/review-inline.txt)' \
             --no-ask-user \
-            $SILENT_FLAG \
-            | tee /tmp/review-output.txt
+            $SILENT_FLAG
 
-          # Extract verdict for Patchwork check
-          if grep -qi "Approved" /tmp/review-output.txt; then
+          # Extract verdict from review-inline.txt
+          if [ -f review-inline.txt ] && grep -qi "Approved" review-inline.txt; then
             echo "verdict=success" >> "$GITHUB_OUTPUT"
             echo "description=Approved" >> "$GITHUB_OUTPUT"
           else
             echo "verdict=warning" >> "$GITHUB_OUTPUT"
-            if grep -qi "Needs discussion" /tmp/review-output.txt; then
+            if [ -f review-inline.txt ] && grep -qi "Needs discussion" review-inline.txt; then
               echo "description=Needs discussion" >> "$GITHUB_OUTPUT"
             else
               echo "description=Needs revision" >> "$GITHUB_OUTPUT"
@@ -159,7 +159,11 @@ jobs:
 
           echo "---" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          cat /tmp/review-output.txt >> "$GITHUB_STEP_SUMMARY"
+          if [ -f review-inline.txt ]; then
+            cat review-inline.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No review output produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Post results to Patchwork
         if: always()
@@ -204,12 +208,12 @@ jobs:
             exit 0
           fi
 
-          body=$(sed -n '/^Hi /,$ p' /tmp/review-output.txt)
-
-          if [ -z "$body" ]; then
-            echo "Could not extract email body, skipping email send"
+          if [ ! -f review-inline.txt ]; then
+            echo "review-inline.txt not found, skipping email send"
             exit 0
           fi
+
+          body=$(cat review-inline.txt)
 
           submitter="${{ steps.series.outputs.submitter }}"
           msgid="${{ steps.series.outputs.msgid }}"

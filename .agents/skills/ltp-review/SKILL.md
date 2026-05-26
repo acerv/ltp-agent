@@ -61,6 +61,16 @@ that related entries (runtest, .gitignore, Makefile) are also removed.
 (runtest/\*, Makefile, .gitignore, doc/, ci/, scripts/), skip the code review
 checklist. Only review commit messages and verify the changes are correct.
 
+### Step 1.4: Run Linter
+
+Run the linter on changed files:
+
+    linter/ltp-linter -b 2>/dev/null
+
+Include any linter findings as inline comments in the email output
+(Phase 4). Rules marked `[LINTER]` in the agent files are covered by
+the linter — do NOT re-check them.
+
 ## Phase 2: Commit Message Review
 
 Read `agents/commit-message.md` and apply ALL rules to each commit
@@ -159,8 +169,11 @@ Apply ALL rules from `agents/openposix.md` (loaded in Step 1.3).
 ## Phase 4: Output
 
 Compose a plain-text inline email review reply in the style of Linux kernel
-mailing list responses. This is the ONLY output — do not print a structured
-review before the email.
+mailing list responses.
+
+**CRITICAL**: Your entire response MUST start with `Hi `. Do NOT print
+any text before the email — no preamble, no introduction, no summary.
+Do NOT print any text after the postamble.
 
 ### Format rules
 
@@ -170,8 +183,7 @@ review before the email.
   separated by a blank line before and after.
 - Do NOT quote the entire patch — only quote the lines directly relevant to
   each comment. Use `[...]` to indicate skipped context.
-- If the verdict is Approved, say so clearly and add a
-  `Reviewed-by:` trailer using git config user details.
+- If the verdict is Approved, say so clearly and nothing else.
 - If the verdict is Needs revision, list each issue inline in the patch
   and close with a brief summary of what needs fixing.
 - If the verdict is Needs discussion, raise the open question clearly.
@@ -181,7 +193,9 @@ review before the email.
 - Be terse. Kernel mailing list replies are short and to the point.
 - Each inline comment should be 1-2 sentences max.
 - Do NOT repeat what the code already shows.
-- Do NOT add filler like "Good improvement" or "The rest looks correct".
+- Do NOT add filler or praise. If something is correct, say nothing about it.
+- Do NOT summarize what passed. Only mention issues or actionable
+  observations. An approved patch with no issues doesn't need commentary.
 - Positive feedback is only included if it adds information (e.g. "Tested
   on x86_64 with -i 100, all pass").
 
@@ -203,8 +217,8 @@ On <date>, <author> wrote:
 
 [...]
 
-[if Approved:]
-Reviewed-by: LTP AI Reviewer <ltp-ai@noreply.github.com>
+[if no issues:]
+All good. Approved.
 
 <postamble>
 ```
@@ -213,7 +227,7 @@ Reviewed-by: LTP AI Reviewer <ltp-ai@noreply.github.com>
 
 One email replying to the first patch. Use `--- [PATCH N/M] ---` markers
 between per-patch comments. Only include patches that have findings.
-If ALL patches are approved, omit markers and include a single Reviewed-by.
+If ALL patches are approved, omit markers.
 
 ### Postamble
 
@@ -223,9 +237,6 @@ Every email MUST end with:
 ---
 Note:
 
-Our agent completed the review of the patch. The full review can be
-found at: <review_url>
-
 The agent can sometimes produce false positives although often its
 findings are genuine. If you find issues with the review, please
 comment this email or ignore the suggestions.
@@ -233,9 +244,6 @@ comment this email or ignore the suggestions.
 Regards,
 LTP AI Reviewer
 ```
-
-`<review_url>` is built from the environment variable `REVIEW_URL` if
-set, otherwise omit the "The full review can be found at:" sentence.
 
 ### Pre-existing issues
 
@@ -251,12 +259,6 @@ by this patch):
 
 If none were noticed, do NOT include this block.
 
-### Smoke test findings
-
-If `/ltp-review-smoke` was run before this review, incorporate any
-runtime findings as additional inline comments. If smoke test passed,
-mention it in the closing.
-
 ### Decision Rules
 
 - ANY ground rule violation → Needs revision
@@ -264,3 +266,8 @@ mention it in the closing.
 - ANY test rule violation (C, shell, or Open POSIX) → Needs revision
 - All checks pass → Approved
 - Uncertain about rule → Needs discussion
+
+## Phase 5: Write Output File
+
+Write the email body from Phase 4 (from `Hi ` through `LTP AI Reviewer`)
+to `./review-inline.txt`. Create the file, do not append.

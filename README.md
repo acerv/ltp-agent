@@ -102,17 +102,6 @@ With the patch applied, invoke the review skill inside your agent:
 This performs a deep code review against all LTP rules (ground rules, C test
 rules, shell test rules, or Open POSIX rules depending on the files changed).
 
-### Smoke Testing a Patch
-
-After applying a patch, run:
-
-```
-/ltp-review-smoke
-```
-
-This compiles the changed tests, runs them with increasing iteration counts
-(`-i 0`, `-i 10`, `-i 100`), and analyzes any build or runtime failures.
-
 ### Converting Old Tests to New API
 
 To convert a test from the legacy `test.h` API to the modern `tst_test.h` API:

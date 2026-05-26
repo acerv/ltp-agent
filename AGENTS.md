@@ -82,13 +82,6 @@ patchwork/lore URL.
 
 **Action**: Run the `/ltp-review` skill.
 
-### Task: Smoke Test
-
-**Trigger**: User requests a smoke test, build test, or runtime test of a
-patch.
-
-**Action**: Run the `/ltp-review-smoke` skill.
-
 ### Task: Convert Old Test API
 
 **Trigger**: User requests converting a test from old API (`test.h`) to new

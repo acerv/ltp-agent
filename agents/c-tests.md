@@ -57,9 +57,9 @@ When reviewing or writing C tests, verify ALL of the following:
 
 ### 2. API Usage
 
-- MUST use new API (`tst_test.h`), NOT old API (`test.h`)
-- MUST NOT define `main()` (unless `TST_NO_DEFAULT_MAIN` is used)
-- MUST use `struct tst_test` for configuration
+- `[LINTER]` MUST use new API (`tst_test.h`), NOT old API (`test.h`)
+- `[LINTER]` MUST NOT define `main()` (unless `TST_NO_DEFAULT_MAIN` is used)
+- `[LINTER]` MUST use `struct tst_test` for configuration
 - Handlers MUST be thin; logic goes in `.setup` and `.cleanup` callbacks
 
 ### 3. Test Execution Model
@@ -103,7 +103,7 @@ on static variable re-initialization).
 - Syscall tests go under `testcases/kernel/syscalls/`
 - Entry MUST exist in appropriate `runtest/` file
 - Sub-executables MUST use `$TESTNAME_` prefix
-- MUST use `.needs_tmpdir = 1` for temp files (work in current directory)
+- `[LINTER]` MUST use `.needs_tmpdir = 1` for temp files (work in current directory)
 
 ### 7. Result Reporting
 
@@ -153,11 +153,11 @@ on static variable re-initialization).
 ### 14. String Handling
 
 - MUST use `snprintf()` when combining strings
-- MUST use `PATH_MAX` for path buffers, NOT custom size macros
+- MUST use `PATH_MAX` for path buffers, NOT custom size macros (see Path Buffers)
 
 ### 15. Architecture-Specific Tests
 
-- MUST use `.supported_archs` in `struct tst_test` when the target architectures
+- `[LINTER]` MUST use `.supported_archs` in `struct tst_test` when the target architectures
   are supported by the framework (see `lib/tst_arch.c`)
 - `#if defined(...)` arch guards are only acceptable when the target architecture
   is not supported by the framework
@@ -235,7 +235,7 @@ made requires explanation beyond what the subject line conveys.
 
 ### 18. Deprecated Features
 
-- MUST NOT define `[Description]` in the test description section
+- `[LINTER]` MUST NOT define `[Description]` in the test description section
 
 ### 19. Test high-level description
 
@@ -281,7 +281,7 @@ rewriting old LTP tests or when writing new LTP tests.
 
 ALWAYS follow these rules.
 
-### Architecture-Specific Tests
+### Architecture-Specific Tests `[LINTER]`
 
 When the target architectures are supported by the framework, do NOT use
 preprocessor arch guards:
@@ -313,7 +313,7 @@ static struct tst_test test = {
 
 ### LTP API usage
 
-#### Use the correct import
+#### Use the correct import `[LINTER]`
 
 ```c
 /* WRONG: this is importing legacy API */
@@ -342,7 +342,7 @@ int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
 
 ### New SAFE\_\* macros definition
 
-#### Don't use `cleanup_fn` in newly added `safe_*` definitions
+#### Don't use `cleanup_fn` in newly added `safe_*` definitions `[LINTER]`
 
 ```c
 /* WRONG: cleanup_fn is used in the legacy LTP API */
@@ -380,7 +380,7 @@ void *safe_mysyscall(const char *file, const int lineno,
 }
 ```
 
-### Temporary folder
+### Temporary folder `[LINTER]`
 
 Tests that create files MUST set `.needs_tmpdir = 1` in `struct tst_test`.
 The framework creates a temporary directory and `chdir`s into it before
@@ -397,7 +397,7 @@ static struct tst_test test = {
 
 ### File descriptors
 
-#### Initialization and cleanup
+#### Initialization and cleanup `[LINTER]`
 
 File descriptors MUST be initialized to `-1` (not left as `0`, which is
 stdin) and MUST be closed in `cleanup()` with a `fd != -1` guard:
@@ -429,7 +429,7 @@ static struct tst_test test = {
 };
 ```
 
-#### No manual reset after SAFE_CLOSE
+#### No manual reset after SAFE_CLOSE `[LINTER]`
 
 `SAFE_CLOSE()` is a macro that calls `safe_close()` AND sets the passed
 argument file descriptor to `-1` in a single step. This applies everywhere in
@@ -521,7 +521,7 @@ static struct tst_test test = {
 };
 ```
 
-#### Use `fd != -1` to check file descriptor validity
+#### Use `fd != -1` to check file descriptor validity `[LINTER]`
 
 NEVER use `fd >= 0` or `fd > 0` to check whether a file descriptor is valid:
 
@@ -1032,7 +1032,7 @@ Note: `PATH_MAX` is for **full paths**. For buffers holding only a **filename**
 `struct inotify_event.name` stores a filename, so `NAME_MAX + 1` is correct
 there — not `PATH_MAX`.
 
-### Kernel Config Dependencies
+### Kernel Config Dependencies `[LINTER]`
 
 NEVER manually check for kernel config features by handling ioctl/syscall
 errors at runtime when `.needs_kconfigs` can be used:
@@ -1078,7 +1078,7 @@ static struct tst_test test = {
 
 ### Using Syscalls
 
-#### Using tst_syscall
+#### Using tst_syscall `[LINTER]`
 
 NEVER call plain syscalls:
 

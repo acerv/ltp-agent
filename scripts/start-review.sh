@@ -153,38 +153,29 @@ log ""
 
 PROMPT="Run the /ltp-review skill."
 
-case "$AGENT" in
-gemini)
-	if [ "$INTERACTIVE" -eq 1 ]; then
-		gemini -i "$PROMPT"
-	elif [ "$VERBOSE" -eq 1 ]; then
-		gemini -p "$PROMPT"
-	else
-		gemini -p "$PROMPT" 2>/dev/null
-	fi
-	;;
-claude)
-	if [ "$INTERACTIVE" -eq 1 ]; then
-		claude "$PROMPT" \
-			--allowedTools "Bash(git:*)" \
-			"Bash(grep:*)" "Read"
-	elif [ "$VERBOSE" -eq 1 ]; then
-		claude -p "$PROMPT" \
-			--allowedTools "Bash(git:*)" \
-			"Bash(grep:*)" "Read"
-	else
-		claude -p "$PROMPT" \
-			--allowedTools "Bash(git:*)" \
-			"Bash(grep:*)" "Read" 2>/dev/null
-	fi
-	;;
-opencode)
-	if [ "$INTERACTIVE" -eq 1 ]; then
-		opencode "$PROMPT"
-	elif [ "$VERBOSE" -eq 1 ]; then
-		opencode run "$PROMPT"
-	else
-		opencode run "$PROMPT" 2>/dev/null
-	fi
-	;;
-esac
+CLAUDE_TOOLS="--allowedTools Bash(git:*) Bash(grep:*) Bash(linter/ltp-linter:*) Read Write(//tmp/**/review-inline.txt)"
+
+if [ "$INTERACTIVE" -eq 1 ]; then
+	case "$AGENT" in
+	gemini)   gemini -i "$PROMPT" ;;
+	claude)   claude "$PROMPT" $CLAUDE_TOOLS ;;
+	opencode) opencode "$PROMPT" ;;
+	esac
+	exit $?
+fi
+
+if [ "$VERBOSE" -eq 1 ]; then
+	case "$AGENT" in
+	gemini)   gemini -p "$PROMPT" ;;
+	claude)   claude -p "$PROMPT" $CLAUDE_TOOLS ;;
+	opencode) opencode run "$PROMPT" ;;
+	esac
+else
+	case "$AGENT" in
+	gemini)   gemini -p "$PROMPT" 2>/dev/null ;;
+	claude)   claude -p "$PROMPT" $CLAUDE_TOOLS 2>/dev/null ;;
+	opencode) opencode run "$PROMPT" 2>/dev/null ;;
+	esac
+fi > /dev/null
+
+cat "$CLONE_DIR/review-inline.txt" 2>/dev/null
