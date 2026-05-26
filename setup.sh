@@ -34,7 +34,7 @@ LTP_DIR="$(cd "$LTP_DIR" && pwd)"
 	die "$LTP_DIR does not look like an LTP repo"
 
 # Create symlinks
-for name in .agents AGENTS.md agents; do
+for name in .agents AGENTS.md agents linter; do
 	target="$AGENT_DIR/$name"
 	link="$LTP_DIR/$name"
 
