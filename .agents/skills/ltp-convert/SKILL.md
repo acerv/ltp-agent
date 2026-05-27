@@ -24,14 +24,7 @@ Read these files before doing anything else:
 `c-tests.md` is the authoritative reference for what the converted test MUST
 look like. Every conversion decision must comply with it.
 
-### Step 1.2: Prepare a Branch
-
-```bash
-git checkout master
-git checkout -b convert/<testname>
-```
-
-### Step 1.3: Confirm the Test Uses the Old API
+### Step 1.2: Confirm the Test Uses the Old API
 
 Before converting, verify the file actually uses the old API:
 
@@ -55,8 +48,6 @@ Read the entire file carefully. Before writing a single line, produce an
 4. **Resources opened** — fds, sockets, temp files, child processes, mounts
 5. **Cleanup path** — what the old `cleanup()` does
 6. **Conversion plan** — ordered list of changes you will make
-
-Show this analysis to the user before making any edits.
 
 ---
 
@@ -87,8 +78,8 @@ from `c-tests.md` as the authoritative guide.
 | `TEST_ERRNO`                                 | `TST_ERR`                                      |
 | `tst_fork()`                                 | `SAFE_FORK()`                                  |
 | `SAFE_*(cleanup, ...)` (old cleanup arg)     | `SAFE_*(...)` (no cleanup arg)                 |
-| `tst_tmpdir()` / `tst_rmdir()`              | `.needs_tmpdir = 1` (remove calls)             |
-| `tst_sig(...)` / `TEST_PAUSE`               | Remove entirely                                |
+| `tst_tmpdir()` / `tst_rmdir()`               | `.needs_tmpdir = 1` (remove calls)             |
+| `tst_sig(...)` / `TEST_PAUSE`                | Remove entirely                                |
 | Explicit `waitpid()` for child reaping       | Remove (framework calls `tst_reap_children()`) |
 | Old GPL boilerplate header                   | `// SPDX-License-Identifier: GPL-2.0-or-later` |
 | Old-style doc comment                        | `/*\` RST-formatted doc comment                |
@@ -144,22 +135,11 @@ Apply ALL rules from `c-tests.md` and `ground-rules.md` to the converted
 code — resource cleanup, result reporting, `HAVE_*` guards, fd handling,
 `TST_EXP_*` macros, etc. These files are already loaded from Phase 1.
 
-### 3.4 One Commit Per File
-
-Each converted file MUST be committed separately using `git commit -s` to
-automatically add the correct `Signed-off-by` from the git config:
-
-```bash
-git commit -s -m "<syscall>/<testname>: convert to new LTP API
-
-<one-line explanation of what the test does>"
-```
-
 ---
 
 ## Phase 4: Build and Check
 
-Run in this exact order. Fix any errors before proceeding.
+Run in this exact order:
 
 ```bash
 # Checkpatch
@@ -172,11 +152,13 @@ make -C <test-directory> <testname>
 Where `<test-directory>` is the directory containing the test (e.g.
 `testcases/kernel/syscalls/open`, `testcases/kernel/fs/ftest`).
 
-If either step fails, fix the issue and re-run before continuing.
+Every error or warning related to the test MUST be fixed.
 
 ---
 
 ## Phase 5: Runtime Check
+
+Run in this exact order:
 
 ```bash
 cd <test-directory>
