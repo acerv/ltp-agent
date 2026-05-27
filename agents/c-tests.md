@@ -51,7 +51,8 @@ When reviewing or writing C tests, verify ALL of the following:
   the kernel coding style rule
 - Identifiers e.g. function, variable, macro names must not start with
   underscore since these are reserved for compiler, kernel, and libc
-- MUST NOT use curly braces around single line statements
+- MUST NOT use curly braces when the body is a single line
+- MUST use curly braces when the body spans multiple lines
 - MUST NOT add comments that describe obvious, i.e. literal translation of what
   the code does into the english
 
