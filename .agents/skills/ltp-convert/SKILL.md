@@ -202,4 +202,4 @@ parametrization style."
 
 If the reviewer returns **Needs revision**, fix every issue listed, then
 re-run Phase 4 (build) and Phase 5 (runtime) before invoking `/ltp-review`
-again. Repeat until the reviewer returns **Approved**.
+again. Repeat until the reviewer returns **Reviewed**.

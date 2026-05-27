@@ -145,9 +145,9 @@ jobs:
             $SILENT_FLAG
 
           # Extract verdict from review-inline.txt
-          if [ -f review-inline.txt ] && grep -qi "Approved" review-inline.txt; then
+          if [ -f review-inline.txt ] && grep -qi "Reviewed" review-inline.txt; then
             echo "verdict=success" >> "$GITHUB_OUTPUT"
-            echo "description=Approved" >> "$GITHUB_OUTPUT"
+            echo "description=Reviewed" >> "$GITHUB_OUTPUT"
           else
             echo "verdict=warning" >> "$GITHUB_OUTPUT"
             if [ -f review-inline.txt ] && grep -qi "Needs discussion" review-inline.txt; then

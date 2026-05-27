@@ -183,7 +183,7 @@ Do NOT print any text after the postamble.
   separated by a blank line before and after.
 - Do NOT quote the entire patch — only quote the lines directly relevant to
   each comment. Use `[...]` to indicate skipped context.
-- If the verdict is Approved, say so clearly and nothing else.
+- If the verdict is Reviewed, say so clearly and nothing else.
 - If the verdict is Needs revision, list each issue inline in the patch
   and close with a brief summary of what needs fixing.
 - If the verdict is Needs discussion, raise the open question clearly.
@@ -218,7 +218,7 @@ On <date>, <author> wrote:
 [...]
 
 [if no issues:]
-All good. Approved.
+All good. Reviewed.
 
 <postamble>
 ```
@@ -264,7 +264,7 @@ If none were noticed, do NOT include this block.
 - ANY ground rule violation → Needs revision
 - ANY commit message violation → Needs revision
 - ANY test rule violation (C, shell, or Open POSIX) → Needs revision
-- All checks pass → Approved
+- All checks pass → Reviewed
 - Uncertain about rule → Needs discussion
 
 ## Phase 5: Write Output File
