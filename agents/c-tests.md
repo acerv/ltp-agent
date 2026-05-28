@@ -77,9 +77,7 @@ and iteration safety.
 
 Because `.setup` and `.cleanup` are one-shot, resources allocated in
 `.setup` and released in `.cleanup` do not need guards against repeated
-calls (e.g. resetting a pointer to `NULL` after `SAFE_MUNMAP()` in
-`.cleanup` is unnecessary — there is no subsequent iteration that could
-double-free it).
+calls.
 
 Conversely, `.test` / `.test_all` may run many times, so any state
 modified during a test iteration MUST be safe for re-entry (see rule 12
@@ -794,6 +792,24 @@ static struct tst_test test = {
     .cleanup = cleanup,
     .test_all = run,
 };
+```
+
+#### No manual reset after SAFE_MUNMAP
+
+Do NOT reset the pointer to `NULL` after `SAFE_MUNMAP()` — the memory is
+already unmapped and the reset is redundant.
+
+WRONG — redundant reset after SAFE_MUNMAP():
+
+```c
+SAFE_MUNMAP(addr, size);
+addr = NULL;
+```
+
+CORRECT - no reset needed:
+
+```c
+SAFE_MUNMAP(addr, size);
 ```
 
 #### Use `.bufs` for tested syscall struct arguments
