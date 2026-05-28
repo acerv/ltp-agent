@@ -1308,3 +1308,38 @@ TEST(syscall(__NR_foo, args));
 if (TST_RET == -1 && TST_ERR == ENOSYS)
     tst_brk(TCONF, "foo() not supported");
 ```
+
+### Helper Binaries (`TST_NO_DEFAULT_MAIN`)
+
+Some `.c` files under `testcases/` are not standalone tests — they are
+helper binaries spawned by tests. They have their own `main()` and are
+NOT listed in any `runtest/` file.
+
+Helper binaries MUST use the new API but MUST NOT use `struct tst_test`.
+Instead, define `TST_NO_DEFAULT_MAIN` before including `tst_test.h`.
+
+```c
+/* WRONG — helper using old API */
+#include "test.h"
+
+char *TCID = "myhelper";
+int TST_TOTAL = 1;
+
+int main(int argc, char *argv[])
+{
+    tst_parse_opts(argc, argv, NULL, NULL);
+    tst_resm(TINFO, "helper running");
+    tst_exit();
+}
+```
+
+```c
+/* CORRECT — helper using new API with `TST_NO_DEFAULT_MAIN` */
+#define TST_NO_DEFAULT_MAIN
+#include "tst_test.h"
+
+int main(int argc, char *argv[])
+{
+    tst_res(TINFO, "helper running");
+}
+```
