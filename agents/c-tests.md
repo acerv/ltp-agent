@@ -1362,6 +1362,57 @@ if (TST_RET == -1 && TST_ERR == ENOSYS)
     tst_brk(TCONF, "foo() not supported");
 ```
 
+### TST_TEST_TCONF Placement
+
+`TST_TEST_TCONF(message)` provides an alternative `struct tst_test` that makes
+the test immediately exit with TCONF. Because it is a struct definition, strict
+placement rules apply:
+
+- MUST appear at **file scope** only — never inside a function body
+- MUST be inside an `#else` branch of a preprocessor conditional, immediately
+  followed by `#endif`
+- MUST use a **literal string**, not a macro constant (e.g. `NUMA_ERROR_MSG`)
+- MUST be the **only** `struct tst_test` in its compilation path — the normal
+  `struct tst_test test = {...}` goes in the `#ifdef` branch,
+  `TST_TEST_TCONF` goes in the `#else` branch (mutual exclusion is enforced
+  by the compiler)
+
+WRONG — TST_TEST_TCONF inside a function body:
+
+```c
+#ifndef HAVE_LIBCAP
+static void run(void)
+{
+    TST_TEST_TCONF("System is missing libcap");
+}
+#endif
+```
+
+WRONG — macro constant instead of literal string:
+
+```c
+#else
+TST_TEST_TCONF(NUMA_ERROR_MSG);
+#endif
+```
+
+CORRECT — file scope, literal string, in `#else` before `#endif`:
+
+```c
+#ifdef HAVE_LIBCAP
+
+static void run(void)
+{
+    /* test logic */
+}
+
+static struct tst_test test = { .test_all = run };
+
+#else
+TST_TEST_TCONF("test requires libcap development packages");
+#endif
+```
+
 ### Helper Binaries (`TST_NO_DEFAULT_MAIN`)
 
 Some `.c` files under `testcases/` are not standalone tests — they are
