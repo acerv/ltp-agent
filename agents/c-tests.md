@@ -289,8 +289,9 @@ ALWAYS follow these rules.
 When the target architectures are supported by the framework, do NOT use
 preprocessor arch guards:
 
+WRONG — preprocessor arch guards instead of .supported_archs:
+
 ```c
-/* WRONG: use .supported_archs instead when architectures are supported by the framework */
 #if defined(__i386__) || defined(__x86_64__)
 static void run(void)
 {
@@ -299,10 +300,9 @@ static void run(void)
 #endif
 ```
 
-CORRECT: use `.supported_archs` in `struct tst_test`:
+CORRECT — use `.supported_archs` in `struct tst_test`:
 
 ```c
-/* CORRECT: runtime arch check via the framework */
 static struct tst_test test = {
     .test_all = run,
     .supported_archs = (const char *const []) {
@@ -317,11 +317,15 @@ static struct tst_test test = {
 
 #### Use the correct import `[LINTER]`
 
-```c
-/* WRONG: this is importing legacy API */
-#include "test.h"
+WRONG — importing legacy API:
 
-/* CORRECT: use new LTP API*/
+```c
+#include "test.h"
+```
+
+CORRECT — use new LTP API:
+
+```c
 #include "tst_test.h"
 ```
 
@@ -331,14 +335,18 @@ ALWAYS verify that syscalls we are using have a `SAFE_*` version associated
 with it inside the `include/tst_*.h` files. If it exists, use it. If it
 doesn't, verify if you can create it.
 
+WRONG — plain syscall without SAFE\_\* macro:
+
 ```c
-/* WRONG: don't use plain syscalls */
 int fd = open("test_file", O_RDWR | O_CREAT, 0644);
 if (fd < 0) {
     tst_brk(TBROK | TERRNO, "open() error");
 }
+```
 
-/* CORRECT: use SAFE_* macros instead */
+CORRECT — use SAFE\_\* macros:
+
+```c
 int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
 ```
 
@@ -346,8 +354,9 @@ int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
 
 #### Don't use `cleanup_fn` in newly added `safe_*` definitions `[LINTER]`
 
+WRONG — cleanup_fn is used in the legacy LTP API:
+
 ```c
-/* WRONG: cleanup_fn is used in the legacy LTP API */
 void *safe_mysyscall(const char *file, const int lineno, void (*cleanup_fn) (void),
         size_t size)
 {
@@ -356,15 +365,18 @@ void *safe_mysyscall(const char *file, const int lineno, void (*cleanup_fn) (voi
     rval = mysyscall(size);
 
     if (rval == NULL) {
-        /* WRONG: tst_brkm_ is used by the legacy API */
+        /* tst_brkm_ is used by the legacy API */
         tst_brkm_(file, lineno, TBROK | TERRNO, cleanup_fn,
             "mysyscall(%zu) failed", size);
     }
 
     return rval;
 }
+```
 
-/* CORRECT: use the new LTP API format */
+CORRECT — new LTP API format for safe\_\* definitions:
+
+```c
 void *safe_mysyscall(const char *file, const int lineno,
         size_t size)
 {
@@ -373,7 +385,7 @@ void *safe_mysyscall(const char *file, const int lineno,
     rval = mysyscall(size);
 
     if (rval == NULL) {
-        /* CORRECT: tst_brk_ is used by the new API */
+        /* tst_brk_ is used by the new API */
         tst_brk_(file, lineno, TBROK | TERRNO,
             "mysyscall(%zu) failed", size);
     }
@@ -404,12 +416,16 @@ static struct tst_test test = {
 File descriptors MUST be initialized to `-1` (not left as `0`, which is
 stdin) and MUST be closed in `cleanup()` with a `fd != -1` guard:
 
-```c
-/* WRONG */
-static int fd;     /* zero is a valid fd (stdin) */
-/* also WRONG: no .cleanup to close the fd */
+WRONG — fd initialized to zero, no cleanup:
 
-/* CORRECT: init to -1, open in setup, close in cleanup */
+```c
+static int fd;     /* zero is a valid fd (stdin) */
+/* no .cleanup to close the fd */
+```
+
+CORRECT — init to -1, open in setup, close in cleanup:
+
+```c
 static int fd = -1;
 
 static void setup(void)
@@ -437,8 +453,9 @@ static struct tst_test test = {
 argument file descriptor to `-1` in a single step. This applies everywhere in
 the code.
 
+WRONG — redundant reset after SAFE_CLOSE():
+
 ```c
-/* WRONG: redundant reset — SAFE_CLOSE() already sets fd = -1 */
 if (fd != -1)
     SAFE_CLOSE(fd);
 fd = -1;
@@ -446,8 +463,9 @@ fd = -1;
 
 ALWAYS rely on `SAFE_CLOSE()` to handle the reset:
 
+CORRECT — SAFE_CLOSE() handles the reset:
+
 ```c
-/* CORRECT: SAFE_CLOSE() sets fd = -1 internally */
 if (fd != -1)
     SAFE_CLOSE(fd);
 ```
@@ -475,7 +493,7 @@ static void run(void)
     fd = SAFE_OPEN(MNTPOINT "/file", O_CREAT | O_RDWR, 0644);
     SAFE_WRITE(SAFE_WRITE_ALL, fd, "x", 1); /* may call tst_brk() */
 
-    /* WRONG: these are never reached on abort — mount persists! */
+    /* these are never reached on abort — mount persists! */
     SAFE_CLOSE(fd);
     SAFE_UMOUNT(MNTPOINT);
 }
@@ -527,20 +545,23 @@ static struct tst_test test = {
 
 NEVER use `fd >= 0` or `fd > 0` to check whether a file descriptor is valid:
 
+WRONG — fd >= 0 or fd > 0 to check validity:
+
 ```c
-/* WRONG: fd >= 0 is not the LTP convention */
+/* fd >= 0 is not the LTP convention */
 if (fd >= 0)
     SAFE_CLOSE(fd);
 
-/* WRONG: fd > 0 silently skips fd 0 which is valid */
+/* fd > 0 silently skips fd 0 which is valid */
 if (fd > 0)
     SAFE_CLOSE(fd);
 ```
 
 ALWAYS use `fd != -1` since file descriptors are initialized to `-1`:
 
+CORRECT — matches the -1 initialization convention:
+
 ```c
-/* CORRECT: matches the -1 initialization convention */
 if (fd != -1)
     SAFE_CLOSE(fd);
 ```
@@ -615,7 +636,7 @@ static void run(void)
 
     SAFE_WAITPID(pid, &status, 0);
 
-    /* WRONG: parent guesses what happened in the child */
+    /* parent guesses what happened in the child */
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
         tst_res(TPASS, "syscall succeeded");
     else
@@ -711,8 +732,9 @@ returns a positive value on success (e.g. `open`, `fork`, `read`).
 
 NEVER use `tst_res(TINFO | TERRNO, ...)` to report syscall failures:
 
+WRONG — TINFO | TERRNO misused for error reporting:
+
 ```c
-/* WRONG: TINFO | TERRNO misused for error reporting */
 fd = open(path, O_RDWR);
 if (fd < 0) {
     tst_res(TINFO | TERRNO, "open failed");
@@ -725,8 +747,11 @@ if (ptr == MAP_FAILED) {
     SAFE_CLOSE(fd);
     exit(1);
 }
+```
 
-/* CORRECT: use TBROK | TERRNO for syscall errors */
+CORRECT — use TBROK | TERRNO for syscall errors:
+
+```c
 fd = SAFE_OPEN(path, O_RDWR);
 if (fd < 0)
     tst_brk(TBROK | TERRNO, "open failed");
@@ -746,8 +771,9 @@ Memory allocated in `setup()` MUST be released in `cleanup()`. This applies
 to `mmap()` / `SAFE_MMAP()` (use `SAFE_MUNMAP()`) and `malloc()` /
 `SAFE_MALLOC()` (use `free()`):
 
+CORRECT — mmap resources released in cleanup:
+
 ```c
-/* CORRECT: mmap resources released in cleanup */
 static void *addr = NULL;
 
 static void setup(void)
@@ -773,8 +799,9 @@ static struct tst_test test = {
 NEVER allocate syscall struct arguments on the stack as local variables, if the
 syscall is the subject of our test:
 
+WRONG — stack-allocated struct passed by address:
+
 ```c
-/* WRONG: stack-allocated struct passed by address */
 static void verify(unsigned int n)
 {
     struct listns_req req = {
@@ -793,8 +820,9 @@ static struct tst_test test = {
 
 ALWAYS declare a static pointer and use `.bufs` to let the framework allocate it:
 
+CORRECT — framework-managed allocation via .bufs:
+
 ```c
-/* CORRECT: framework-managed allocation via .bufs */
 static struct listns_req *req;
 
 static void verify(unsigned int n)
@@ -820,6 +848,8 @@ static struct tst_test test = {
 NEVER rely on static initialization for data modified during test logic when
 using `-i` parameter:
 
+WRONG — static data not re-initialized between iterations:
+
 ```c
 static char str[256];
 static int fd = -1;
@@ -828,7 +858,7 @@ static void run(void)
 {
     ...
 
-    /* WRONG: static str not re-initialized but re-used before each iteration */
+    /* static str not re-initialized but re-used before each iteration */
     SAFE_READ(0, fd, str, mylen);
 
     /* here we might have a string without \0 terminator */
@@ -837,6 +867,8 @@ static void run(void)
 
 ALWAYS re-initialize static data at the start of `run()` before using it:
 
+CORRECT — re-initialize static data before each iteration:
+
 ```c
 static char str[256];
 static int fd = -1;
@@ -845,7 +877,7 @@ static void run(void)
 {
     ...
 
-    /* CORRECT: str re-initialized before each test iteration */
+    /* str re-initialized before each test iteration */
     memset(str, 0, sizeof(str));
     SAFE_READ(0, fd, str, mylen);
 
@@ -857,8 +889,9 @@ static void run(void)
 
 NEVER define separate functions for each test case and call them manually:
 
+WRONG — separate functions called manually from run():
+
 ```c
-/* WRONG: separate functions called manually from run() */
 static void test_new_file_no_creat(void)
 {
     TST_EXP_FAIL2(open("nofile", O_RDWR, 0444), ENOENT,
@@ -873,13 +906,13 @@ static void test_noatime_unprivileged(void)
 
 static void run(void)
 {
-    /* WRONG: manual dispatch, no automatic sub-test numbering */
+    /* manual dispatch, no automatic sub-test numbering */
     test_new_file_no_creat();
     test_noatime_unprivileged();
 }
 
 static struct tst_test test = {
-    /* WRONG: .test_all used instead of .test + .tcnt */
+    /* .test_all used instead of .test + .tcnt */
     .test_all = run,
 };
 ```
@@ -888,8 +921,9 @@ ALWAYS define a single `struct tcase` array and use `.test` + `.tcnt` in
 `struct tst_test`. The test function receives the index `n` and dispatches
 through the array:
 
+CORRECT — one struct tcase array, one generic handler, .test + .tcnt:
+
 ```c
-/* CORRECT: one struct tcase array, one generic handler, .test + .tcnt */
 static struct tcase {
     const char *filename;
     int flag;
@@ -909,7 +943,7 @@ static void verify_open(unsigned int n)
 }
 
 static struct tst_test test = {
-    /* CORRECT: framework iterates tcases[], prints "1.", "2.", … automatically */
+    /* framework iterates tcases[], prints "1.", "2.", … automatically */
     .tcnt = ARRAY_SIZE(tcases),
     .test = verify_open,
 };
@@ -928,8 +962,9 @@ NEVER use `struct tcase` array indexes to modify items in `setup()` — this is
 error-prone and breaks silently when entries are reordered. Instead, store a
 pointer to a static variable in the struct and modify the static variable:
 
+WRONG — array index used to modify tcase in setup:
+
 ```c
-/* WRONG */
 static struct tcase {
     int val;
     int exp_err;
@@ -940,13 +975,14 @@ static struct tcase {
 
 static void setup(void)
 {
-    /* WRONG: array index breaks when entries are reordered */
+    /* array index breaks when entries are reordered */
     tcases[1].val = SAFE_OPEN("testfile", O_RDWR);
 }
 ```
 
+CORRECT — modify via static variable, not array index:
+
 ```c
-/* CORRECT */
 static int fd = -1;
 
 static struct tcase {
@@ -959,7 +995,7 @@ static struct tcase {
 
 static void setup(void)
 {
-    /* CORRECT: modify via static variable, not array index */
+    /* modify via static variable, not array index */
     fd = SAFE_OPEN("testfile", O_RDWR);
 }
 ```
@@ -969,8 +1005,9 @@ static void setup(void)
 When the test case description repeats an enum or macro name, use a
 stringification macro to avoid duplication (DRY):
 
+WRONG — description duplicates the macro name:
+
 ```c
-/* WRONG: description duplicates the macro name */
 static struct tcase {
     const char *desc;
     int exp_err;
@@ -981,8 +1018,9 @@ static struct tcase {
 };
 ```
 
+CORRECT — stringification macro eliminates duplication:
+
 ```c
-/* CORRECT: stringification macro eliminates duplication */
 #define TC(x) {.desc = #x, .exp_err = x}
 
 static struct tcase {
@@ -999,8 +1037,9 @@ static struct tcase {
 
 NEVER define a custom buffer size for path strings:
 
+WRONG — custom buffer size for paths:
+
 ```c
-/* WRONG: custom size may be too small for real paths */
 #define BUF_SIZE 256
 static char fname[BUF_SIZE];
 static char fname_copy[BUF_SIZE];
@@ -1015,8 +1054,9 @@ static void run(void)
 
 ALWAYS use `PATH_MAX` for buffers that hold filesystem paths:
 
+CORRECT — use PATH_MAX for path buffers:
+
 ```c
-/* CORRECT: PATH_MAX (4096) accommodates any valid path */
 #include <limits.h>
 
 static char fname[PATH_MAX];
@@ -1039,8 +1079,9 @@ there — not `PATH_MAX`.
 NEVER manually check for kernel config features by handling ioctl/syscall
 errors at runtime when `.needs_kconfigs` can be used:
 
+WRONG — manually handling missing kernel config:
+
 ```c
-/* WRONG: manually handling missing kernel config */
 static void run(void)
 {
     TEST(ioctl(dev_fd, FS_IOC_GETLBMD_CAP, meta_cap));
@@ -1058,8 +1099,9 @@ static struct tst_test test = {
 
 ALWAYS use `.needs_kconfigs` to gate on required kernel configuration options:
 
+CORRECT — framework checks kernel config before running the test:
+
 ```c
-/* CORRECT: framework checks kernel config before running the test */
 static void run(void)
 {
     TST_EXP_PASS(ioctl(dev_fd, FS_IOC_GETLBMD_CAP, meta_cap),
@@ -1084,8 +1126,9 @@ static struct tst_test test = {
 
 NEVER call plain syscalls:
 
+WRONG — plain syscall() requires manual ENOSYS check:
+
 ```c
-/* WRONG: syscall() requires ENOSYS check */
 syscall(__NR_listns, &req, NULL, 0, 0);
 if (errno == ENOSYS)
         tst_brk(TCONF, "listns() not supported");
@@ -1093,8 +1136,9 @@ if (errno == ENOSYS)
 
 ALWAYS use `tst_syscall` instead:
 
+CORRECT — tst_syscall() handles ENOSYS automatically:
+
 ```c
-/* CORRECT: tst_syscall() always verify that errno == ENOSYS */
 tst_syscall(__NR_listns, &req, NULL, 0, 0);
 ```
 
@@ -1117,8 +1161,9 @@ static void setup(void)
 
 NEVER signal the parent from the child before setup is complete:
 
+WRONG — child signals before setup is complete:
+
 ```c
-/* WRONG: child signals before doing setup, parent may proceed too early */
 child_pid = SAFE_FORK();
 if (!child_pid) {
     TST_CHECKPOINT_WAKE(0);
@@ -1136,8 +1181,9 @@ SAFE_WAITPID(child_pid, NULL, 0);
 ALWAYS let the child wait for the parent's go-ahead, do setup, then signal
 completion:
 
+CORRECT — parent triggers child, waits for setup, then releases:
+
 ```c
-/* CORRECT: parent triggers child, waits for setup, tests, then releases */
 child_pid = SAFE_FORK();
 if (!child_pid) {
     TST_CHECKPOINT_WAIT(0);
@@ -1156,8 +1202,9 @@ SAFE_WAITPID(child_pid, NULL, 0);
 
 NEVER let a child process return or fall through without an explicit exit:
 
+WRONG — missing exit, child may fall through into parent code:
+
 ```c
-/* WRONG: missing exit, child may fall through into parent code */
 child_pid = SAFE_FORK();
 if (!child_pid) {
     /* child work */
@@ -1172,8 +1219,9 @@ framework can propagate test results from child to parent.
 
 Example:
 
+CORRECT — child always exits explicitly:
+
 ```c
-/* CORRECT: child always exits explicitly */
 child_pid = SAFE_FORK();
 if (!child_pid) {
     /* child work */
@@ -1187,6 +1235,8 @@ if (!child_pid) {
 NEVER reap children before exit the test. LTP framework calls
 `tst_reap_children()` before exiting and handles reaping automatically:
 
+WRONG — explicit waitpid is redundant:
+
 ```c
 static void run(void)
 {
@@ -1197,12 +1247,13 @@ static void run(void)
         exit(0);
     }
 
-    /* WRONG: explicit waitpid is redundant */
     SAFE_WAITPID(child_pid, NULL, 0);
 }
 ```
 
 ALWAYS rely on the framework to reap children:
+
+CORRECT — let the framework reap the child:
 
 ```c
 static void run(void)
@@ -1210,8 +1261,6 @@ static void run(void)
     if (!SAFE_FORK()) {
         exit(0);
     }
-
-    /* CORRECT: let the framework reaping the child */
 }
 ```
 
@@ -1263,8 +1312,9 @@ static void run(void)
 NEVER manually save and restore `/proc` or `/sys` values in
 setup/cleanup. ALWAYS use `.save_restore` in `struct tst_test`:
 
+WRONG — manual save/restore of proc/sys values:
+
 ```c
-/* WRONG: manual save/restore */
 static char old_val[64];
 
 static void setup(void)
@@ -1279,8 +1329,9 @@ static void cleanup(void)
 }
 ```
 
+CORRECT — framework handles save/restore automatically:
+
 ```c
-/* CORRECT: framework handles save/restore automatically */
 static struct tst_test test = {
     .test_all = run,
     .save_restore = (const struct tst_path_val[]) {
@@ -1295,15 +1346,17 @@ static struct tst_test test = {
 MUST return `TCONF` (not `TFAIL`) when a syscall or feature is
 unavailable at runtime:
 
+WRONG — TFAIL for unsupported feature:
+
 ```c
-/* WRONG: TFAIL for unsupported feature */
 TEST(syscall(__NR_foo, args));
 if (TST_RET == -1 && TST_ERR == ENOSYS)
     tst_res(TFAIL, "foo() not supported");
 ```
 
+CORRECT — TCONF for unsupported feature:
+
 ```c
-/* CORRECT: TCONF for unsupported feature */
 TEST(syscall(__NR_foo, args));
 if (TST_RET == -1 && TST_ERR == ENOSYS)
     tst_brk(TCONF, "foo() not supported");
@@ -1318,8 +1371,9 @@ NOT listed in any `runtest/` file.
 Helper binaries MUST use the new API but MUST NOT use `struct tst_test`.
 Instead, define `TST_NO_DEFAULT_MAIN` before including `tst_test.h`.
 
+WRONG — helper using old API:
+
 ```c
-/* WRONG — helper using old API */
 #include "test.h"
 
 char *TCID = "myhelper";
@@ -1333,8 +1387,9 @@ int main(int argc, char *argv[])
 }
 ```
 
+CORRECT — helper using new API with TST_NO_DEFAULT_MAIN:
+
 ```c
-/* CORRECT — helper using new API with `TST_NO_DEFAULT_MAIN` */
 #define TST_NO_DEFAULT_MAIN
 #include "tst_test.h"
 
