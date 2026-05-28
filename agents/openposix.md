@@ -236,22 +236,29 @@ int test_main(int argc PTS_ATTRIBUTE_UNUSED, char **argv PTS_ATTRIBUTE_UNUSED)
 
 ### INCORRECT: Common Mistakes
 
-```c
-/* WRONG: Missing license header */
-#include "posixtest.h"
+WRONG — missing license header:
 
-/* WRONG: Defining main() instead of test_main() */
+```c
+#include "posixtest.h"
+```
+
+WRONG — defining `main()` instead of `test_main()`:
+
+```c
 int main(void)
 {
-    pthread_mutex_t mutex;
+```
 
-    /* WRONG: Not checking return value */
+WRONG — not checking return values:
+
+```c
     pthread_mutex_init(&mutex, NULL);
     pthread_mutex_lock(&mutex);
+```
 
-    /* WRONG: Not cleaning up resources */
+WRONG — not cleaning up resources, not printing status message:
 
-    /* WRONG: Not printing status message */
+```c
     return PTS_PASS;
 }
 ```
