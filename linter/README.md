@@ -20,24 +20,25 @@ before the LLM review, so the LLM can focus on semantic analysis.
 Rules with scope `c` apply to both `.c` and `.h` files. Rules with
 scope `c_only` apply to `.c` files only.
 
-| Rule                         | Scope  | Description                                                  |
-| ---------------------------- | ------ | ------------------------------------------------------------ |
-| Missing SPDX header          | c      | First line must contain `SPDX-License-Identifier`            |
-| Missing copyright            | c      | A `Copyright` line with year must be present                 |
-| Missing doc comment block    | c_only | A `/*\` doc comment block must be present                    |
-| Deprecated [Description] tag | c      | `[Description]` in doc comments is deprecated                |
-| Wrong test header            | c      | Use `tst_test.h` instead of legacy `test.h`                  |
-| Unexpected main()            | c_only | Use `struct tst_test` instead of `main()`                    |
-| Missing struct tst_test      | c_only | `struct tst_test` must be defined                            |
-| FD not initialized to -1     | c      | Static fd vars must be initialized to `-1`                   |
-| Wrong FD validity check      | c      | Use `fd != -1` instead of `fd >= 0` or `fd > 0`              |
-| Redundant fd reset           | c      | `SAFE_CLOSE()` already resets the fd to `-1`                 |
-| HAVE\_\* inside function     | c      | `#ifdef HAVE_*` must wrap code at file level                 |
-| Missing .needs_tmpdir        | c_only | Tests creating files with `O_CREAT` need `.needs_tmpdir = 1` |
-| Legacy cleanup_fn            | c      | `safe_*` must not use `cleanup_fn` (legacy API)              |
-| Raw syscall()                | c      | Use `tst_syscall()` which handles `ENOSYS`                   |
-| Missing .supported_archs     | c_only | Use `.supported_archs` instead of `#if defined()`            |
-| Missing .needs_kconfigs      | c_only | Use `.needs_kconfigs` instead of manual config checks        |
+| Rule                          | Scope  | Description                                                  |
+| ----------------------------- | ------ | ------------------------------------------------------------ |
+| Missing SPDX header           | c      | First line must contain `SPDX-License-Identifier`            |
+| Missing copyright             | c      | A `Copyright` line with year must be present                 |
+| Missing doc comment block     | c_only | A `/*\` doc comment block must be present                    |
+| Deprecated [Description] tag  | c      | `[Description]` in doc comments is deprecated                |
+| Wrong test header             | c      | Use `tst_test.h` instead of legacy `test.h`                  |
+| Unexpected main()             | c_only | Use `struct tst_test` instead of `main()`                    |
+| Missing struct tst_test       | c_only | `struct tst_test` must be defined                            |
+| FD not initialized to -1      | c      | Static fd vars must be initialized to `-1`                   |
+| Wrong FD validity check       | c      | Use `fd != -1` instead of `fd >= 0` or `fd > 0`              |
+| Redundant fd reset            | c      | `SAFE_CLOSE()` already resets the fd to `-1`                 |
+| HAVE\_\* inside function      | c      | `#ifdef HAVE_*` must wrap code at file level                 |
+| Missing .needs_tmpdir         | c_only | Tests creating files with `O_CREAT` need `.needs_tmpdir = 1` |
+| Legacy cleanup_fn             | c      | `safe_*` must not use `cleanup_fn` (legacy API)              |
+| Raw syscall()                 | c      | Use `tst_syscall()` which handles `ENOSYS`                   |
+| Missing .supported_archs      | c_only | Use `.supported_archs` instead of `#if defined()`            |
+| Missing .needs_kconfigs       | c_only | Use `.needs_kconfigs` instead of manual config checks        |
+| Leading-underscore identifier | c      | Function definitions/prototypes must not start with `_` (reserved) |
 
 ### Shell tests (.sh)
 

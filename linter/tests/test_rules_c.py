@@ -20,6 +20,7 @@ from rules_c import (
     check_supported_archs,
     check_tst_syscall,
     check_tst_test_header,
+    check_underscore_identifier,
 )
 
 
@@ -646,3 +647,122 @@ class TestCheckNeedsKconfigs:
         """
         lines = ['// tst_brk(TCONF, "CONFIG_FOO not set");\n']
         assert list(check_needs_kconfigs(lines)) == []
+
+
+class TestCheckUnderscoreIdentifier:
+    """
+    Tests for the leading-underscore identifier rule.
+    """
+
+    def test_static_function_definition(self):
+        """
+        Verify finding for static function whose name starts with _.
+        """
+        results = list(
+            check_underscore_identifier(["static void _helper(void)\n"])
+        )
+        assert len(results) == 1
+        assert "_helper" in results[0][1]
+
+    def test_function_prototype(self):
+        """
+        Verify finding for plain prototype with leading-underscore name.
+        """
+        results = list(check_underscore_identifier(["int _foo(int a);\n"]))
+        assert len(results) == 1
+        assert "_foo" in results[0][1]
+
+    def test_pointer_return(self):
+        """
+        Verify finding for function returning a pointer.
+        """
+        results = list(
+            check_underscore_identifier(["static char *_buf(void)\n"])
+        )
+        assert len(results) == 1
+        assert "_buf" in results[0][1]
+
+    def test_double_underscore_function(self):
+        """
+        Verify functions with __ prefix are flagged too.
+        """
+        results = list(
+            check_underscore_identifier(
+                ["static inline void __list_add(void *new)\n"]
+            )
+        )
+        assert len(results) == 1
+        assert "__list_add" in results[0][1]
+
+    def test_normal_function_not_flagged(self):
+        """
+        Verify no finding for functions without leading underscore.
+        """
+        results = list(
+            check_underscore_identifier(["static void helper(void)\n"])
+        )
+        assert results == []
+
+    def test_function_call_not_flagged(self):
+        """
+        Verify call sites of _exit-like functions are not flagged.
+        """
+        lines = [
+            "\t_exit(1);\n",
+            "\tret = _foo();\n",
+            "\treturn _bar();\n",
+        ]
+        assert list(check_underscore_identifier(lines)) == []
+
+    def test_extern_declaration_not_flagged(self):
+        """
+        Verify ``extern`` declarations are skipped. They expose
+        libc/kernel-provided symbols, not user definitions.
+        """
+        lines = [
+            "extern int __clone2(int (*fn)(void *), void *stack);\n",
+            "extern void _exit(int status);\n",
+        ]
+        assert list(check_underscore_identifier(lines)) == []
+
+    def test_macro_definition_not_flagged(self):
+        """
+        Verify ``#define`` lines are not checked. Macro usage is
+        dominated by legitimate cases (feature test macros, include
+        guards, ``__NR_*`` syscall fallbacks).
+        """
+        lines = [
+            "#define _GNU_SOURCE\n",
+            "#define _FOO_H\n",
+            "#define __NR_migrate_pages 0\n",
+            "#define _MY_OWN_MACRO 42\n",
+        ]
+        assert list(check_underscore_identifier(lines)) == []
+
+    def test_attribute_use_not_flagged(self):
+        """
+        Verify gcc __attribute__((...)) usage is not flagged.
+        """
+        lines = [
+            "static void __attribute__((unused)) helper(int x)\n",
+            "void helper(void) __attribute__((noreturn));\n",
+        ]
+        assert list(check_underscore_identifier(lines)) == []
+
+    def test_comment_skipped(self):
+        """
+        Verify that comments mentioning underscore names are ignored.
+        """
+        lines = [
+            "// static void _helper(void)\n",
+            " * static void _helper(void)\n",
+        ]
+        assert list(check_underscore_identifier(lines)) == []
+
+    def test_underscore_in_param_name_not_flagged(self):
+        """
+        Verify parameter names with leading underscore do not trigger.
+        Only the function name itself is checked.
+        """
+        lines = ["static void helper(int _arg)\n"]
+        assert list(check_underscore_identifier(lines)) == []

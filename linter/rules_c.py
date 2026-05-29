@@ -327,6 +327,66 @@ def check_exit_in_child(lines):
             )
 
 
+_TYPE_TOKEN_RE = (
+    r"(?:static|inline|extern|const|unsigned|signed|volatile|register|"
+    r"struct|union|enum|void|int|char|short|long|float|double|bool|"
+    r"FILE|DIR|\w+_t)"
+)
+
+
+@rule("Identifier starts with underscore")
+def check_underscore_identifier(lines):
+    """
+    Flag function definitions and prototypes whose name starts with an
+    underscore. Per the C standard, leading-underscore identifiers are
+    reserved for the implementation (compiler, libc, kernel headers), so
+    user code MUST NOT define them.
+
+    Scope is intentionally narrow:
+
+      - Only function definitions/prototypes at column 0, e.g.
+            static void _helper(void)
+            int _foo(int);
+            static char *_buf(void)
+
+      - ``extern`` declarations are skipped: they declare a symbol
+        provided by libc/the kernel, not a user definition.
+
+      - ``#define`` and variable declarations are not checked. Macro
+        usage is dominated by legitimate cases (feature test macros
+        like ``_GNU_SOURCE``, include guards, and ``__NR_*`` syscall
+        fallbacks per the ``include/lapi/`` pattern) that cannot be
+        distinguished from real violations without semantic analysis.
+        The reviewer agent handles those by reading c-tests.md.
+    """
+    func_re = re.compile(
+        rf"^(?:{_TYPE_TOKEN_RE}\s+)+\*?\s*(_\w+)\s*\("
+    )
+
+    for line_num, line in enumerate(lines, 1):
+        stripped = line.lstrip()
+        if stripped.startswith(("//", "*", "/*", "#")):
+            continue
+
+        # extern declarations expose libc/kernel-provided symbols.
+        if re.match(r"^extern\b", line):
+            continue
+
+        # __attribute__((...)) is a gcc extension being *used*, not defined.
+        if "__attribute__" in line:
+            continue
+
+        match = func_re.match(line)
+        if match:
+            yield (
+                line_num,
+                (
+                    f"{match.group(1)} starts with underscore — "
+                    "reserved for compiler/libc/kernel"
+                ),
+            )
+
+
 @rule("Missing .needs_kconfigs", scope="c_only")
 def check_needs_kconfigs(lines):
     """
