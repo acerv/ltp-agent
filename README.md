@@ -101,7 +101,31 @@ With the patch applied, invoke the review skill inside your agent:
 ```
 
 This performs a deep code review against all LTP rules (ground rules, C test
-rules, shell test rules, or Open POSIX rules depending on the files changed).
+rules, shell test rules, or Open POSIX rules depending on the files changed),
+runs the mechanical linter (see [Linter](#linter)) to catch low-level
+violations, and writes the resulting inline email reply to `review-inline.txt`
+at the LTP tree root.
+
+### Running a Review End-to-End
+
+For a one-shot review without manually cloning, applying, and invoking the
+agent, use `scripts/start-review.sh`. It clones LTP into a temporary
+directory, links the agent config, applies a patch from any source supported
+by `apply-patch.sh`, runs `/ltp-review`, and prints the email reply on
+stdout.
+
+```sh
+# Auto-detect the agent (gemini, claude, or opencode)
+./ltp-agent/scripts/start-review.sh https://patchwork.ozlabs.org/project/ltp/patch/<id>/
+
+# Pick the agent explicitly and clean up afterwards
+./ltp-agent/scripts/start-review.sh -a claude -c https://lore.kernel.org/r/<msgid>/
+
+# Verbose, keep the clone in a known path
+./ltp-agent/scripts/start-review.sh -v -d ~/reviews/my-patch /tmp/my-patch.mbox
+```
+
+See `start-review.sh -h` for the full option list.
 
 ### Converting Old Tests to New API
 
@@ -113,6 +137,17 @@ To convert a test from the legacy `test.h` API to the modern `tst_test.h` API:
 
 The agent will analyze the old test, show a conversion plan, rewrite it using
 the new API, build and run the converted test, then self-review the result.
+
+To find candidates for conversion, scan the tree with:
+
+```sh
+# From the LTP tree root; prints JSON with old-API files grouped by directory
+python3 ltp-agent/scripts/scan-old-api.py
+
+# Limit to a subtree and write to a file
+python3 ltp-agent/scripts/scan-old-api.py \
+    --root-dir testcases/kernel/syscalls -o old-api.json
+```
 
 ### Asking General Questions
 
@@ -141,6 +176,45 @@ based on the task:
 - **openposix.md** — Rules for the Open POSIX Test Suite: different structure
   from LTP tests (`main()`, `posixtest.h`, `PTS_*` return codes), separate
   build system.
+
+- **commit-message.md** — Rules for LTP commit messages: required subject
+  prefix, wording, trailers, and patch-description style. Loaded by the
+  review skill during Phase 2.
+
+- **false-positive.md** — Verification checklist run on every flagged issue
+  before it is reported, to weed out spurious findings.
+
+- **inline-template.md** — Complete format of a review reply email: greeting,
+  quoting style, per-issue layout, verdict wording, postamble, and the
+  pre-existing-issues block. Loaded by the review skill during Phase 4.
+
+## Linter
+
+The `linter/` directory contains a Python-based mechanical rule checker
+(`ltp-linter`) that the `/ltp-review` skill invokes before doing semantic
+analysis. It catches low-level violations (missing SPDX headers, legacy APIs,
+shell bash-isms, etc.) so the LLM can focus on logic and correctness.
+
+It can also be used standalone from the LTP tree:
+
+```sh
+# Lint a single file
+./linter/ltp-linter -f testcases/kernel/syscalls/foo/foo01.c
+
+# Lint all files changed on the current branch vs master
+./linter/ltp-linter -b
+```
+
+See `linter/README.md` for the full rule list.
+
+## Continuous Integration
+
+The `.github/workflows/ci-copilot-review.yml` workflow runs `/ltp-review`
+automatically against LTP Patchwork series using GitHub Copilot CLI, posts
+the verdict back to Patchwork as a check, and (if SMTP credentials are
+configured) sends the inline review to the mailing list as a reply to the
+original submission. It is triggered manually by series ID via
+`workflow_dispatch`.
 
 ## Additional Resources
 
