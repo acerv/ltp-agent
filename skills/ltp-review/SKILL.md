@@ -150,10 +150,12 @@ Additional detection guidance:
 
 ### Step 3.4: LTP C Test Rules
 
-Apply ALL rules from `agents/c-tests.md` (loaded in Step 1.3).
+Apply the `agents/c-tests.md` rules selected in Step 1.3. For C tests,
+apply the full file. For library/header files under `lib/` or `include/`,
+apply only the subset listed in Step 1.3.
 Do not rely on memory or prior knowledge — use the live file content.
-All code-example sections in c-tests.md are authoritative WRONG/CORRECT
-references — apply them as-is.
+All applicable code-example sections in c-tests.md are authoritative
+WRONG/CORRECT references — apply them as-is.
 
 **Old API tests:** If a changed C file uses the old API (`#include "test.h"`,
 `TCID`, `tst_resm`) and the patch is NOT converting it to the new API, skip
