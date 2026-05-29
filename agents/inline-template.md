@@ -1,22 +1,74 @@
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 
-# Inline Review Template
+# Inline Review Email Template
 
-This file defines how to write the body of the review email — phrasing,
-quoting, and formatting. It applies to every review reply. The outer
-shell (the `Hi <name>` greeting, the verdict, and the postamble) is
-defined in `.agents/skills/ltp-review/SKILL.md` Phase 4 and Phase 5; this
-file governs everything in between.
+This file defines the complete format of an LTP patch review reply.
+Anything that concerns how the email looks belongs here.
 
-## Format
+## Output rules
 
+- The entire response MUST start with `Hi `. No preamble, no text before
+  or after the email.
 - Plain text only. No markdown, no HTML, no special characters.
-- Wrap your own text at 78 characters. Long lines in the quoted patch may
-  exceed this — preserve them as-is.
+- Wrap your own text at 78 characters. Long lines in the quoted patch
+  may exceed this — preserve them as-is.
 - Quote patch content with `> ` prefix, standard mailing list style.
 - Insert your comments directly below the relevant quoted line(s),
   separated by a blank line before and after.
 - End every review with a blank line.
+
+## Structure (single patch or single-patch series)
+
+```
+Hi <firstname>,
+
+On <date>, <author> wrote:
+> <patch subject line>
+
+> [relevant diff hunk or code line]
+
+<comment>
+
+> [next relevant hunk]
+
+<comment>
+
+[...]
+
+[if no issues:]
+All good. Reviewed.
+
+<postamble>
+```
+
+## Structure (multi-patch series)
+
+One email replying to the first patch. Use `--- [PATCH N/M] ---` markers
+between per-patch comments. Only include patches that have findings.
+If ALL patches are approved, omit markers.
+
+## Verdict
+
+- **Reviewed**: say so clearly and nothing else.
+- **Needs revision**: list each issue inline and close with a brief
+  summary of what needs fixing.
+- **Needs discussion**: raise the open question clearly.
+
+## Postamble
+
+Every email MUST end with:
+
+```
+---
+Note:
+
+The agent can sometimes produce false positives although often its
+findings are genuine. If you find issues with the review, please
+comment this email or ignore the suggestions.
+
+Regards,
+LTP AI Reviewer
+```
 
 ## Tone
 
@@ -142,7 +194,7 @@ header (subject + body) so the reader sees the context.
 If the issue is a typo in the subject:
 
     > shmctl01: convert to new API
-    
+
     There's a typo (`shmctl01` → `shmctl1`?) in the subject line.
 
 Quote the diff only if the commit-message issue depends on it.
@@ -168,7 +220,7 @@ you have nothing to list, omit the block entirely.
     > +	fd = SAFE_OPEN(path, O_RDONLY);
     > +	if (verify_data(buf) < 0)
     > +		return;
-    
+
     Does this path leak `fd`? `cleanup()` doesn't close it because the
     test exits via `return` before `tst_test` records the fd.
 
@@ -177,7 +229,7 @@ you have nothing to list, omit the block entirely.
     > syscalls/openat02: add test for O_TMPFILE
     >
     > This adds coverage for O_TMPFILE.
-    
+
     The body only restates the subject. Could it say why the coverage was
     missing (e.g. a recent kernel change, an uncovered branch in
     `do_tmpfile()`)?
@@ -186,7 +238,7 @@ you have nothing to list, omit the block entirely.
 
     Pre-existing issues noticed in the surrounding code (not introduced
     by this patch):
-    
+
     - testcases/kernel/syscalls/foo01.c in setup() — `SAFE_MALLOC()` has
       no matching free in `cleanup()`.
 
