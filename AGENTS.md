@@ -74,14 +74,7 @@ make install
 ## Agent Instructions
 
 All agent configuration files live in the `agents/` directory. The
-per-task triggers below load the files relevant to that task. Three
-additional files are loaded transitively by the skills and apply
-whenever their subject matter is in scope:
-
-- `agents/commit-message.md` — commit-message rules (apply to any task
-  that produces commits)
-- `agents/false-positive.md` — verification gate used by `/ltp-review`
-- `agents/inline-template.md` — output format used by `/ltp-review`
+per-task triggers below load the files relevant to that task.
 
 ### Task: Patch Review
 
@@ -97,17 +90,13 @@ API (`tst_test.h`).
 
 **Action**: Run the `/ltp-convert` skill.
 
-**Precedence**: When a request matches both this task and "Write or Modify
-C Tests" (e.g. "modify foo01.c to use the new API"), this task wins —
-conversion is a specialized form of modification and `/ltp-convert`
-already loads `c-tests.md` and `ground-rules.md`.
-
 ### Task: Write or Modify Open POSIX Tests
 
 **Trigger**: User asks to write, fix, or modify a test in
 `testcases/open_posix_testsuite/`.
 
-**Action**: Load `agents/openposix.md` before writing the code.
+**Action**: Load `agents/openposix.md`, `agents/ground-rules.md`, and
+`agents/commit-message.md` before writing the code.
 
 **Note**: Open POSIX tests use different APIs and conventions than LTP C tests.
 Do NOT apply `agents/c-tests.md` rules to Open POSIX tests.
@@ -125,6 +114,16 @@ Do NOT apply `agents/c-tests.md` rules to Open POSIX tests.
 
 **Action**: Load `agents/shell-tests.md`, `agents/ground-rules.md`, and
 `agents/commit-message.md` before writing code.
+
+### Task Precedence
+
+When a request matches multiple tasks, use the following priority order
+(highest first):
+
+1. Patch Review
+2. Convert Old Test API
+3. Write or Modify Open POSIX Tests
+4. Write or Modify C Tests / Write or Modify Shell Tests
 
 ### Task: General Questions
 
