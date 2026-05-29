@@ -15,6 +15,13 @@ tests are handled by CI (`ci/tools/patch-precheck.sh` and the ci-docker-build
 matrix). Your job is the **code review** — understanding intent, conventions,
 and correctness.
 
+## Analysis Philosophy
+
+This review assumes the patch has bugs, including in its comments and commit
+message. Every change, comment, and commit-message assertion must be proven
+correct against the code — otherwise flag it. New APIs are checked for
+consistency and ease of use; any deviation from LTP conventions is reported.
+
 ## Phase 1: Setup
 
 ### Step 1.1: Load Rules
@@ -166,6 +173,21 @@ and ground rules.
 
 Apply ALL rules from `agents/openposix.md` (loaded in Step 1.3).
 
+### Step 3.2: False-positive verification
+
+Before moving to Phase 4, run every flagged issue through
+`agents/false-positive.md`. Read that file in full, then for each
+candidate issue:
+
+1. Apply the relevant "Common false-positive patterns" sections.
+2. Walk through TASK POSITIVE.1 (9 numbered verification steps) and
+   produce the required outputs.
+3. Pass the Final Filter (4 yes/no gates).
+
+Drop any issue that fails. A rule violation surfaced by `c-tests.md`,
+`shell-tests.md`, `openposix.md`, `ground-rules.md`, or `commit-message.md`
+is a candidate — not a confirmed finding — until it clears this step.
+
 ## Phase 4: Output
 
 Compose a plain-text inline email review reply in the style of Linux kernel
@@ -175,29 +197,20 @@ mailing list responses.
 any text before the email — no preamble, no introduction, no summary.
 Do NOT print any text after the postamble.
 
-### Format rules
+### Body content
 
-- Use plain text, no markdown, no HTML.
-- Quote the patch inline using `>` prefix, standard mailing list style.
-- Insert review comments directly below the relevant quoted line(s),
-  separated by a blank line before and after.
-- Do NOT quote the entire patch — only quote the lines directly relevant to
-  each comment. Use `[...]` to indicate skipped context.
+Read `agents/inline-template.md` and apply ALL its formatting, phrasing,
+quoting, and snipping rules to the body of the email. The structure,
+greeting, verdict, postamble, and pre-existing-issues block defined
+below remain authoritative; `inline-template.md` governs everything
+between them.
+
+### Verdict
+
 - If the verdict is Reviewed, say so clearly and nothing else.
 - If the verdict is Needs revision, list each issue inline in the patch
   and close with a brief summary of what needs fixing.
 - If the verdict is Needs discussion, raise the open question clearly.
-
-### Tone
-
-- Be terse. Kernel mailing list replies are short and to the point.
-- Each inline comment should be 1-2 sentences max.
-- Do NOT repeat what the code already shows.
-- Do NOT add filler or praise. If something is correct, say nothing about it.
-- Do NOT summarize what passed. Only mention issues or actionable
-  observations. An approved patch with no issues doesn't need commentary.
-- Positive feedback is only included if it adds information (e.g. "Tested
-  on x86_64 with -i 100, all pass").
 
 ### Structure (single patch or single-patch series)
 
@@ -254,10 +267,12 @@ by this patch), include them at the end of the email before the postamble:
 Pre-existing issues noticed in the surrounding code (not introduced
 by this patch):
 
-- <file>:<line> — <issue>
+- <file> in <function>() — <issue>
 ```
 
-If none were noticed, do NOT include this block.
+Use function names, never line numbers (see `agents/inline-template.md`
+"NEVER quote line numbers"). If none were noticed, do NOT include this
+block.
 
 ### Decision Rules
 
