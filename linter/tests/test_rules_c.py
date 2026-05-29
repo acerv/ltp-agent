@@ -658,9 +658,7 @@ class TestCheckUnderscoreIdentifier:
         """
         Verify finding for static function whose name starts with _.
         """
-        results = list(
-            check_underscore_identifier(["static void _helper(void)\n"])
-        )
+        results = list(check_underscore_identifier(["static void _helper(void)\n"]))
         assert len(results) == 1
         assert "_helper" in results[0][1]
 
@@ -676,9 +674,7 @@ class TestCheckUnderscoreIdentifier:
         """
         Verify finding for function returning a pointer.
         """
-        results = list(
-            check_underscore_identifier(["static char *_buf(void)\n"])
-        )
+        results = list(check_underscore_identifier(["static char *_buf(void)\n"]))
         assert len(results) == 1
         assert "_buf" in results[0][1]
 
@@ -687,9 +683,7 @@ class TestCheckUnderscoreIdentifier:
         Verify functions with __ prefix are flagged too.
         """
         results = list(
-            check_underscore_identifier(
-                ["static inline void __list_add(void *new)\n"]
-            )
+            check_underscore_identifier(["static inline void __list_add(void *new)\n"])
         )
         assert len(results) == 1
         assert "__list_add" in results[0][1]
@@ -698,9 +692,7 @@ class TestCheckUnderscoreIdentifier:
         """
         Verify no finding for functions without leading underscore.
         """
-        results = list(
-            check_underscore_identifier(["static void helper(void)\n"])
-        )
+        results = list(check_underscore_identifier(["static void helper(void)\n"]))
         assert results == []
 
     def test_function_call_not_flagged(self):

@@ -359,9 +359,7 @@ def check_underscore_identifier(lines):
         distinguished from real violations without semantic analysis.
         The reviewer agent handles those by reading c-tests.md.
     """
-    func_re = re.compile(
-        rf"^(?:{_TYPE_TOKEN_RE}\s+)+\*?\s*(_\w+)\s*\("
-    )
+    func_re = re.compile(rf"^(?:{_TYPE_TOKEN_RE}\s+)+\*?\s*(_\w+)\s*\(")
 
     for line_num, line in enumerate(lines, 1):
         stripped = line.lstrip()
