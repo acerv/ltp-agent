@@ -47,7 +47,16 @@ Use `git diff --name-only master..HEAD` to list changed files, then load
 corresponding rules:
 
 - Files in `testcases/open_posix_testsuite/` → Read `agents/openposix.md`
-- `*.c` or `*.h` under `testcases/` (NOT in open_posix_testsuite) → Read `agents/c-tests.md`
+- `*.c` or `*.h` under `testcases/` (NOT in open_posix_testsuite) → Read `agents/c-tests.md`.
+  Classify each file first: if its basename (without `.c`) appears in
+  any `runtest/` file (`grep -RFw <basename> runtest/`) it is a **test**
+  — apply the full file. Otherwise it is a **helper binary** that keeps
+  `main()` under `TST_NO_DEFAULT_MAIN` — skip the test-structure rules
+  (§2 `main()`/`struct tst_test` bullets, §3, §6, §7, §10, §15, §16,
+  §19) and apply the "Helper Binaries (`TST_NO_DEFAULT_MAIN`)" section
+  instead. If a file looks like a standalone test (uses `struct
+  tst_test`) but is missing from `runtest/`, treat it as a test and
+  flag the missing entry as a bug.
 - `*.c` or `*.h` under `lib/newlib_tests/` — These are **C tests** (LTP
   library self-tests). Apply the full `agents/c-tests.md` rules.
 - `*.c` or `*.h` under `lib/` or `include/` (excluding `lib/newlib_tests/`)
