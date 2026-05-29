@@ -42,17 +42,17 @@ When reviewing or writing C tests, verify ALL of the following:
 
 ### 1. Coding Style
 
-- Code MUST follow Linux kernel coding style
-- `make check` or `make check-$TCID` MUST pass (uses vendored `checkpatch.pl`)
+- `[LINTER]` Code MUST follow Linux kernel coding style
+- `[LINTER]` `make check` or `make check-$TCID` MUST pass (uses vendored `checkpatch.pl`)
 - MUST use C99 features where appropriate
 - Variables declared after statements (C99/C11 style) are allowed and MUST
   NOT be flagged as errors or style issues. NEVER suggest moving a variable
   declaration to the top of the function — this is an explicit exception to
   the kernel coding style rule
-- Identifiers e.g. function, variable, macro names must not start with
+- `[LINTER]` Identifiers e.g. function, variable, macro names must not start with
   underscore since these are reserved for compiler, kernel, and libc
-- MUST NOT use curly braces when the body is a single line
-- MUST use curly braces when the body spans multiple lines
+- `[LINTER]` MUST NOT use curly braces when the body is a single line
+- `[LINTER]` MUST use curly braces when the body spans multiple lines
 - MUST NOT add comments that describe obvious, i.e. literal translation of what
   the code does into the english
 
@@ -1195,7 +1195,6 @@ if (!child_pid) {
 TST_CHECKPOINT_WAKE_AND_WAIT(0);
 /* ... test work ... */
 TST_CHECKPOINT_WAKE(0);
-SAFE_WAITPID(child_pid, NULL, 0);
 ```
 
 ### Child Process Exit
@@ -1232,8 +1231,11 @@ if (!child_pid) {
 
 ### Child Process Reaping
 
-NEVER reap children before exit the test. LTP framework calls
-`tst_reap_children()` before exiting and handles reaping automatically:
+NEVER add `SAFE_WAITPID()` solely to reap a child before the test exits.
+The LTP framework calls `tst_reap_children()` on exit and reaps leftover
+children automatically. `SAFE_WAITPID()` remains appropriate when the
+parent must observe the child's exit status or serialize on its
+termination — the rule below targets the redundant case only:
 
 WRONG — explicit waitpid is redundant:
 

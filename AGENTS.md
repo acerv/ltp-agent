@@ -73,7 +73,15 @@ make install
 
 ## Agent Instructions
 
-All agent configuration files are in the `agents/` directory.
+All agent configuration files live in the `agents/` directory. The
+per-task triggers below load the files relevant to that task. Three
+additional files are loaded transitively by the skills and apply
+whenever their subject matter is in scope:
+
+- `agents/commit-message.md` — commit-message rules (apply to any task
+  that produces commits)
+- `agents/false-positive.md` — verification gate used by `/ltp-review`
+- `agents/inline-template.md` — output format used by `/ltp-review`
 
 ### Task: Patch Review
 
@@ -89,6 +97,11 @@ API (`tst_test.h`).
 
 **Action**: Run the `/ltp-convert` skill.
 
+**Precedence**: When a request matches both this task and "Write or Modify
+C Tests" (e.g. "modify foo01.c to use the new API"), this task wins —
+conversion is a specialized form of modification and `/ltp-convert`
+already loads `c-tests.md` and `ground-rules.md`.
+
 ### Task: Write or Modify Open POSIX Tests
 
 **Trigger**: User asks to write, fix, or modify a test in
@@ -103,15 +116,15 @@ Do NOT apply `agents/c-tests.md` rules to Open POSIX tests.
 
 **Trigger**: User asks to write, fix, or modify a C test.
 
-**Action**: Load `agents/c-tests.md` and `agents/ground-rules.md` before
-writing code.
+**Action**: Load `agents/c-tests.md`, `agents/ground-rules.md`, and
+`agents/commit-message.md` before writing code.
 
 ### Task: Write or Modify Shell Tests
 
 **Trigger**: User asks to write, fix, or modify a shell test.
 
-**Action**: Load `agents/shell-tests.md` and `agents/ground-rules.md` before
-writing code.
+**Action**: Load `agents/shell-tests.md`, `agents/ground-rules.md`, and
+`agents/commit-message.md` before writing code.
 
 ### Task: General Questions
 

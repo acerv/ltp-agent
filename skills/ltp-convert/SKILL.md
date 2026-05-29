@@ -91,4 +91,7 @@ pre-existing ones.
 ## Step 7: Runtime Test (Skip helpers)
 
 MUST run the test with `-i 0`, `-i 1`, `-i 10`. TCONF is acceptable.
-Any TFAIL or TBROK is a blocker and it MUST be fixed before proceeding.
+Any TFAIL or TBROK is a blocker and MUST be fixed before proceeding,
+UNLESS it reproduces a known unfixed kernel bug on the host — per
+`ground-rules.md` Rule 1, that is the expected (correct) outcome and
+MUST NOT be worked around in the converted test.

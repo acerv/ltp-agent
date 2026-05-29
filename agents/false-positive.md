@@ -56,7 +56,7 @@ Never report failure to handle an error unless:
   `tst_brk(TBROK, ...)` on failure, so a missing return-value check after
   `SAFE_OPEN()` is by design — not a bug.
 
-### 3. Unverifiable assumptions
+### 2. Unverifiable assumptions
 
 **Assume the author is wrong** and require proof they are correct.
 
@@ -77,7 +77,7 @@ Never report failure to handle an error unless:
 - You can verify all assumptions with concrete code paths.
 - The behavior is proven correct, not just claimed.
 
-### 3.1 Comment-based dismissals
+### 2.1 Comment-based dismissals
 
 When dismissing an issue because a comment or documentation says the code
 behaves a certain way, you MUST verify against the actual implementation:
@@ -94,7 +94,7 @@ behaves a certain way, you MUST verify against the actual implementation:
 4. **When in doubt, report the issue.** A bug dismissed based on
    incorrect documentation is worse than a false positive.
 
-### 5. Use-after-free confusion
+### 3. Use-after-free confusion
 
 Distinguish between:
 
@@ -106,7 +106,7 @@ Trace the exact sequence: `alloc@loc → use@loc → free@loc → use@loc`.
 Check if object ownership was transferred (e.g. to a `struct tst_test`
 hook, to a child process, to a cleanup callback).
 
-### 6. Resource-leak misconceptions
+### 4. Resource-leak misconceptions
 
 **Not a leak if:**
 
@@ -129,7 +129,7 @@ Also: `setup()` and `cleanup()` in `struct tst_test` run once per test
 process. Do NOT flag missing pointer resets in `cleanup()` (e.g.
 `p = NULL` after `SAFE_FREE(p)`) — the process exits next.
 
-### 7. Order changes
+### 5. Order changes
 
 Don't report order changes unless you can prove:
 
@@ -138,7 +138,7 @@ Don't report order changes unless you can prove:
   is created).
 - State becomes invalid.
 
-### 12. Uninitialized variables
+### 6. Uninitialized variables
 
 - Assigning to a variable is the same as initializing it.
 - Passing an uninitialized variable to a function is fine if that function
@@ -150,7 +150,7 @@ Don't report order changes unless you can prove:
   not flag missing explicit initialization for fields whose zero value is
   correct.
 
-### 13. Implicit guard conditions
+### 7. Implicit guard conditions
 
 Before reporting a NULL dereference:
 
@@ -163,7 +163,7 @@ Before reporting a NULL dereference:
 - Check whether the variable is on a path that cannot be reached when it
   would be NULL (e.g. `if (fd != -1) close(fd)`).
 
-### 14. Patch series
+### 8. Patch series
 
 Large changes are broken into small logical units. Each patch must compile
 and not introduce new bugs, but intermediate patches may legitimately:

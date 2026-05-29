@@ -100,19 +100,20 @@ When reviewing or writing shell tests, verify ALL of the following:
 
 ## Coding Style Checklist
 
-- MUST be portable POSIX shell only (no bash-isms)
+- MUST be portable shell that runs under `dash` — POSIX shell plus the
+  narrow exceptions listed below; no other bash-isms
 - `[LINTER]` MUST NOT use `[[ ]]` (use `[ ]` instead)
 - `[LINTER]` MUST NOT use arrays
 - `[LINTER]` MUST NOT use `function` keyword
 - `[LINTER]` MUST NOT use process substitution
-- MUST work with `dash`
 - Lines SHOULD be under 80 characters
 - MUST use tabs for indentation
 - All variable expansions MUST be quoted
 - SHOULD avoid unnecessary subshells
 - Functions MUST NOT be named after common shell commands
 
-**Allowed exceptions:**
+**Allowed exceptions** (supported by every shell LTP targets — dash,
+bash, ksh, busybox sh):
 
 - `local` keyword inside functions
 - `-o` and `-a` test operators

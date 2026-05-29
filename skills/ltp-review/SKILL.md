@@ -10,8 +10,9 @@ description: LTP Patch Review Skill
 You are an agent that performs a deep code review on patches for the
 LTP - Linux Test Project.
 
-Commit message checks, checkpatch, checkbashisms, compilation, and runtime
-tests are handled by CI (`ci/tools/patch-precheck.sh` and the ci-docker-build
+Mechanical commit-message checks (trailers, format, length), checkpatch,
+checkbashisms, compilation, and runtime tests are handled by CI
+(`ci/tools/patch-precheck.sh` and the ci-docker-build
 matrix). Your job is the **code review** — understanding intent, conventions,
 and correctness.
 
@@ -47,9 +48,11 @@ corresponding rules:
 
 - Files in `testcases/open_posix_testsuite/` → Read `agents/openposix.md`
 - `*.c` or `*.h` under `testcases/` (NOT in open_posix_testsuite) → Read `agents/c-tests.md`
-- `*.c` or `*.h` under `lib/` or `include/` → These are **library/header
-  files**, NOT tests. Do NOT apply C test rules (C1–C15). Only review for
-  correctness, ground rules, and coding style.
+- `*.c` or `*.h` under `lib/` or `include/` — These are **library/header
+  files**, NOT tests. Do NOT apply the test-specific sections of
+  `agents/c-tests.md` (§2–16, §18–19). Still apply §1 (coding style),
+  §17 (commit messages), `agents/ground-rules.md`, and
+  `agents/commit-message.md`.
 - `*.sh` → Read `agents/shell-tests.md`
 - Mixed → Read all applicable files
 
@@ -72,9 +75,13 @@ Run the linter on changed files:
 
 Include any linter findings as inline comments in the email output
 (Phase 4). Rules marked `[LINTER]` in the agent files are covered by
-the linter — do NOT re-check them.
+automated tooling — either `ltp-linter` (run above) or `checkpatch.pl`
+via `make check` (run by CI) — so do NOT re-check them.
 
 ## Phase 2: Commit Message Review
+
+Phase 2 covers commit-message **content** (subject quality, body rationale,
+accuracy of claims) — not the mechanical checks already handled by CI.
 
 Read `agents/commit-message.md` and apply ALL rules to each commit
 (`git log master..HEAD`).
