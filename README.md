@@ -38,8 +38,9 @@ and run them.
    ./ltp-agent/setup.sh
    ```
 
-   This symlinks the agent configuration (`.agents`, `.claude`, `GEMINI.md`,
-   `AGENTS.md`, `agents`) into the LTP tree.
+   This symlinks the agent configuration (`AGENTS.md`, `GEMINI.md`,
+   `agents/`, `skills/`, `.claude/skills/`, `.agents/skills/`, `linter/`)
+   into the LTP tree.
 
 3. Build LTP once so that tests can be compiled:
 

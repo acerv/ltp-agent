@@ -33,8 +33,8 @@ LTP_DIR="$(cd "$LTP_DIR" && pwd)"
 [ -f "$LTP_DIR/include/tst_test.h" ] ||
 	die "$LTP_DIR does not look like an LTP repo"
 
-# Create symlinks
-for name in .agents AGENTS.md agents linter; do
+# Create top-level symlinks into the LTP tree
+for name in AGENTS.md agents skills linter; do
 	target="$AGENT_DIR/$name"
 	link="$LTP_DIR/$name"
 
@@ -47,10 +47,15 @@ for name in .agents AGENTS.md agents linter; do
 	ln -s "$target" "$link"
 done
 
-# Agent-specific symlinks
-# .claude -> .agents   (Claude Code)
-# GEMINI.md -> AGENTS.md (Gemini CLI)
-for link_pair in ".claude .agents" "GEMINI.md AGENTS.md"; do
+# Agent-specific layout
+# Claude Code expects skills under .claude/skills/
+# Other agents (e.g. pi) expect skills under .agents/skills/
+# Gemini CLI reads GEMINI.md instead of AGENTS.md
+mkdir -p "$LTP_DIR/.claude" "$LTP_DIR/.agents"
+
+for link_pair in ".claude/skills $AGENT_DIR/skills" \
+		 ".agents/skills $AGENT_DIR/skills" \
+		 "GEMINI.md AGENTS.md"; do
 	set -- $link_pair
 	link="$LTP_DIR/$1"
 	target="$2"
