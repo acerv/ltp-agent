@@ -22,7 +22,7 @@ message. Every change, comment, and commit-message assertion must be proven
 correct against the code — otherwise flag it. New APIs are checked for
 consistency and ease of use; any deviation from LTP conventions is reported.
 
-## Phase 1: Setup
+## Phase 1: Setup Review
 
 ### Step 1.1: Load Rules
 
@@ -55,10 +55,6 @@ corresponding rules:
 
 **IMPORTANT**: Open POSIX tests use different APIs and conventions. Do NOT apply
 LTP C test rules to Open POSIX tests.
-
-**IMPORTANT**: `agents/c-tests.md` is the single source of truth for LTP C
-test rules. The checklist below is a structural guide only — when `c-tests.md`
-and the inline checklist conflict, `c-tests.md` wins.
 
 **Deletion-only patches:** If a patch only deletes files (no added or modified
 code), skip Phase 3 entirely. Only review commit messages (Phase 2) and verify
@@ -97,7 +93,7 @@ diff. Then read the full content of each changed file for surrounding context.
 Use `git diff master..HEAD` for the combined diff when checking cross-commit
 consistency.
 
-### Scope
+### Step 3.2: Scope
 
 Read full changed files for context, but only flag issues that meet one of:
 
@@ -113,11 +109,11 @@ memory issues such as leaks (`malloc`/`mmap` without matching
 `free`/`munmap`), use-after-free, double-free, uninitialized reads, or
 buffer overflows.
 
-If you notice pre-existing issues unrelated to the patch, list them separately
-under a **### Pre-existing (optional)** section after the main review. These
+If you notice pre-existing issues unrelated to the patch, report them in the
+block defined by `agents/inline-template.md` ("Pre-existing issues"). These
 are informational only and do NOT affect the verdict.
 
-### Ground Rules (MANDATORY — any violation = reject)
+### Step 3.3: Ground Rules (MANDATORY — any violation = reject)
 
 Apply ALL rules from `agents/ground-rules.md` (loaded in Step 1.1).
 
@@ -136,7 +132,7 @@ Additional detection guidance:
   users' files, etc.). Flag if `.needs_root = 1` but no privileged operation
   is found, or vice versa.
 
-### LTP C Test Rules
+### Step 3.4: LTP C Test Rules
 
 Apply ALL rules from `agents/c-tests.md` (loaded in Step 1.3).
 Do not rely on memory or prior knowledge — use the live file content.
@@ -159,7 +155,7 @@ Additional checks not covered in c-tests.md:
   `/usr/src/linux`, or online at `https://github.com/torvalds/linux`. If
   unverifiable, flag as **Needs discussion** ⚠️.
 
-### LTP Shell Test Rules
+### Step 3.5: LTP Shell Test Rules
 
 Apply ALL rules from `agents/shell-tests.md` (loaded in Step 1.3).
 Do not rely on memory or prior knowledge — use the live file content.
@@ -169,11 +165,11 @@ Do not rely on memory or prior knowledge — use the live file content.
 new API, skip structural checks. Still apply coding style, result reporting,
 and ground rules.
 
-### Open POSIX Test Rules
+### Step 3.6: Open POSIX Test Rules
 
 Apply ALL rules from `agents/openposix.md` (loaded in Step 1.3).
 
-### Step 3.2: False-positive verification
+### Step 3.7: False-positive verification
 
 Before moving to Phase 4, run every flagged issue through
 `agents/false-positive.md`. Read that file in full, then for each
@@ -188,93 +184,7 @@ Drop any issue that fails. A rule violation surfaced by `c-tests.md`,
 `shell-tests.md`, `openposix.md`, `ground-rules.md`, or `commit-message.md`
 is a candidate — not a confirmed finding — until it clears this step.
 
-## Phase 4: Output
-
-Compose a plain-text inline email review reply in the style of Linux kernel
-mailing list responses.
-
-**CRITICAL**: Your entire response MUST start with `Hi `. Do NOT print
-any text before the email — no preamble, no introduction, no summary.
-Do NOT print any text after the postamble.
-
-### Body content
-
-Read `agents/inline-template.md` and apply ALL its formatting, phrasing,
-quoting, and snipping rules to the body of the email. The structure,
-greeting, verdict, postamble, and pre-existing-issues block defined
-below remain authoritative; `inline-template.md` governs everything
-between them.
-
-### Verdict
-
-- If the verdict is Reviewed, say so clearly and nothing else.
-- If the verdict is Needs revision, list each issue inline in the patch
-  and close with a brief summary of what needs fixing.
-- If the verdict is Needs discussion, raise the open question clearly.
-
-### Structure (single patch or single-patch series)
-
-```
-Hi <firstname>,
-
-On <date>, <author> wrote:
-> <patch subject line>
-
-> [relevant diff hunk or code line]
-
-<comment>
-
-> [next relevant hunk]
-
-<comment>
-
-[...]
-
-[if no issues:]
-All good. Reviewed.
-
-<postamble>
-```
-
-### Structure (multi-patch series)
-
-One email replying to the first patch. Use `--- [PATCH N/M] ---` markers
-between per-patch comments. Only include patches that have findings.
-If ALL patches are approved, omit markers.
-
-### Postamble
-
-Every email MUST end with:
-
-```
----
-Note:
-
-The agent can sometimes produce false positives although often its
-findings are genuine. If you find issues with the review, please
-comment this email or ignore the suggestions.
-
-Regards,
-LTP AI Reviewer
-```
-
-### Pre-existing issues
-
-If you noticed pre-existing issues in surrounding code (not introduced
-by this patch), include them at the end of the email before the postamble:
-
-```
-Pre-existing issues noticed in the surrounding code (not introduced
-by this patch):
-
-- <file> in <function>() — <issue>
-```
-
-Use function names, never line numbers (see `agents/inline-template.md`
-"NEVER quote line numbers"). If none were noticed, do NOT include this
-block.
-
-### Decision Rules
+### Step 3.8: Decision Rules
 
 - ANY ground rule violation → Needs revision
 - ANY commit message violation → Needs revision
@@ -282,7 +192,10 @@ block.
 - All checks pass → Reviewed
 - Uncertain about rule → Needs discussion
 
-## Phase 5: Write Output File
+## Phase 4: Writing Output
 
-Write the email body from Phase 4 (from `Hi ` through `LTP AI Reviewer`)
-to `./review-inline.txt`. Create the file, do not append.
+Compose the review reply following ALL rules in
+`agents/inline-template.md`.
+
+Write the email (from `Hi ` through `LTP AI Reviewer`) to `./review-inline.txt`.
+Create the file, do not append.
