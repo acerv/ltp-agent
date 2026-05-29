@@ -103,7 +103,6 @@ def check_struct_tst_test(lines):
     yield 1, "no struct tst_test found"
 
 
-
 @rule("FD not initialized to -1")
 def check_fd_init(lines):
     """

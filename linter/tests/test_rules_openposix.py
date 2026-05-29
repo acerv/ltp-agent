@@ -30,8 +30,7 @@ class TestCheckGplHeader:
         Verify no finding when GNU General Public License is used.
         """
         lines = [
-            " * under the terms of version 2 of the"
-            " GNU General Public License as\n",
+            " * under the terms of version 2 of the GNU General Public License as\n",
         ]
         assert list(check_gpl_header(lines)) == []
 
@@ -64,8 +63,7 @@ class TestCheckCopyright:
         Verify no finding when copyright with year is present.
         """
         lines = [
-            " * Copyright (c) 2002, Intel Corporation."
-            " All rights reserved.\n",
+            " * Copyright (c) 2002, Intel Corporation. All rights reserved.\n",
         ]
         assert list(check_copyright(lines)) == []
 

@@ -221,7 +221,6 @@ class TestCheckStructTstTest:
         assert list(check_struct_tst_test(lines)) == []
 
 
-
 class TestCheckFdInit:
     """
     Tests for the FD initialization rule.

@@ -140,7 +140,7 @@ class TestRunRules:
             Rule that never yields.
             """
             return
-            yield  # noqa: unreachable — makes this a generator
+            yield  # makes this a generator (unreachable)
 
         assert core.run_rules(["line\n"]) == []
 
