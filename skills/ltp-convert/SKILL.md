@@ -115,3 +115,9 @@ Any TFAIL or TBROK is a blocker and MUST be fixed before proceeding,
 UNLESS it reproduces a known unfixed kernel bug on the host — per
 `ground-rules.md` Rule 1, that is the expected (correct) outcome and
 MUST NOT be worked around in the converted test.
+
+## Step 8: Self-Review and Fix
+
+MUST invoke the `/ltp-review` skill once. It writes the email reply to
+`./review-inline.txt` at the LTP tree root. Read that file and fix
+every issue it raises in the converted source.
