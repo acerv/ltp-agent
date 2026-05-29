@@ -3,7 +3,9 @@
 # C Test Rules
 
 This file contains MANDATORY rules for C tests. Load this file when reviewing
-or writing any patch that modifies `*.c` or `*.h` files.
+or writing any patch that modifies `*.c` or `*.h` files, EXCEPT files under
+`testcases/open_posix_testsuite/` — those tests use different APIs and
+conventions (see `agents/openposix.md`).
 
 ## Required Test Structure
 
@@ -224,17 +226,7 @@ static struct tst_test test = { .test_all = run };
 
 ### 17. Commit Messages
 
-Do NOT flag an empty commit body when the patch is trivially
-self-explanatory from the subject line alone. Examples include, but are
-not limited to:
-
-- Adding a fallback `#ifndef` / `#define` in `include/lapi/` headers
-- Fixing a typo
-- Updating a `.gitignore` entry
-- Adding a missing `#include`
-
-Only flag an empty commit body when understanding **why** the change was
-made requires explanation beyond what the subject line conveys.
+For commit-message rules, see `agents/commit-message.md`.
 
 ### 18. Deprecated Features
 

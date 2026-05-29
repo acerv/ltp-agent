@@ -18,8 +18,20 @@ A good subject lets a reader predict the diff scope without opening it.
 The body must contain at least one sentence beyond restating the subject line.
 It must state the motivation (why the change is needed) or the problem being
 solved. Flag if the body only describes what changed (e.g. "changed X to Y")
-without explaining why, or if the body is empty. Exception: trivial mechanical
-changes (typo fixes, whitespace) may have a minimal body.
+without explaining why, or if the body is empty.
+
+Exception: do NOT flag an empty or minimal commit body when the patch is
+trivially self-explanatory from the subject line alone. Examples include, but
+are not limited to:
+
+- Fixing a typo
+- Whitespace or formatting fixes
+- Adding a fallback `#ifndef` / `#define` in `include/lapi/` headers
+- Updating a `.gitignore` entry
+- Adding a missing `#include`
+
+Only flag an empty commit body when understanding **why** the change was made
+requires explanation beyond what the subject line conveys.
 
 ## 3. One logical change
 
