@@ -794,24 +794,6 @@ static struct tst_test test = {
 };
 ```
 
-#### No manual reset after SAFE_MUNMAP
-
-Do NOT reset the pointer to `NULL` after `SAFE_MUNMAP()` — the memory is
-already unmapped and the reset is redundant.
-
-WRONG — redundant reset after SAFE_MUNMAP():
-
-```c
-SAFE_MUNMAP(addr, size);
-addr = NULL;
-```
-
-CORRECT - no reset needed:
-
-```c
-SAFE_MUNMAP(addr, size);
-```
-
 #### Use `.bufs` for tested syscall struct arguments
 
 NEVER allocate syscall struct arguments on the stack as local variables, if the
