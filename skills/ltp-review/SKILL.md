@@ -48,10 +48,19 @@ corresponding rules:
 
 - Files in `testcases/open_posix_testsuite/` → Read `agents/openposix.md`
 - `*.c` or `*.h` under `testcases/` (NOT in open_posix_testsuite) → Read `agents/c-tests.md`
-- `*.c` or `*.h` under `lib/` or `include/` — These are **library/header
-  files**, NOT tests. Do NOT apply the test-specific sections of
-  `agents/c-tests.md` (§2–16, §18–19). Still apply §1 (coding style),
-  §17 (commit messages), `agents/ground-rules.md`, and
+- `*.c` or `*.h` under `lib/newlib_tests/` — These are **C tests** (LTP
+  library self-tests). Apply the full `agents/c-tests.md` rules.
+- `*.c` or `*.h` under `lib/` or `include/` (excluding `lib/newlib_tests/`)
+  — These are **library/header files**, NOT tests. Do NOT apply the
+  test-specific sections of `agents/c-tests.md`: §2 (API Usage), §3 (Test
+  Execution Model), §6 (File Organization), §7 (Result Reporting), §10
+  (Tagging), §15 (Architecture-Specific Tests), §16 (Compile-time Feature
+  Guards), §18 (Deprecated Features), §19 (Test high-level description).
+  Still apply §1 (Coding Style), §4 (Synchronization), §5 (Syscall
+  Correctness), §8 (Safe Macros), §9 (Runtime Feature Detection), §11
+  (Cleanup), §12 (Static Variables), §13 (Memory Allocation), §14 (String
+  Handling), §17 (Commit Messages), and the Code Examples block for SAFE_*
+  macro definitions. Also apply `agents/ground-rules.md` and
   `agents/commit-message.md`.
 - `*.sh` → Read `agents/shell-tests.md`
 - Mixed → Read all applicable files
@@ -185,7 +194,7 @@ candidate issue:
 1. Apply the relevant "Common false-positive patterns" sections.
 2. Walk through TASK POSITIVE.1 (9 numbered verification steps) and
    produce the required outputs.
-3. Pass the Final Filter (4 yes/no gates).
+3. Pass the Final Filter (3 yes/no gates plus a defensive/concrete classifier).
 
 Drop any issue that fails. A rule violation surfaced by `c-tests.md`,
 `shell-tests.md`, `openposix.md`, `ground-rules.md`, or `commit-message.md`
