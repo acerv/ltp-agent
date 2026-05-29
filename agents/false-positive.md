@@ -273,7 +273,7 @@ investigate further or discard.
   bodies. Do not flag empty bodies on self-explanatory patches.
 - **Old API tests**: when a patch touches an existing old-API test
   without converting it, do not flag the pre-existing old-API usage as
-  a regression. See `SKILL.md` "Old API tests" guidance.
+  a regression introduced by this patch.
 - **`#ifdef HAVE_*` with `TST_TEST_TCONF` in `#else`**: this is the
   documented LTP pattern for compile-time feature gating with runtime
   reporting. Not a violation of the runtime-detection ground rule.
