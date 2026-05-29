@@ -33,31 +33,10 @@ LTP_DIR="$(cd "$LTP_DIR" && pwd)"
 [ -f "$LTP_DIR/include/tst_test.h" ] ||
 	die "$LTP_DIR does not look like an LTP repo"
 
-# Create top-level symlinks into the LTP tree
-for name in AGENTS.md agents skills linter; do
-	target="$AGENT_DIR/$name"
-	link="$LTP_DIR/$name"
-
-	if [ -L "$link" ]; then
-		rm "$link"
-	elif [ -e "$link" ]; then
-		die "$link already exists and is not a symlink"
-	fi
-
-	ln -s "$target" "$link"
-done
-
-# Agent-specific layout
-# Claude Code expects skills under .claude/skills/
-# Other agents (e.g. pi) expect skills under .agents/skills/
-# Gemini CLI reads GEMINI.md instead of AGENTS.md
-mkdir -p "$LTP_DIR/.claude" "$LTP_DIR/.agents"
-
-for link_pair in ".claude/skills $AGENT_DIR/skills" \
-		 ".agents/skills $AGENT_DIR/skills" \
-		 "GEMINI.md AGENTS.md"; do
-	set -- $link_pair
-	link="$LTP_DIR/$1"
+# Helper: create $link -> $target, replacing any existing symlink.
+# Errors out if a non-symlink already exists at $link.
+link_into_ltp() {
+	link="$1"
 	target="$2"
 
 	if [ -L "$link" ]; then
@@ -67,6 +46,21 @@ for link_pair in ".claude/skills $AGENT_DIR/skills" \
 	fi
 
 	ln -s "$target" "$link"
+}
+
+# Top-level rule/skill directories plus AGENTS.md.
+for name in AGENTS.md agents skills linter; do
+	link_into_ltp "$LTP_DIR/$name" "$AGENT_DIR/$name"
 done
+
+# Gemini CLI reads GEMINI.md instead of AGENTS.md.
+link_into_ltp "$LTP_DIR/GEMINI.md" "$AGENT_DIR/AGENTS.md"
+
+# Agent-specific skill directory layout.
+# Claude Code expects skills under .claude/skills/
+# Other agents (e.g. pi) expect skills under .agents/skills/
+mkdir -p "$LTP_DIR/.claude" "$LTP_DIR/.agents"
+link_into_ltp "$LTP_DIR/.claude/skills" "$AGENT_DIR/skills"
+link_into_ltp "$LTP_DIR/.agents/skills" "$AGENT_DIR/skills"
 
 echo "ltp-agent linked into $LTP_DIR"
