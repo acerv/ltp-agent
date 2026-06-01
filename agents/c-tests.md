@@ -92,6 +92,9 @@ on static variable re-initialization).
 - Use instead: `SAFE_WAITPID()`, `TST_CHECKPOINT_WAIT()` /
   `TST_CHECKPOINT_WAKE()`, `TST_PROCESS_STATE_WAIT()`, or
   exponential-backoff polling
+- SHOULD prefer the LTP `TST_CHECKPOINT_*` API over hand-rolled
+  synchronization (pipes, eventfd, shared-memory flags) for inter-process
+  rendezvous, unless the IPC itself is what the test exercises
 
 ### 5. Syscall Correctness
 
