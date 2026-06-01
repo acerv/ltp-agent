@@ -90,6 +90,23 @@ API (`tst_test.h`).
 
 **Action**: Run the `/ltp-convert` skill.
 
+### Task: Import an External Test
+
+**Trigger**: User requests turning a test that did NOT originate in the LTP
+tree (kselftest, glibc/musl test, bare C reproducer, syzkaller/syzbot
+reproducer, CVE proof-of-concept, or standalone shell reproducer) into a
+native LTP test. Also triggered by `/ltp-import`.
+
+**Action**: Run the `/ltp-import` skill.
+
+### Task: Analyze or Evaluate a Test
+
+**Trigger**: User requests analysis, evaluation, or assessment of a test's
+quality, robustness, coverage, or effectiveness. Also triggered by
+`/ltp-analyze`.
+
+**Action**: Run the `/ltp-analyze` skill.
+
 ### Task: Write or Modify Open POSIX Tests
 
 **Trigger**: User asks to write, fix, or modify a test in
@@ -122,8 +139,10 @@ When a request matches multiple tasks, use the following priority order
 
 1. Patch Review
 2. Convert Old Test API
-3. Write or Modify Open POSIX Tests
-4. Write or Modify C Tests / Write or Modify Shell Tests
+3. Import an External Test
+4. Analyze or Evaluate a Test
+5. Write or Modify Open POSIX Tests
+6. Write or Modify C Tests / Write or Modify Shell Tests
 
 ### Task: General Questions
 

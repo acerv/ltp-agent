@@ -29,22 +29,50 @@ consistency and ease of use; any deviation from LTP conventions is reported.
 
 Read `agents/ground-rules.md`.
 
-### Step 1.2: Verify patches are applied
+### Step 1.2: Determine the Review Target
+
+The review operates on one of two targets. Pick the first that applies:
+
+1. **Explicit file or test name** (target mode). The user named a file path
+   (e.g. `testcases/kernel/syscalls/foo/foo01.c`) or a bare test basename
+   (e.g. `foo01`). Resolve it to source file(s):
+   - A file path is used as-is.
+   - A bare test name is resolved by searching the tree, e.g.
+     `find testcases lib -name '<name>.c' -o -name '<name>.sh'`. If the
+     search returns nothing, **stop** and tell the user the test was not
+     found. If it returns more than one match, list them and ask which to
+     review.
+
+   The **changed-file list** is the resolved path(s). Determine the **diff
+   source** for these files:
+   - If they have uncommitted changes
+     (`git diff HEAD -- <files>` is non-empty), review that working-tree diff.
+   - Otherwise (a clean, already-committed or pristine file) review the
+     **full file content** as the change set.
+
+   In target mode, **skip Step 1.2b** (no branch check) and skip Phase 2
+   unless the target is backed by commits ahead of master that touch it.
+
+2. **Branch with patches applied** (branch mode). No explicit target was
+   given — fall through to Step 1.2b.
+
+### Step 1.2b: Branch mode — verify patches are applied
 
 Run `git rev-list --count master..HEAD`. If the count is 0 (no commits ahead
 of master), or the current branch IS master, **stop immediately** and tell the
 user:
 
-> No patches found. Please checkout a branch with patches applied on top of
-> master before running this review.
+> No patches found. Either name a test or file to review, or checkout a branch
+> with patches applied on top of master before running this review.
 
 Do NOT proceed with the review.
 
 ### Step 1.3: Identify Changed Files and Patch Type
 
-The current branch already has the patches applied (master..HEAD).
-Use `git diff --name-only master..HEAD` to list changed files, then load
-corresponding rules:
+In **branch mode**, the current branch already has the patches applied
+(master..HEAD); use `git diff --name-only master..HEAD` to list changed
+files. In **target mode**, use the changed-file list resolved in Step 1.2.
+For each changed file, load corresponding rules:
 
 - Files in `testcases/open_posix_testsuite/` → Read `agents/openposix.md`
 - `*.c` or `*.h` under `testcases/` (NOT in open_posix_testsuite) → Read `agents/c-tests.md`.
@@ -54,8 +82,8 @@ corresponding rules:
   `main()` under `TST_NO_DEFAULT_MAIN` — skip the test-structure rules
   (§2 `main()`/`struct tst_test` bullets, §3, §6, §7, §10, §15, §16,
   §19) and apply the "Helper Binaries (`TST_NO_DEFAULT_MAIN`)" section
-  instead. If a file looks like a standalone test (uses `struct
-  tst_test`) but is missing from `runtest/`, treat it as a test and
+  instead. If a file looks like a standalone test (uses `struct tst_test`)
+  but is missing from `runtest/`, treat it as a test and
   flag the missing entry as a bug.
 - `*.c` or `*.h` under `lib/newlib_tests/` — These are **C tests** (LTP
   library self-tests). Apply the full `agents/c-tests.md` rules.
@@ -68,7 +96,7 @@ corresponding rules:
   Still apply §1 (Coding Style), §4 (Synchronization), §5 (Syscall
   Correctness), §8 (Safe Macros), §9 (Runtime Feature Detection), §11
   (Cleanup), §12 (Static Variables), §13 (Memory Allocation), §14 (String
-  Handling), §17 (Commit Messages), and the Code Examples block for SAFE_*
+  Handling), §17 (Commit Messages), and the Code Examples block for SAFE\_\*
   macro definitions. Also apply `agents/ground-rules.md` and
   `agents/commit-message.md`.
 - `*.sh` → Read `agents/shell-tests.md`
@@ -101,6 +129,10 @@ via `make check` (run by CI) — so do NOT re-check them.
 Phase 2 covers commit-message **content** (subject quality, body rationale,
 accuracy of claims) — not the mechanical checks already handled by CI.
 
+**Target mode without commits:** If the review target (Step 1.2) is a
+working-tree diff or a pristine file with no commits ahead of master touching
+it, there is no commit message to review — **skip Phase 2 entirely**.
+
 Read `agents/commit-message.md` and apply ALL rules to each commit
 (`git log master..HEAD`).
 
@@ -113,10 +145,16 @@ do NOT ask to squash them.
 
 ### Step 3.1: Read the Diff
 
-For each commit in the series, run `git show <hash>` to read the individual
-diff. Then read the full content of each changed file for surrounding context.
-Use `git diff master..HEAD` for the combined diff when checking cross-commit
-consistency.
+In **branch mode**, for each commit in the series run `git show <hash>` to read
+the individual diff, and use `git diff master..HEAD` for the combined diff when
+checking cross-commit consistency.
+
+In **target mode**, read the diff source resolved in Step 1.2: use
+`git diff HEAD -- <files>` when there are uncommitted changes, otherwise treat
+the full file content as the change set (every line is in scope).
+
+In all cases, read the full content of each changed file for surrounding
+context.
 
 ### Step 3.2: Scope
 
