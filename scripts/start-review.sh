@@ -153,7 +153,7 @@ log ""
 
 PROMPT="Run the /ltp-review skill."
 
-CLAUDE_TOOLS="--allowedTools Bash(git:*) Bash(grep:*) Bash(linter/ltp-linter:*) Read Write(//tmp/**/review-inline.txt)"
+CLAUDE_TOOLS="--allowedTools Bash(git:*) Bash(grep:*) Read Write(//tmp/**/review-inline.txt)"
 
 if [ "$INTERACTIVE" -eq 1 ]; then
 	case "$AGENT" in

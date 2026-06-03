@@ -49,7 +49,7 @@ link_into_ltp() {
 }
 
 # Top-level rule/skill directories plus AGENTS.md.
-for name in AGENTS.md agents skills linter; do
+for name in AGENTS.md agents skills; do
 	link_into_ltp "$LTP_DIR/$name" "$AGENT_DIR/$name"
 done
 

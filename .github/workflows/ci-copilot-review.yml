@@ -136,7 +136,6 @@ jobs:
             --allow-tool='shell(git rev-parse:*)' \
             --allow-tool='shell(git format-patch:*)' \
             --allow-tool='shell(man:*)' \
-            --allow-tool='shell(linter/ltp-linter:*)' \
             --allow-tool='read(${{ github.workspace }}/ltp/*)' \
             --allow-tool='read(${{ github.workspace }}/ltp-agent/*)' \
             --allow-tool='read(/usr/src/linux/*)' \

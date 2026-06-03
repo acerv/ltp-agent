@@ -39,7 +39,7 @@ and run them.
    ```
 
    This symlinks the agent configuration (`AGENTS.md`, `GEMINI.md`,
-   `agents/`, `skills/`, `.claude/skills/`, `.agents/skills/`, `linter/`)
+   `agents/`, `skills/`, `.claude/skills/`, `.agents/skills/`)
    into the LTP tree.
 
 3. Build LTP once so that tests can be compiled:
@@ -101,9 +101,8 @@ With the patch applied, invoke the review skill inside your agent:
 ```
 
 This performs a deep code review against all LTP rules (ground rules, C test
-rules, shell test rules, or Open POSIX rules depending on the files changed),
-runs the mechanical linter (see [Linter](#linter)) to catch low-level
-violations, and writes the resulting inline email reply to `review-inline.txt`
+rules, shell test rules, or Open POSIX rules depending on the files changed)
+and writes the resulting inline email reply to `review-inline.txt`
 at the LTP tree root.
 
 ### Running a Review End-to-End
@@ -187,25 +186,6 @@ based on the task:
 - **email-template.md** — Complete format of a review reply email: greeting,
   quoting style, per-issue layout, verdict wording, postamble, and the
   pre-existing-issues block. Loaded by the review skill during Phase 4.
-
-## Linter
-
-The `linter/` directory contains a Python-based mechanical rule checker
-(`ltp-linter`) that the `/ltp-review` skill invokes before doing semantic
-analysis. It catches low-level violations (missing SPDX headers, legacy APIs,
-shell bash-isms, etc.) so the LLM can focus on logic and correctness.
-
-It can also be used standalone from the LTP tree:
-
-```sh
-# Lint a single file
-./linter/ltp-linter -f testcases/kernel/syscalls/foo/foo01.c
-
-# Lint all files changed on the current branch vs master
-./linter/ltp-linter -b
-```
-
-See `linter/README.md` for the full rule list.
 
 ## Continuous Integration
 

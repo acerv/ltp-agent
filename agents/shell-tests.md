@@ -57,19 +57,19 @@ When reviewing or writing shell tests, verify ALL of the following:
 
 ### Block 1: Shebang + License + Copyright
 
-- `[LINTER]` Shebang MUST be exactly `#!/bin/sh`
-- `[LINTER]` License MUST be `GPL-2.0-or-later`
-- `[LINTER]` Copyright line MUST be present with year and author
+- Shebang MUST be exactly `#!/bin/sh`
+- License MUST be `GPL-2.0-or-later`
+- Copyright line MUST be present with year and author
 
 ### Block 2: Doc Block
 
-- `[LINTER]` `# --- doc` block MUST be present
+- `# --- doc` block MUST be present
 - MUST contain RST-formatted description of WHAT is tested
 - Will be exported to online test catalog
 
 ### Block 3: Env Block
 
-- `[LINTER]` `# --- env` block MUST be present (even if empty: `{}`)
+- `# --- env` block MUST be present (even if empty: `{}`)
 - MUST contain JSON serialization of `struct tst_test` fields
 - Valid keys: `"needs_root"`, `"needs_tmpdir"`, `"needs_kconfigs"`, `"tags"`, etc.
 
@@ -95,17 +95,17 @@ When reviewing or writing shell tests, verify ALL of the following:
 
 ### Block 8: Source Runner
 
-- `[LINTER]` `. tst_run.sh` MUST be the LAST line of the file
+- `. tst_run.sh` MUST be the LAST line of the file
 - NOTHING may come after this line
 
 ## Coding Style Checklist
 
 - MUST be portable shell that runs under `dash` — POSIX shell plus the
   narrow exceptions listed below; no other bash-isms
-- `[LINTER]` MUST NOT use `[[ ]]` (use `[ ]` instead)
-- `[LINTER]` MUST NOT use arrays
-- `[LINTER]` MUST NOT use `function` keyword
-- `[LINTER]` MUST NOT use process substitution
+- MUST NOT use `[[ ]]` (use `[ ]` instead)
+- MUST NOT use arrays
+- MUST NOT use `function` keyword
+- MUST NOT use process substitution
 - Lines SHOULD be under 80 characters
 - MUST use tabs for indentation
 - All variable expansions MUST be quoted

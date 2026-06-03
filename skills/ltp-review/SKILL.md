@@ -85,17 +85,6 @@ that related entries (runtest, .gitignore, Makefile) are also removed.
 (runtest/\*, Makefile, .gitignore, doc/, ci/, scripts/), skip the code review
 checklist. Only review commit messages and verify the changes are correct.
 
-### Step 1.4: Run Linter
-
-Run the linter on changed files:
-
-    linter/ltp-linter -b 2>/dev/null
-
-Include any linter findings as inline comments in the email output
-(Phase 4). Rules marked `[LINTER]` in the agent files are covered by
-automated tooling — either `ltp-linter` (run above) or `checkpatch.pl`
-via `make check` (run by CI) — so do NOT re-check them.
-
 ## Phase 2: Commit Message Review
 
 Phase 2 covers commit-message **content** (subject quality, body rationale,
@@ -209,8 +198,7 @@ is a candidate — not a confirmed finding — until it clears this step.
 
 ## Phase 4: Writing Output
 
+Read `agents/email-template.md`.
+
 1. Compose the review reply following ALL rules in `agents/email-template.md`.
-2. Once review reply is composed, you MUST verify that ALL rules inside the
-   `agents/email-template.md` are actually applied to it and eventually modify
-   it accordingly.
-3. Write the email to `./review-inline.txt`. Create, do not append.
+2. Write the email to `./review-inline.txt`. Create, do not append.

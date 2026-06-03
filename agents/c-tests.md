@@ -44,25 +44,25 @@ When reviewing or writing C tests, verify ALL of the following:
 
 ### 1. Coding Style
 
-- `[LINTER]` Code MUST follow Linux kernel coding style
-- `[LINTER]` `make check` or `make check-$TCID` MUST pass (uses vendored `checkpatch.pl`)
+- Code MUST follow Linux kernel coding style
+- `make check` or `make check-$TCID` MUST pass (uses vendored `checkpatch.pl`)
 - MUST use C99 features where appropriate
 - Variables declared after statements (C99/C11 style) are allowed and MUST
   NOT be flagged as errors or style issues. NEVER suggest moving a variable
   declaration to the top of the function — this is an explicit exception to
   the kernel coding style rule
-- `[LINTER]` Identifiers e.g. function, variable, macro names must not start with
+- Identifiers e.g. function, variable, macro names must not start with
   underscore since these are reserved for compiler, kernel, and libc
-- `[LINTER]` MUST NOT use curly braces when the body is a single line
-- `[LINTER]` MUST use curly braces when the body spans multiple lines
+- MUST NOT use curly braces when the body is a single line
+- MUST use curly braces when the body spans multiple lines
 - MUST NOT add comments that describe obvious, i.e. literal translation of what
   the code does into the english
 
 ### 2. API Usage
 
-- `[LINTER]` MUST use new API (`tst_test.h`), NOT old API (`test.h`)
-- `[LINTER]` MUST NOT define `main()` (unless `TST_NO_DEFAULT_MAIN` is used)
-- `[LINTER]` MUST use `struct tst_test` for configuration
+- MUST use new API (`tst_test.h`), NOT old API (`test.h`)
+- MUST NOT define `main()` (unless `TST_NO_DEFAULT_MAIN` is used)
+- MUST use `struct tst_test` for configuration
 - Handlers MUST be thin; logic goes in `.setup` and `.cleanup` callbacks
 
 ### 3. Test Execution Model
@@ -107,7 +107,7 @@ on static variable re-initialization).
 - Syscall tests go under `testcases/kernel/syscalls/`
 - Entry MUST exist in appropriate `runtest/` file
 - Sub-executables MUST use `$TESTNAME_` prefix
-- `[LINTER]` MUST use `.needs_tmpdir = 1` for temp files (work in current directory)
+- MUST use `.needs_tmpdir = 1` for temp files (work in current directory)
 
 ### 7. Result Reporting
 
@@ -165,7 +165,7 @@ on static variable re-initialization).
 
 ### 15. Architecture-Specific Tests
 
-- `[LINTER]` MUST use `.supported_archs` in `struct tst_test` when the target architectures
+- MUST use `.supported_archs` in `struct tst_test` when the target architectures
   are supported by the framework (see `lib/tst_arch.c`)
 - `#if defined(...)` arch guards are only acceptable when the target architecture
   is not supported by the framework
@@ -233,7 +233,7 @@ For commit-message rules, see `agents/commit-message.md`.
 
 ### 18. Deprecated Features
 
-- `[LINTER]` MUST NOT define `[Description]` in the test description section
+- MUST NOT define `[Description]` in the test description section
 
 ### 19. Test high-level description
 
@@ -279,7 +279,7 @@ rewriting old LTP tests or when writing new LTP tests.
 
 ALWAYS follow these rules.
 
-### Architecture-Specific Tests `[LINTER]`
+### Architecture-Specific Tests
 
 When the target architectures are supported by the framework, do NOT use
 preprocessor arch guards:
@@ -310,7 +310,7 @@ static struct tst_test test = {
 
 ### LTP API usage
 
-#### Use the correct import `[LINTER]`
+#### Use the correct import
 
 WRONG — importing legacy API:
 
@@ -347,7 +347,7 @@ int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
 
 ### New SAFE\_\* macros definition
 
-#### Don't use `cleanup_fn` in newly added `safe_*` definitions `[LINTER]`
+#### Don't use `cleanup_fn` in newly added `safe_*` definitions
 
 WRONG — cleanup_fn is used in the legacy LTP API:
 
@@ -389,7 +389,7 @@ void *safe_mysyscall(const char *file, const int lineno,
 }
 ```
 
-### Temporary folder `[LINTER]`
+### Temporary folder
 
 Tests that create files MUST set `.needs_tmpdir = 1` in `struct tst_test`.
 The framework creates a temporary directory and `chdir`s into it before
@@ -406,7 +406,7 @@ static struct tst_test test = {
 
 ### File descriptors
 
-#### Initialization and cleanup `[LINTER]`
+#### Initialization and cleanup
 
 File descriptors MUST be initialized to `-1` (not left as `0`, which is
 stdin) and MUST be closed in `cleanup()` with a `fd != -1` guard:
@@ -442,7 +442,7 @@ static struct tst_test test = {
 };
 ```
 
-#### No manual reset after SAFE_CLOSE `[LINTER]`
+#### No manual reset after SAFE_CLOSE
 
 `SAFE_CLOSE()` is a macro that calls `safe_close()` AND sets the passed
 argument file descriptor to `-1` in a single step. This applies everywhere in
@@ -536,7 +536,7 @@ static struct tst_test test = {
 };
 ```
 
-#### Use `fd != -1` to check file descriptor validity `[LINTER]`
+#### Use `fd != -1` to check file descriptor validity
 
 NEVER use `fd >= 0` or `fd > 0` to check whether a file descriptor is valid:
 
@@ -1069,7 +1069,7 @@ Note: `PATH_MAX` is for **full paths**. For buffers holding only a **filename**
 `struct inotify_event.name` stores a filename, so `NAME_MAX + 1` is correct
 there — not `PATH_MAX`.
 
-### Kernel Config Dependencies `[LINTER]`
+### Kernel Config Dependencies
 
 NEVER manually check for kernel config features by handling ioctl/syscall
 errors at runtime when `.needs_kconfigs` can be used:
@@ -1117,7 +1117,7 @@ static struct tst_test test = {
 
 ### Using Syscalls
 
-#### Using tst_syscall `[LINTER]`
+#### Using tst_syscall
 
 NEVER call plain syscalls:
 
@@ -1208,7 +1208,7 @@ if (!child_pid) {
 
 ALWAYS call `exit(0)` at the end of the child block.
 
-`[LINTER]` MUST NOT use `_exit()` — use `exit(0)` instead so the LTP
+MUST NOT use `_exit()` — use `exit(0)` instead so the LTP
 framework can propagate test results from child to parent.
 
 Example:
