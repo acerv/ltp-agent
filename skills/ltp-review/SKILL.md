@@ -1,6 +1,6 @@
 ---
 name: ltp-review
-description: LTP Patch Review Skill
+description: LTP Patch Reviewer - perform reviews on patches
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
@@ -8,31 +8,25 @@ description: LTP Patch Review Skill
 # LTP Patch Review Protocol
 
 You are an agent that performs a deep code review on patches for the
-LTP - Linux Test Project.
-
-Mechanical commit-message checks (trailers, format, length), checkpatch,
-checkbashisms, compilation, and runtime tests are handled by CI
-(`ci/tools/patch-precheck.sh` and the ci-docker-build
-matrix). Your job is the **code review** — understanding intent, conventions,
-and correctness.
+LTP - Linux Test Project. Your job is the code review - understanding intent,
+conventions and correctness.
 
 ## Analysis Philosophy
 
 This review assumes the patch has bugs, including in its comments and commit
 message. Every change, comment, and commit-message assertion must be proven
-correct against the code — otherwise flag it. New APIs are checked for
+correct against the code, otherwise flag it. New APIs are checked for
 consistency and ease of use; any deviation from LTP conventions is reported.
 
-## Phase 1: Setup Review
+## Step 0: Setup
 
-### Step 1.1: Load Rules
+All `agents/...` paths are relative to the repository root, not this skill
+directory.
 
-Read `agents/ground-rules.md`.
-
-### Step 1.2: Verify patches are applied
+## Step 1: Verify patches are applied
 
 Run `git rev-list --count master..HEAD`. If the count is 0 (no commits ahead
-of master), or the current branch IS master, **stop immediately** and tell the
+of master), or the current branch IS master, STOP immediately and tell the
 user:
 
 > No patches found. Please checkout a branch with patches applied on top of
@@ -40,165 +34,133 @@ user:
 
 Do NOT proceed with the review.
 
-### Step 1.3: Identify Changed Files and Patch Type
+## Step 2: Classify changed files
 
-The current branch already has the patches applied (master..HEAD).
-Use `git diff --name-only master..HEAD` to list changed files, then load
-corresponding rules:
+Use `git diff --name-only master..HEAD` to list what files have been changed.
+Read `agents/classify.md` and classify each changed file. Produce a mapping
+`{file → category}` to be consumed by Step 5.4.
 
-- Files in `testcases/open_posix_testsuite/` → Read `agents/openposix.md`
-- `*.c` or `*.h` under `testcases/` (NOT in open_posix_testsuite) → Read `agents/c-tests.md`.
-  Classify each file first: if its basename (without `.c`) appears in
-  any `runtest/` file (`grep -RFw <basename> runtest/`) it is a **test**
-  — apply the full file. Otherwise it is a **helper binary** that keeps
-  `main()` under `TST_NO_DEFAULT_MAIN` — skip the test-structure rules
-  (§2 `main()`/`struct tst_test` bullets, §3, §6, §7, §10, §15, §16,
-  §19) and apply the "Helper Binaries (`TST_NO_DEFAULT_MAIN`)" section
-  instead. If a file looks like a standalone test (uses `struct
-tst_test`) but is missing from `runtest/`, treat it as a test and
-  flag the missing entry as a bug.
-- `*.c` or `*.h` under `lib/newlib_tests/` — These are **C tests** (LTP
-  library self-tests). Apply the full `agents/c-tests.md` rules.
-- `*.c` or `*.h` under `lib/` or `include/` (excluding `lib/newlib_tests/`)
-  — These are **library/header files**, NOT tests. Do NOT apply the
-  test-specific sections of `agents/c-tests.md`: §2 (API Usage), §3 (Test
-  Execution Model), §6 (File Organization), §7 (Result Reporting), §10
-  (Tagging), §15 (Architecture-Specific Tests), §16 (Compile-time Feature
-  Guards), §18 (Deprecated Features), §19 (Test high-level description).
-  Still apply §1 (Coding Style), §4 (Synchronization), §5 (Syscall
-  Correctness), §8 (Safe Macros), §9 (Runtime Feature Detection), §11
-  (Cleanup), §12 (Static Variables), §13 (Memory Allocation), §14 (String
-  Handling), §17 (Commit Messages), and the Code Examples block for SAFE\_\*
-  macro definitions. Also apply `agents/ground-rules.md` and
-  `agents/commit-message.md`.
-- `*.sh` → Read `agents/shell-tests.md`
-- Mixed → Read all applicable files
+## Step 3: Verify patch type
 
-**IMPORTANT**: Open POSIX tests use different APIs and conventions. Do NOT apply
-LTP C test rules to Open POSIX tests.
+Using the file list and classification from Step 2:
 
-**Deletion-only patches:** If a patch only deletes files (no added or modified
-code), skip Phase 3 entirely. Only review commit messages (Phase 2) and verify
-that related entries (runtest, .gitignore, Makefile) are also removed.
+- If the patch only deletes files (no added or modified code), skip code
+  review entirely. Only review commit messages and verify that related
+  entries (runtest, .gitignore, Makefile) are also removed.
+- If the patch only touches non-test files (runtest/\*, Makefile,
+  .gitignore, doc/, ci/, scripts/), skip the code review entirely. Only
+  review commit messages and verify the changes are correct.
 
-**Infrastructure-only patches:** If a patch only touches non-test files
-(runtest/\*, Makefile, .gitignore, doc/, ci/, scripts/), skip the code review
-checklist. Only review commit messages and verify the changes are correct.
+## Step 4: Commit message review
 
-## Phase 2: Commit Message Review
+Read `agents/commit-message.md` and apply ALL rules.
 
-Phase 2 covers commit-message **content** (subject quality, body rationale,
-accuracy of claims) — not the mechanical checks already handled by CI.
+## Step 5: Code Review
 
-Read `agents/commit-message.md` and apply ALL rules to each commit
-(`git log master..HEAD`).
-
-**Skip b4 cover letter commits.** Commits whose body contains
-`b4-submit-tracking` are auto-generated by the `b4` tool for patch series
-management. They are not real patches — do NOT review them, do NOT flag them,
-do NOT ask to squash them.
-
-## Phase 3: Code Review
-
-### Step 3.1: Read the Diff
+### 5.1. Read the Diff
 
 For each commit in the series, run `git show <hash>` to read the individual
 diff. Then read the full content of each changed file for surrounding context.
 Use `git diff master..HEAD` for the combined diff when checking cross-commit
 consistency.
 
-### Step 3.2: Scope
+### 5.2. Scope
 
 Read full changed files for context, but only flag issues that meet one of:
 
-1. Code added or modified by the patch
+1. Code added or modified by the patch.
 2. Pre-existing code that is now broken or incomplete because of the patch
-   (e.g. patch adds a fd in setup() but existing cleanup() never closes it)
-3. Pre-existing code on a path directly exercised by the patch's new logic
+   (e.g. patch adds an fd in setup() but existing cleanup() never closes it).
+3. Pre-existing code on a path directly exercised by the patch's new logic.
 
 Do NOT flag pre-existing style issues or old API usage as review failures.
 
 When reading full files for context, specifically watch for pre-existing
-memory issues such as leaks (`malloc`/`mmap` without matching
-`free`/`munmap`), use-after-free, double-free, uninitialized reads, or
-buffer overflows.
+memory issues such as:
 
-### Step 3.3: Ground Rules (MANDATORY — any violation = reject)
+- leaks (`malloc`/`mmap` without matching `free`/`munmap`).
+- use-after-free.
+- double-free.
+- uninitialized reads.
+- buffer overflows.
 
-Apply ALL rules from `agents/ground-rules.md` (loaded in Step 1.1).
+### 5.3. Ground Rules (MANDATORY)
 
-Additional detection guidance:
+Read `agents/ground-rules.md` and apply ALL the rules in there.
+These rules are MANDATORY and any violation means reject.
 
-- **Runtime feature detection**: For each `#ifdef` or `#if defined` in the
-  patch, evaluate whether it is a fallback API definition in `include/lapi/`
-  (allowed), a file-level `#ifdef HAVE_*` guard with `TST_TEST_TCONF` in the
-  `#else` branch (allowed — see c-tests.md §16), or a feature gate that
-  should use runtime detection instead (flag).
-- **Root privilege check**: Read the test code and identify whether any
-  operation requires root privileges (mount/umount, chown/chroot, raw sockets,
-  writing to `/proc` or `/sys`, setting capabilities, changing uid/gid,
-  creating device nodes, modifying rlimits, binding to privileged ports,
-  loading kernel modules, configuring network interfaces, accessing other
-  users' files, etc.). Flag if `.needs_root = 1` but no privileged operation
-  is found, or vice versa.
+### 5.4. Verify rules
 
-### Step 3.4: LTP C Test Rules
+For each changed file, use the classification produced in Step 2 to
+determine which rule files to load. MUST NOT diverge from any of the
+rules.
 
-Apply the `agents/c-tests.md` rules selected in Step 1.3. For C tests,
-apply the full file. For library/header files under `lib/` or `include/`,
-apply only the subset listed in Step 1.3.
-Do not rely on memory or prior knowledge — use the live file content.
-All applicable code-example sections in c-tests.md are authoritative
-WRONG/CORRECT references — apply them as-is.
+#### 5.4.1. Open POSIX test
 
-**Old API tests:** If a changed C file uses the old API (`#include "test.h"`,
-`TCID`, `tst_resm`) and the patch is NOT converting it to the new API, skip
-coding style and API usage checks. Still apply file organization, safe macros,
-result reporting, syscall correctness, and ground rules.
+Read `agents/openposix.md` and apply ALL the rules inside it.
 
-Additional checks not covered in c-tests.md:
+#### 5.4.2. LTP self-test
 
-- **Makefile**: If a new C test is added, read `<dir>/Makefile`. If it uses a
-  wildcard (e.g. no explicit file list), the new test is picked up
-  automatically. If it lists targets explicitly, verify the new test binary
-  name appears.
-- **Syscall correctness**: Verify the test's syscall usage matches documented
-  kernel behavior. Cross-check with: man pages, local kernel source at
-  `/usr/src/linux`, or online at `https://github.com/torvalds/linux`. If
-  unverifiable, flag as **Needs discussion** ⚠️.
+Read `agents/c-tests.md` and apply ALL the rules inside it.
 
-### Step 3.5: LTP Shell Test Rules
+#### 5.4.3. LTP test helper
 
-Apply ALL rules from `agents/shell-tests.md` (loaded in Step 1.3).
-Do not rely on memory or prior knowledge — use the live file content.
+Read `agents/c-tests.md` and apply ALL Helper Binaries rules.
 
-**Old API tests:** If a changed shell file uses the old API (`. test.sh`,
-`tst_resm`, `TCID`, `TST_TOTAL`) and the patch is NOT converting it to the
-new API, skip structural checks. Still apply coding style, result reporting,
-and ground rules.
+#### 5.4.4. LTP test (old API)
 
-### Step 3.6: Open POSIX Test Rules
+Read `agents/c-tests.md`.
 
-Apply ALL rules from `agents/openposix.md` (loaded in Step 1.3).
+If the patch is NOT converting the file to the new API, skip coding style
+and API usage checks. Still apply file organization, result reporting,
+syscall correctness, and ground rules.
 
-### Step 3.7: False-positive verification
+#### 5.4.5. LTP test
 
-Before moving to Phase 4, run every flagged issue through
-`agents/false-positive.md`. Read that file in full, then for each
-candidate issue:
+Read `agents/c-tests.md` and apply ALL the rules inside it.
+
+Additional checks:
+
+- If a new C test is added, read `<dir>/Makefile`. If it uses a wildcard
+  (e.g. no explicit file list), the new test is picked up automatically. If
+  it lists targets explicitly, verify the new test binary name appears.
+- Verify the test's syscall usage matches documented kernel behavior.
+  Cross-check with: man pages, local kernel source at `/usr/src/linux`,
+  or online at `https://github.com/torvalds/linux`. If unverifiable, flag as
+  **Needs discussion**.
+
+#### 5.4.6. LTP shell test
+
+Read `agents/shell-tests.md` and apply ALL the rules inside it.
+
+If the shell file uses the old API (`. test.sh`, `tst_resm`, `TCID`,
+`TST_TOTAL`) and the patch is NOT converting it to the new API, skip
+structural checks. Still apply coding style, result reporting, and
+ground rules.
+
+#### 5.4.7. LTP library
+
+Read `agents/c-tests.md` and apply ALL the rules inside it.
+
+#### 5.4.8. Others
+
+Skip code review.
+
+### 5.5. False-positive verification
+
+Read `agents/false-positive.md` and for each candidate issue:
 
 1. Apply the relevant "Common false-positive patterns" sections.
-2. Walk through TASK POSITIVE.1 (9 numbered verification steps) and
-   produce the required outputs.
-3. Pass the Final Filter (3 yes/no gates plus a defensive/concrete classifier).
+2. Walk through TASK POSITIVE.1 and produce the required outputs.
+3. Pass the Final Filter.
 
 Drop any issue that fails. A rule violation surfaced by `c-tests.md`,
 `shell-tests.md`, `openposix.md`, `ground-rules.md`, or `commit-message.md`
 is a candidate — not a confirmed finding — until it clears this step.
 
-## Phase 4: Writing Output
+## Step 6: Writing Output
 
-Read `agents/email-template.md`.
+Read `agents/email-template.md` and compose the review reply following ALL
+rules in `agents/email-template.md`.
 
-1. Compose the review reply following ALL rules in `agents/email-template.md`.
-2. Write the email to `./review-inline.txt`. Create, do not append.
+Write the email to `./review-inline.txt`. Create, do not append.
