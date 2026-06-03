@@ -10,114 +10,113 @@ description: LTP Old-to-New API Converter
 You are an agent that converts LTP tests from the old API (`test.h`) to the
 new API (`tst_test.h`).
 
+The conversion is NOT a mechanical token-by-token translation. It is a
+**semantic rewrite**: you extract _what_ the test does, discard the old
+implementation, and write a clean new test using modern LTP idioms.
+
 ## Invocation
 
-`/ltp-convert <file path or test name>` — convert one file.
+`/ltp-convert <file path or test name>` - convert one file.
 
 ---
 
-## Step 1: Load Rules
+## Step 0: Setup
 
-Read `agents/ground-rules.md` and `agents/c-tests.md` before doing
-anything else. `c-tests.md` is the authoritative reference for what the
-converted code MUST look like.
+All `agents/...` paths are relative to the repository root, not this skill
+directory.
 
-## Step 2: Verify Old API
+## 1. Load Rules
 
-Verify the file includes `test.h` (old API). If it already includes
-`tst_test.h`, stop and tell the user.
+- Read `agents/ground-rules.md`.
+- Read `agents/c-tests.md`. This is the authoritative reference for what the
+  converted code MUST look like.
 
-If the file is under `testcases/open_posix_testsuite/`, stop and tell the
-user that `/ltp-convert` does not apply to Open POSIX tests. They use a
-different API and must follow `agents/openposix.md` instead of `c-tests.md`.
+## 2. Resolve and classify the file
 
-## Step 3: Detect Test vs Helper
+The argument may be a file path or a test name. Resolve it first:
 
-Check whether the file's basename (without `.c`) appears in any
-`runtest/` file.
+- File path: use it directly.
+- Test name (e.g. `getpid01`): locate the source under `testcases/`
+  (search by basename). If multiple or no matches are found, ask the user
+  to disambiguate or provide a path, then stop.
 
-- Found → **test**. Full conversion: remove `main()`, add `struct tst_test`
-  (see Test Conversion below).
-- Not found → inspect the file path and contents before deciding:
-  - If the file is under a test directory (for example
-    `testcases/kernel/syscalls/`) or otherwise looks like a standalone test,
-    treat the missing `runtest/` entry as a bug to flag, not as proof that the
-    file is a helper.
-  - If the file is a spawned support binary, it is a **helper**. Keep
-    `main()`, add `TST_NO_DEFAULT_MAIN` (see Helper Conversion below).
+Read `agents/classify.md` and classify the file.
 
-## Step 4: Convert
+Only **LTP test (old API)** can be converted. Continue to the next step.
 
-Apply the relevant API mapping tables, the rules from `c-tests.md` and
-`ground-rules.md`.
+For any other classification, stop and tell the user `/ltp-convert` only
+converts old-API LTP tests.
 
-### Common Old → New API Mapping
+## 3. Intent summary
 
-| Old                                     | New                                                                      |
-| --------------------------------------- | ------------------------------------------------------------------------ |
-| `#include "test.h"`                     | `#include "tst_test.h"` (helpers: prepend `#define TST_NO_DEFAULT_MAIN`) |
-| `char *TCID = "...";`                   | Remove                                                                   |
-| `int TST_TOTAL = ...;`                  | Remove                                                                   |
-| `tst_parse_opts(...)`                   | Remove                                                                   |
-| `tst_exit();`                           | Remove                                                                   |
-| `tst_resm(TPASS/TFAIL/TINFO, ...)`      | `tst_res(TPASS/TFAIL/TINFO, ...)`                                        |
-| `tst_brkm(TBROK\|TERRNO, cleanup, ...)` | `tst_brk(TBROK\|TERRNO, ...)`                                            |
-| `tst_brkm(TCONF, cleanup, ...)`         | `tst_brk(TCONF, ...)`                                                    |
-| `TEST_RETURN` / `TEST_ERRNO`            | `TST_RET` / `TST_ERR`                                                    |
-| `SAFE_*(cleanup, ...)`                  | `SAFE_*(...)` (drop cleanup arg)                                         |
-| `tst_sig(...)` / `TEST_PAUSE`           | Remove entirely                                                          |
-| Old GPL boilerplate                     | `// SPDX-License-Identifier: GPL-2.0-or-later`                           |
-| Old-style doc comment                   | `/*\` RST-formatted doc comment                                          |
+Before doing any conversion work, evaluate the test using the `/ltp-analyze`
+skill.
 
-### Test-only Old → New API Mapping
+Present the following to the user:
 
-| Old                                    | New                                         |
-| -------------------------------------- | ------------------------------------------- |
-| `int main(int argc, char *argv[])`     | Remove; use `struct tst_test`               |
-| `TEST_LOOPING(lc)`                     | Remove; framework handles iterations        |
-| `tst_count = 0;`                       | Remove                                      |
-| `tst_tmpdir()` / `tst_rmdir()`         | `.needs_tmpdir = 1` (remove calls)          |
-| Explicit `waitpid()` for child reaping | Remove when it only reaps leftover children |
+1. Test analysis: the full output from `/ltp-analyze`.
+2. Conversion complexity: simple, moderate, or complex; and why.
+3. Droppable features: the list of features that can be dropped.
+4. Recommendation one of:
+   - Convert: test has clear value, proceed
+   - Convert with reservations: test is marginal but may still be useful;
+     explain concerns
+   - Recommend skip/delete: test is trivial, duplicate, or doesn't test what
+     it claims; suggest alternative action.
 
-### Helper-only Old → New API Mapping
+ALWAYS wait for user confirmation before proceeding to the next step.
 
-| Old                                | New                                                                    |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| `int main(int argc, char *argv[])` | Keep `main()`                                                          |
-| default LTP-provided `main()`      | Define `TST_NO_DEFAULT_MAIN` before including `tst_test.h`             |
-| `tst_tmpdir()` / `tst_rmdir()`     | Handle manually; helpers have no `struct tst_test` for `.needs_tmpdir` |
+If the user says to proceed despite reservations, proceed. If the user
+asks to skip, stop here.
 
-### Test Conversion
+## 4. Design the New Test
 
-Remove `main()` and replace with `struct tst_test`. Follow the
-structure and parametrization rules in `c-tests.md`.
+Starting ONLY from the Intent summary, design the new test from
+scratch. Do NOT reference the old code during this step. Decide:
+
+1. Test structure: `.test` + `.tcnt` (multiple cases) vs `.test_all`
+   (single case) with `struct tcase` array.
+2. Assertion macros: which `TST_EXP_*` macros fit each scenario.
+3. Framework features: `.needs_tmpdir`, `.forks_child`, `.needs_root`,
+   `.needs_kconfigs`, `.save_restore`, `.bufs`, `.min_kver`,
+   `.supported_archs`, etc.
+4. Resource lifecycle: what static state is needed, what `.setup` allocates,
+   what `.cleanup` releases.
+5. Synchronization: if the test forks, what mechanism is used (checkpoint,
+   waitpid, process state wait).
+
+Produce a brief design summary before writing code.
+
+## 5. Implement
+
+Write the new test from the design above, following all rules in
+`c-tests.md` and `ground-rules.md`.
+
+Critical rules:
+
+- The old code MUST NOT be used as a structural template - only the
+  intent and algorithm extracted in the Intent summary guide the
+  implementation.
+- NEVER preserve the old test's control flow - the structure comes from
+  new API idioms, not the old code.
+- NEVER do token-by-token replacement - from `tst_resm()` to `tst_res()` is
+  transliteration, not conversion.
+- NEVER keep helper functions that only existed because of old API
+  limitations (e.g., separate `parent_test1()` / `parent_test2()` when a
+  `struct tcase` array works).
+- NEVER preserve manual error-accumulation patterns (`rval` flags,
+  return-code propagation) - call `tst_res()` directly at the point where
+  the outcome is determined.
+- NEVER keep forward declarations - reorder functions so callees precede
+  callers.
+- NEVER preserve per-test-case setup/cleanup function pointers - redesign
+  using framework callbacks and static state.
+- ALWAYS handle iterations with `-i` option.
+- ALWAYS handle verbosity with `TDEBUG` messages and `-v` option.
+- ALWAYS keep the original copyright if it's not `GPL-2` compatible.
 
 ### Helper Conversion
 
-Follow the `TST_NO_DEFAULT_MAIN` section in `c-tests.md`.
-
-## Step 5: Verify linting errors
-
-MUST run `make check-<test name>` inside the test folder. The result MUST
-produce zero checkpatch errors/warnings. Fix ALL issues, including
-pre-existing ones.
-
-## Step 6: Build
-
-MUST run `make <test name>` inside the test folder. The result MUST produce
-zero compiler warnings and zero errors/warnings. Fix ALL issues, including
-pre-existing ones.
-
-## Step 7: Runtime Test (Skip helpers)
-
-MUST run the test with `-i 0`, `-i 1`, `-i 10`. TCONF is acceptable.
-Any TFAIL or TBROK is a blocker and MUST be fixed before proceeding,
-UNLESS it reproduces a known unfixed kernel bug on the host — per
-`ground-rules.md` Rule 1, that is the expected (correct) outcome and
-MUST NOT be worked around in the converted test.
-
-## Step 8: Self-Review and Fix
-
-MUST invoke the `/ltp-review` skill once. It writes the email reply to
-`./review-inline.txt` at the LTP tree root. Read that file and fix
-every issue it raises in the converted source.
+If the file is a helper, follow the `TST_NO_DEFAULT_MAIN` section in
+`c-tests.md`. Keep `main()`, drop all old API artifacts, and skip the runtime
+step during finalize.
