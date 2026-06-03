@@ -55,7 +55,7 @@ corresponding rules:
   (§2 `main()`/`struct tst_test` bullets, §3, §6, §7, §10, §15, §16,
   §19) and apply the "Helper Binaries (`TST_NO_DEFAULT_MAIN`)" section
   instead. If a file looks like a standalone test (uses `struct
-  tst_test`) but is missing from `runtest/`, treat it as a test and
+tst_test`) but is missing from `runtest/`, treat it as a test and
   flag the missing entry as a bug.
 - `*.c` or `*.h` under `lib/newlib_tests/` — These are **C tests** (LTP
   library self-tests). Apply the full `agents/c-tests.md` rules.
@@ -68,7 +68,7 @@ corresponding rules:
   Still apply §1 (Coding Style), §4 (Synchronization), §5 (Syscall
   Correctness), §8 (Safe Macros), §9 (Runtime Feature Detection), §11
   (Cleanup), §12 (Static Variables), §13 (Memory Allocation), §14 (String
-  Handling), §17 (Commit Messages), and the Code Examples block for SAFE_*
+  Handling), §17 (Commit Messages), and the Code Examples block for SAFE\_\*
   macro definitions. Also apply `agents/ground-rules.md` and
   `agents/commit-message.md`.
 - `*.sh` → Read `agents/shell-tests.md`
@@ -133,10 +133,6 @@ When reading full files for context, specifically watch for pre-existing
 memory issues such as leaks (`malloc`/`mmap` without matching
 `free`/`munmap`), use-after-free, double-free, uninitialized reads, or
 buffer overflows.
-
-If you notice pre-existing issues unrelated to the patch, report them in the
-block defined by `agents/inline-template.md` ("Pre-existing issues"). These
-are informational only and do NOT affect the verdict.
 
 ### Step 3.3: Ground Rules (MANDATORY — any violation = reject)
 
@@ -211,18 +207,10 @@ Drop any issue that fails. A rule violation surfaced by `c-tests.md`,
 `shell-tests.md`, `openposix.md`, `ground-rules.md`, or `commit-message.md`
 is a candidate — not a confirmed finding — until it clears this step.
 
-### Step 3.8: Decision Rules
-
-- ANY ground rule violation → Needs revision
-- ANY commit message violation → Needs revision
-- ANY test rule violation (C, shell, or Open POSIX) → Needs revision
-- All checks pass → Reviewed
-- Uncertain about rule → Needs discussion
-
 ## Phase 4: Writing Output
 
-Compose the review reply following ALL rules in
-`agents/inline-template.md`.
-
-Write the email (from `Hi ` through `LTP AI Reviewer`) to `./review-inline.txt`.
-Create the file, do not append.
+1. Compose the review reply following ALL rules in `agents/email-template.md`.
+2. Once review reply is composed, you MUST verify that ALL rules inside the
+   `agents/email-template.md` are actually applied to it and eventually modify
+   it accordingly.
+3. Write the email to `./review-inline.txt`. Create, do not append.

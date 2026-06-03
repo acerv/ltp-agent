@@ -184,7 +184,7 @@ based on the task:
 - **false-positive.md** — Verification checklist run on every flagged issue
   before it is reported, to weed out spurious findings.
 
-- **inline-template.md** — Complete format of a review reply email: greeting,
+- **email-template.md** — Complete format of a review reply email: greeting,
   quoting style, per-issue layout, verdict wording, postamble, and the
   pre-existing-issues block. Loaded by the review skill during Phase 4.
 
