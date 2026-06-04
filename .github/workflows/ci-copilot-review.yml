@@ -37,8 +37,8 @@ jobs:
       - name: Clone LTP
         run: git clone --depth 1 "$LTP_UPSTREAM" ltp
 
-      - name: Link ltp-agent into LTP
-        run: $AGENT_DIR/setup.sh ${{ github.workspace }}/ltp
+      - name: Install ltp-agent skills for Copilot
+        run: $AGENT_DIR/setup.sh copilot
 
       - name: Install kernel source and man pages
         run: |
@@ -137,7 +137,7 @@ jobs:
             --allow-tool='shell(git format-patch:*)' \
             --allow-tool='shell(man:*)' \
             --allow-tool='read(${{ github.workspace }}/ltp/*)' \
-            --allow-tool='read(${{ github.workspace }}/ltp-agent/*)' \
+            --allow-tool='read(${{ github.workspace }}/ltp-agent/rules/*)' \
             --allow-tool='read(/usr/src/linux/*)' \
             --allow-tool='write(${{ github.workspace }}/ltp/review-inline.txt)' \
             --no-ask-user \
