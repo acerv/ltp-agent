@@ -104,27 +104,6 @@ rules, shell test rules, or Open POSIX rules depending on the files changed)
 and writes the resulting inline email reply to `review-inline.txt`
 at the LTP tree root.
 
-### Running a Review End-to-End
-
-For a one-shot review without manually cloning, applying, and invoking the
-agent, use `scripts/start-review.sh`. It clones LTP into a temporary
-directory, installs the skills for the chosen agent, applies a patch from
-any source supported by `apply-patch.sh`, runs `/ltp-review`, and prints
-the email reply on stdout.
-
-```sh
-# Auto-detect the agent (gemini, claude, or opencode)
-./ltp-agent/scripts/start-review.sh https://patchwork.ozlabs.org/project/ltp/patch/<id>/
-
-# Pick the agent explicitly and clean up afterwards
-./ltp-agent/scripts/start-review.sh -a claude -c https://lore.kernel.org/r/<msgid>/
-
-# Verbose, keep the clone in a known path
-./ltp-agent/scripts/start-review.sh -v -d ~/reviews/my-patch /tmp/my-patch.mbox
-```
-
-See `start-review.sh -h` for the full option list.
-
 ### Converting Old Tests to New API
 
 To convert a test from the legacy `test.h` API to the modern `tst_test.h` API:
