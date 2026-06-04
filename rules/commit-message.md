@@ -41,7 +41,7 @@ If `Fixes:` tag is present, it MUST refer to a valid commit in the git history.
 
 All tags (e.g. `Signed-off-by:`, `Fixes:`, `Suggested-by:`, `Reviewed-by:`,
 `Acked-by:`, `Reported-by:`, `Link:`, `Closes:`, `Cc:`) MUST appear at the
-end of the commit message body, after the explanatory text — not at the
+end of the commit message body, after the explanatory text -- not at the
 beginning or interleaved within it. The `Signed-off-by:` tag MUST be present.
 
 ## 5. Series ordering (multi-commit only)

@@ -33,7 +33,7 @@ Do NOT proceed with the review.
 
 Use `git diff --name-only master..HEAD` to list what files have been changed.
 Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify each changed file.
-Produce a mapping `{file → category}` to be consumed by Step 5.4.
+Produce a mapping `{file -> category}` to be consumed by Step 5.4.
 
 ## Step 3: Verify patch type
 
@@ -154,7 +154,7 @@ Drop any issue that fails. A rule violation surfaced by
 `{{LTP_AGENT_DIR}}/rules/openposix.md`,
 `{{LTP_AGENT_DIR}}/rules/ground-rules.md`, or
 `{{LTP_AGENT_DIR}}/rules/commit-message.md`
-is a candidate — not a confirmed finding — until it clears this step.
+is a candidate -- not a confirmed finding -- until it clears this step.
 
 ## Step 6: Writing Output
 

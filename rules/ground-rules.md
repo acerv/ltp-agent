@@ -23,10 +23,10 @@ timed waits as part of testing timer APIs are exempt.
 
 **Use instead:**
 
-- Parent waits for child to finish → blocking wait
-- Child must reach a code point before parent continues → checkpoint synchronization
-- Child must be sleeping in a syscall → process state polling
-- Async or deferred kernel actions → exponential-backoff polling loop
+- Parent waits for child to finish -> blocking wait
+- Child must reach a code point before parent continues -> checkpoint synchronization
+- Child must be sleeping in a syscall -> process state polling
+- Async or deferred kernel actions -> exponential-backoff polling loop
 
 ## Rule 3: Runtime Feature Detection Only
 
@@ -55,13 +55,13 @@ Tests MUST clean up on ALL exit paths (success, failure, early exit).
 
 Every test MUST leave the system exactly as it found it:
 
-- Filesystems → Unmount
-- Sysctls, `/proc`/`/sys` values → Restore
-- Temp files/dirs → Delete
-- Spawned processes → Kill
-- Cgroups/namespaces → Remove
-- Loop devices → Detach
-- Ulimits → Restore
+- Filesystems -> Unmount
+- Sysctls, `/proc`/`/sys` values -> Restore
+- Temp files/dirs -> Delete
+- Spawned processes -> Kill
+- Cgroups/namespaces -> Remove
+- Loop devices -> Detach
+- Ulimits -> Restore
 
 Prefer framework helpers over manual setup/teardown when available.
 

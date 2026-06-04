@@ -100,7 +100,7 @@ When reviewing or writing shell tests, verify ALL of the following:
 
 ## Coding Style Checklist
 
-- MUST be portable shell that runs under `dash` — POSIX shell plus the
+- MUST be portable shell that runs under `dash` -- POSIX shell plus the
   narrow exceptions listed below; no other bash-isms
 - MUST NOT use `[[ ]]` (use `[ ]` instead)
 - MUST NOT use arrays
@@ -112,7 +112,7 @@ When reviewing or writing shell tests, verify ALL of the following:
 - SHOULD avoid unnecessary subshells
 - Functions MUST NOT be named after common shell commands
 
-**Allowed exceptions** (supported by every shell LTP targets — dash,
+**Allowed exceptions** (supported by every shell LTP targets -- dash,
 bash, ksh, busybox sh):
 
 - `local` keyword inside functions

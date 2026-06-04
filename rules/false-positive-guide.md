@@ -58,14 +58,14 @@ claim is not by itself a bug.
 - Treat commit-message and comment claims as unverified until matched to
   code.
 - Do not report an issue solely because the author failed to prove safety
-  — you must still demonstrate a concrete failure path.
+  -- you must still demonstrate a concrete failure path.
 - Do not dismiss an issue solely because the author asserts it is safe.
 
 **Outcomes:**
 
-- Claim verified against code → no report.
-- Claim contradicted by code with a concrete failure path → report.
-- Claim unverifiable and no concrete failure path found → no report.
+- Claim verified against code -> no report.
+- Claim contradicted by code with a concrete failure path -> report.
+- Claim unverifiable and no concrete failure path found -> no report.
 
 ### 4. Comment-based dismissals
 
@@ -160,7 +160,7 @@ Complete each step. Do not skip.
 2. **Is the bad behavior structurally possible?**
    - Show the step-by-step path that produces the failure.
    - State the concrete failure mode (crash, hang, wrong result, leak with
-     external scope, corruption) — not "increases risk".
+     external scope, corruption) -- not "increases risk".
    - Output: failure mode + triggering condition.
 
 3. **Did I check the full context?**
@@ -194,14 +194,14 @@ Complete each step. Do not skip.
    implementation?**
    - Quote the implementation that proves the comment accurate.
    - List conditional branches that affect behavior.
-   - If you cannot verify, do NOT dismiss — report.
+   - If you cannot verify, do NOT dismiss -- report.
 
 9. **Debate yourself.**
    - As the author, generate the strongest counterargument: existing
      guards, ownership transfer, intentional design, defensive vs
      concrete.
    - As the reviewer, address each counterargument with code evidence.
-   - Output: strongest counterargument + refutation (or "cannot refute —
+   - Output: strongest counterargument + refutation (or "cannot refute --
      likely false positive").
 
 ## Final Filter
@@ -214,13 +214,13 @@ Before adding to the review, answer all four:
 4. **Am I suggesting defensive programming, or reporting a concrete
    issue?** [defensive / concrete]
 
-If you didn't answer yes to 1–3 and "concrete" to 4, investigate further or
+If you didn't answer yes to 1-3 and "concrete" to 4, investigate further or
 discard.
 
 ## Remember
 
 - Reports without clear proof waste maintainer time.
-- Missed bugs also waste maintainer time — a real bug shipped is worse than
+- Missed bugs also waste maintainer time -- a real bug shipped is worse than
   a false positive caught in review.
 - Real bugs have real proof: an execution path that exists and a failure
   mode that follows from it.

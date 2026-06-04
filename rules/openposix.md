@@ -11,9 +11,9 @@ any test in this directory.
 The Open POSIX Test Suite is a fork of the POSIX Test Suite that validates
 POSIX API compliance. Tests are organized by:
 
-- `conformance/` — POSIX conformance tests
-- `functional/` — Functional tests
-- `stress/` — Stress tests
+- `conformance/` -- POSIX conformance tests
+- `functional/` -- Functional tests
+- `stress/` -- Stress tests
 
 Most of the header files included by the tests can be found in
 `testcases/open_posix_testsuite/include`.
@@ -126,11 +126,11 @@ When writing or modifying Open POSIX tests, verify ALL of the following:
   - Signature: `int test_main(int argc PTS_ATTRIBUTE_UNUSED, char **argv PTS_ATTRIBUTE_UNUSED)`
   - Use `PTS_ATTRIBUTE_UNUSED` to suppress warnings on unused parameters
 - MUST use PTS return codes:
-  - `PTS_PASS` (0) — Test passed
-  - `PTS_FAIL` (1) — Test failed
-  - `PTS_UNRESOLVED` (2) — Test encountered unexpected error
-  - `PTS_UNSUPPORTED` (4) — Feature not supported
-  - `PTS_UNTESTED` (5) — Test not implemented
+  - `PTS_PASS` (0) -- Test passed
+  - `PTS_FAIL` (1) -- Test failed
+  - `PTS_UNRESOLVED` (2) -- Test encountered unexpected error
+  - `PTS_UNSUPPORTED` (4) -- Feature not supported
+  - `PTS_UNTESTED` (5) -- Test not implemented
 - Use standard POSIX APIs (pthread, semaphore, signals, timers, etc.)
 
 ### 5. Result Reporting
@@ -236,27 +236,27 @@ int test_main(int argc PTS_ATTRIBUTE_UNUSED, char **argv PTS_ATTRIBUTE_UNUSED)
 
 ### INCORRECT: Common Mistakes
 
-WRONG — missing license header:
+WRONG -- missing license header:
 
 ```c
 #include "posixtest.h"
 ```
 
-WRONG — defining `main()` instead of `test_main()`:
+WRONG -- defining `main()` instead of `test_main()`:
 
 ```c
 int main(void)
 {
 ```
 
-WRONG — not checking return values:
+WRONG -- not checking return values:
 
 ```c
     pthread_mutex_init(&mutex, NULL);
     pthread_mutex_lock(&mutex);
 ```
 
-WRONG — not cleaning up resources, not printing status message:
+WRONG -- not cleaning up resources, not printing status message:
 
 ```c
     return PTS_PASS;

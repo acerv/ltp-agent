@@ -4,7 +4,7 @@
 
 This file contains MANDATORY rules for C tests. Load this file when reviewing
 or writing any patch that modifies `*.c` or `*.h` files, EXCEPT files under
-`testcases/open_posix_testsuite/` — those tests use different APIs and
+`testcases/open_posix_testsuite/` -- those tests use different APIs and
 conventions (see `{{LTP_AGENT_DIR}}/rules/openposix.md`).
 
 ## Required Test Structure
@@ -49,7 +49,7 @@ When reviewing or writing C tests, verify ALL of the following:
 - MUST use C99 features where appropriate
 - Variables declared after statements (C99/C11 style) are allowed and MUST
   NOT be flagged as errors or style issues. NEVER suggest moving a variable
-  declaration to the top of the function — this is an explicit exception to
+  declaration to the top of the function -- this is an explicit exception to
   the kernel coding style rule
 - Identifiers e.g. function, variable, macro names must not start with
   underscore since these are reserved for compiler, kernel, and libc
@@ -71,10 +71,10 @@ The LTP framework drives test callbacks in a specific order. Understanding
 this lifecycle is essential for judging resource management, state reuse,
 and iteration safety.
 
-- `.setup` — called **once** before all test iterations
-- `.test` / `.test_all` — called **per iteration** (the `-i N` option
+- `.setup` -- called **once** before all test iterations
+- `.test` / `.test_all` -- called **per iteration** (the `-i N` option
   controls how many times)
-- `.cleanup` — called **once** after all iterations complete, and also on
+- `.cleanup` -- called **once** after all iterations complete, and also on
   `tst_brk()` fatal errors
 
 Because `.setup` and `.cleanup` are one-shot, resources allocated in
@@ -120,13 +120,13 @@ on static variable re-initialization).
 
 - MUST use `SAFE_*` macros for system calls that have a `SAFE_*` version in `include/`
 - EXCEPTION: when the syscall is the **subject** of the test (e.g. testing
-  `close()` error paths), do not use `SAFE_*` wrappers — they abort on
+  `close()` error paths), do not use `SAFE_*` wrappers -- they abort on
   failure, which defeats testing failure behavior
 - Subject syscalls MUST still be wrapped in `TEST()` or a `TST_EXP_*`
-  macro — never called bare
+  macro -- never called bare
 - Safe macros are defined in `include/` directory (search `tst_*.h` headers)
 - If no `SAFE_*` version exists, verify whether one can be added; otherwise use manual error handling
-- Do not check the return value of `SAFE_*` macros — they abort on failure.
+- Do not check the return value of `SAFE_*` macros -- they abort on failure.
 
 ### 9. Runtime Feature Detection
 
@@ -174,7 +174,7 @@ on static variable re-initialization).
 ### 16. Compile-time Feature Guards (`HAVE_*`)
 
 When the entire test depends on a compile-time feature flag (e.g. `HAVE_NUMA_V2`,
-`HAVE_SYS_XATTR_H`), the `#ifdef` MUST wrap ALL test code at the file level —
+`HAVE_SYS_XATTR_H`), the `#ifdef` MUST wrap ALL test code at the file level --
 never inside individual functions.
 
 Rules:
@@ -184,13 +184,13 @@ Rules:
 - ALL `#define` macros, static variables, helper functions, and `struct tst_test`
   MUST be inside the `#ifdef` block
 - The `#else` branch MUST use `TST_TEST_TCONF("...")` with a human-readable
-  literal string explaining what is missing — NEVER use the `HAVE_*` macro name
+  literal string explaining what is missing -- NEVER use the `HAVE_*` macro name
   or a generic constant like `NUMA_ERROR_MSG` as the message
 - When a support/helper `.c` file's entire body depends on the same feature flag,
-  wrap the whole file body in a single top-level `#ifdef` — NEVER scatter
+  wrap the whole file body in a single top-level `#ifdef` -- NEVER scatter
   per-function guards inside the same file
 
-WRONG — guard buried inside a function:
+WRONG -- guard buried inside a function:
 
 ```c
 #include "tst_test.h"
@@ -208,11 +208,11 @@ static void run(void)
 static struct tst_test test = { .test_all = run };
 ```
 
-CORRECT — guard at file level, `struct tst_test` inside, `TST_TEST_TCONF` in `#else`:
+CORRECT -- guard at file level, `struct tst_test` inside, `TST_TEST_TCONF` in `#else`:
 
 ```c
 #include "tst_test.h"
-#include "move_pages_support.h"  /* brings in config.h → defines HAVE_NUMA_V2 */
+#include "move_pages_support.h"  /* brings in config.h -> defines HAVE_NUMA_V2 */
 
 #ifdef HAVE_NUMA_V2
 
@@ -285,7 +285,7 @@ ALWAYS follow these rules.
 When the target architectures are supported by the framework, do NOT use
 preprocessor arch guards:
 
-WRONG — preprocessor arch guards instead of .supported_archs:
+WRONG -- preprocessor arch guards instead of .supported_archs:
 
 ```c
 #if defined(__i386__) || defined(__x86_64__)
@@ -296,7 +296,7 @@ static void run(void)
 #endif
 ```
 
-CORRECT — use `.supported_archs` in `struct tst_test`:
+CORRECT -- use `.supported_archs` in `struct tst_test`:
 
 ```c
 static struct tst_test test = {
@@ -313,13 +313,13 @@ static struct tst_test test = {
 
 #### Use the correct import
 
-WRONG — importing legacy API:
+WRONG -- importing legacy API:
 
 ```c
 #include "test.h"
 ```
 
-CORRECT — use new LTP API:
+CORRECT -- use new LTP API:
 
 ```c
 #include "tst_test.h"
@@ -331,7 +331,7 @@ ALWAYS verify that syscalls we are using have a `SAFE_*` version associated
 with it inside the `include/tst_*.h` files. If it exists, use it. If it
 doesn't, verify if you can create it.
 
-WRONG — plain syscall without SAFE\_\* macro:
+WRONG -- plain syscall without SAFE\_\* macro:
 
 ```c
 int fd = open("test_file", O_RDWR | O_CREAT, 0644);
@@ -340,7 +340,7 @@ if (fd < 0) {
 }
 ```
 
-CORRECT — use SAFE\_\* macros:
+CORRECT -- use SAFE\_\* macros:
 
 ```c
 int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
@@ -350,7 +350,7 @@ int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
 
 #### Don't use `cleanup_fn` in newly added `safe_*` definitions
 
-WRONG — cleanup_fn is used in the legacy LTP API:
+WRONG -- cleanup_fn is used in the legacy LTP API:
 
 ```c
 void *safe_mysyscall(const char *file, const int lineno, void (*cleanup_fn) (void),
@@ -370,7 +370,7 @@ void *safe_mysyscall(const char *file, const int lineno, void (*cleanup_fn) (voi
 }
 ```
 
-CORRECT — new LTP API format for safe\_\* definitions:
+CORRECT -- new LTP API format for safe\_\* definitions:
 
 ```c
 void *safe_mysyscall(const char *file, const int lineno,
@@ -412,14 +412,14 @@ static struct tst_test test = {
 File descriptors MUST be initialized to `-1` (not left as `0`, which is
 stdin) and MUST be closed in `cleanup()` with a `fd != -1` guard:
 
-WRONG — fd initialized to zero, no cleanup:
+WRONG -- fd initialized to zero, no cleanup:
 
 ```c
 static int fd;     /* zero is a valid fd (stdin) */
 /* no .cleanup to close the fd */
 ```
 
-CORRECT — init to -1, open in setup, close in cleanup:
+CORRECT -- init to -1, open in setup, close in cleanup:
 
 ```c
 static int fd = -1;
@@ -449,7 +449,7 @@ static struct tst_test test = {
 argument file descriptor to `-1` in a single step. This applies everywhere in
 the code.
 
-WRONG — redundant reset after SAFE_CLOSE():
+WRONG -- redundant reset after SAFE_CLOSE():
 
 ```c
 if (fd != -1)
@@ -459,7 +459,7 @@ fd = -1;
 
 ALWAYS rely on `SAFE_CLOSE()` to handle the reset:
 
-CORRECT — SAFE_CLOSE() handles the reset:
+CORRECT -- SAFE_CLOSE() handles the reset:
 
 ```c
 if (fd != -1)
@@ -472,11 +472,11 @@ if (fd != -1)
 to `cleanup()`. If a resource is acquired in `run()` and only released at
 the end of `run()`, the release is skipped on abort and the resource leaks.
 
-This is especially critical for resources that outlive the process — such as
+This is especially critical for resources that outlive the process -- such as
 mounted filesystems, SysV IPC objects (shared memory, semaphores, message
 queues), loop devices, modified sysctls or `/proc`/`/sys` values, and cgroups.
 
-WRONG — mount done in `run()` with no `cleanup()`, leaked if `SAFE_WRITE`
+WRONG -- mount done in `run()` with no `cleanup()`, leaked if `SAFE_WRITE`
 aborts:
 
 ```c
@@ -489,7 +489,7 @@ static void run(void)
     fd = SAFE_OPEN(MNTPOINT "/file", O_CREAT | O_RDWR, 0644);
     SAFE_WRITE(SAFE_WRITE_ALL, fd, "x", 1); /* may call tst_brk() */
 
-    /* these are never reached on abort — mount persists! */
+    /* these are never reached on abort -- mount persists! */
     SAFE_CLOSE(fd);
     SAFE_UMOUNT(MNTPOINT);
 }
@@ -501,7 +501,7 @@ static struct tst_test test = {
 };
 ```
 
-CORRECT — state tracked in statics, `cleanup()` handles all exit paths:
+CORRECT -- state tracked in statics, `cleanup()` handles all exit paths:
 
 ```c
 static int fd = -1;
@@ -541,7 +541,7 @@ static struct tst_test test = {
 
 NEVER use `fd >= 0` or `fd > 0` to check whether a file descriptor is valid:
 
-WRONG — fd >= 0 or fd > 0 to check validity:
+WRONG -- fd >= 0 or fd > 0 to check validity:
 
 ```c
 /* fd >= 0 is not the LTP convention */
@@ -555,7 +555,7 @@ if (fd > 0)
 
 ALWAYS use `fd != -1` since file descriptors are initialized to `-1`:
 
-CORRECT — matches the -1 initialization convention:
+CORRECT -- matches the -1 initialization convention:
 
 ```c
 if (fd != -1)
@@ -568,10 +568,10 @@ if (fd != -1)
 
 Test results MUST be reported by calling `tst_res()` or `tst_brk()` directly
 at the point where the outcome is determined. NEVER propagate pass/fail status
-through function return values, flags, or variables — this obscures what was
+through function return values, flags, or variables -- this obscures what was
 actually tested and makes the output harder to trace back to the source.
 
-WRONG — result propagated via return value:
+WRONG -- result propagated via return value:
 
 ```c
 static int check_result(int val, int expected)
@@ -596,7 +596,7 @@ static void run(void)
 }
 ```
 
-CORRECT — result reported directly where it is checked:
+CORRECT -- result reported directly where it is checked:
 
 ```c
 static void run(void)
@@ -612,10 +612,10 @@ itself for each check rather than returning a status code to the caller.
 
 The LTP library automatically propagates `tst_res()` calls from children to the
 parent. NEVER encode pass/fail as the child's exit code and interpret it in the
-parent — this obscures what was actually tested and loses the error message
+parent -- this obscures what was actually tested and loses the error message
 context.
 
-WRONG — child exit code used to propagate result:
+WRONG -- child exit code used to propagate result:
 
 ```c
 static void run(void)
@@ -640,7 +640,7 @@ static void run(void)
 }
 ```
 
-CORRECT — child calls `tst_res()` directly, library propagates to parent:
+CORRECT -- child calls `tst_res()` directly, library propagates to parent:
 
 ```c
 static void run(void)
@@ -659,7 +659,7 @@ ALWAYS prefer `TST_EXP_*` macros over manual `TEST()` + `if/else` +
 logic beyond what any `TST_EXP_*` macro provides (e.g. multiple side-effect
 checks after one syscall).
 
-WRONG — manual check and reporting:
+WRONG -- manual check and reporting:
 
 ```c
 TEST(syscall(args));
@@ -672,7 +672,7 @@ if (TST_RET == -1) {
 tst_res(TPASS, "syscall returned %ld", TST_RET);
 ```
 
-CORRECT — use the appropriate `TST_EXP_*` macro:
+CORRECT -- use the appropriate `TST_EXP_*` macro:
 
 ```c
 TST_EXP_PASS(syscall(args));
@@ -728,7 +728,7 @@ returns a positive value on success (e.g. `open`, `fork`, `read`).
 
 NEVER use `tst_res(TINFO | TERRNO, ...)` to report syscall failures:
 
-WRONG — TINFO | TERRNO misused for error reporting:
+WRONG -- TINFO | TERRNO misused for error reporting:
 
 ```c
 fd = open(path, O_RDWR);
@@ -745,7 +745,7 @@ if (ptr == MAP_FAILED) {
 }
 ```
 
-CORRECT — use TBROK | TERRNO for syscall errors:
+CORRECT -- use TBROK | TERRNO for syscall errors:
 
 ```c
 fd = SAFE_OPEN(path, O_RDWR);
@@ -767,7 +767,7 @@ Memory allocated in `setup()` MUST be released in `cleanup()`. This applies
 to `mmap()` / `SAFE_MMAP()` (use `SAFE_MUNMAP()`) and `malloc()` /
 `SAFE_MALLOC()` (use `free()`):
 
-CORRECT — mmap resources released in cleanup:
+CORRECT -- mmap resources released in cleanup:
 
 ```c
 static void *addr = NULL;
@@ -795,7 +795,7 @@ static struct tst_test test = {
 NEVER allocate syscall struct arguments on the stack as local variables, if the
 syscall is the subject of our test:
 
-WRONG — stack-allocated struct passed by address:
+WRONG -- stack-allocated struct passed by address:
 
 ```c
 static void verify(unsigned int n)
@@ -816,7 +816,7 @@ static struct tst_test test = {
 
 ALWAYS declare a static pointer and use `.bufs` to let the framework allocate it:
 
-CORRECT — framework-managed allocation via .bufs:
+CORRECT -- framework-managed allocation via .bufs:
 
 ```c
 static struct listns_req *req;
@@ -844,7 +844,7 @@ static struct tst_test test = {
 NEVER rely on static initialization for data modified during test logic when
 using `-i` parameter:
 
-WRONG — static data not re-initialized between iterations:
+WRONG -- static data not re-initialized between iterations:
 
 ```c
 static char str[256];
@@ -863,7 +863,7 @@ static void run(void)
 
 ALWAYS re-initialize static data at the start of `run()` before using it:
 
-CORRECT — re-initialize static data before each iteration:
+CORRECT -- re-initialize static data before each iteration:
 
 ```c
 static char str[256];
@@ -885,7 +885,7 @@ static void run(void)
 
 NEVER define separate functions for each test case and call them manually:
 
-WRONG — separate functions called manually from run():
+WRONG -- separate functions called manually from run():
 
 ```c
 static void test_new_file_no_creat(void)
@@ -917,7 +917,7 @@ ALWAYS define a single `struct tcase` array and use `.test` + `.tcnt` in
 `struct tst_test`. The test function receives the index `n` and dispatches
 through the array:
 
-CORRECT — one struct tcase array, one generic handler, .test + .tcnt:
+CORRECT -- one struct tcase array, one generic handler, .test + .tcnt:
 
 ```c
 static struct tcase {
@@ -939,7 +939,7 @@ static void verify_open(unsigned int n)
 }
 
 static struct tst_test test = {
-    /* framework iterates tcases[], prints "1.", "2.", … automatically */
+    /* framework iterates tcases[], prints "1.", "2.", ... automatically */
     .tcnt = ARRAY_SIZE(tcases),
     .test = verify_open,
 };
@@ -954,11 +954,11 @@ Key rules:
 
 #### Modifying tcase Items in setup()
 
-NEVER use `struct tcase` array indexes to modify items in `setup()` — this is
+NEVER use `struct tcase` array indexes to modify items in `setup()` -- this is
 error-prone and breaks silently when entries are reordered. Instead, store a
 pointer to a static variable in the struct and modify the static variable:
 
-WRONG — array index used to modify tcase in setup:
+WRONG -- array index used to modify tcase in setup:
 
 ```c
 static struct tcase {
@@ -976,7 +976,7 @@ static void setup(void)
 }
 ```
 
-CORRECT — modify via static variable, not array index:
+CORRECT -- modify via static variable, not array index:
 
 ```c
 static int fd = -1;
@@ -1001,7 +1001,7 @@ static void setup(void)
 When the test case description repeats an enum or macro name, use a
 stringification macro to avoid duplication (DRY):
 
-WRONG — description duplicates the macro name:
+WRONG -- description duplicates the macro name:
 
 ```c
 static struct tcase {
@@ -1014,7 +1014,7 @@ static struct tcase {
 };
 ```
 
-CORRECT — stringification macro eliminates duplication:
+CORRECT -- stringification macro eliminates duplication:
 
 ```c
 #define TC(x) {.desc = #x, .exp_err = x}
@@ -1033,7 +1033,7 @@ static struct tcase {
 
 NEVER define a custom buffer size for path strings:
 
-WRONG — custom buffer size for paths:
+WRONG -- custom buffer size for paths:
 
 ```c
 #define BUF_SIZE 256
@@ -1050,7 +1050,7 @@ static void run(void)
 
 ALWAYS use `PATH_MAX` for buffers that hold filesystem paths:
 
-CORRECT — use PATH_MAX for path buffers:
+CORRECT -- use PATH_MAX for path buffers:
 
 ```c
 #include <limits.h>
@@ -1068,14 +1068,14 @@ static void run(void)
 Note: `PATH_MAX` is for **full paths**. For buffers holding only a **filename**
 (not a full path), use `NAME_MAX + 1` (= 256 on Linux). For example,
 `struct inotify_event.name` stores a filename, so `NAME_MAX + 1` is correct
-there — not `PATH_MAX`.
+there -- not `PATH_MAX`.
 
 ### Kernel Config Dependencies
 
 NEVER manually check for kernel config features by handling ioctl/syscall
 errors at runtime when `.needs_kconfigs` can be used:
 
-WRONG — manually handling missing kernel config:
+WRONG -- manually handling missing kernel config:
 
 ```c
 static void run(void)
@@ -1095,7 +1095,7 @@ static struct tst_test test = {
 
 ALWAYS use `.needs_kconfigs` to gate on required kernel configuration options:
 
-CORRECT — framework checks kernel config before running the test:
+CORRECT -- framework checks kernel config before running the test:
 
 ```c
 static void run(void)
@@ -1122,7 +1122,7 @@ static struct tst_test test = {
 
 NEVER call plain syscalls:
 
-WRONG — plain syscall() requires manual ENOSYS check:
+WRONG -- plain syscall() requires manual ENOSYS check:
 
 ```c
 syscall(__NR_listns, &req, NULL, 0, 0);
@@ -1132,7 +1132,7 @@ if (errno == ENOSYS)
 
 ALWAYS use `tst_syscall` instead:
 
-CORRECT — tst_syscall() handles ENOSYS automatically:
+CORRECT -- tst_syscall() handles ENOSYS automatically:
 
 ```c
 tst_syscall(__NR_listns, &req, NULL, 0, 0);
@@ -1157,7 +1157,7 @@ static void setup(void)
 
 NEVER signal the parent from the child before setup is complete:
 
-WRONG — child signals before setup is complete:
+WRONG -- child signals before setup is complete:
 
 ```c
 child_pid = SAFE_FORK();
@@ -1177,7 +1177,7 @@ SAFE_WAITPID(child_pid, NULL, 0);
 ALWAYS let the child wait for the parent's go-ahead, do setup, then signal
 completion:
 
-CORRECT — parent triggers child, waits for setup, then releases:
+CORRECT -- parent triggers child, waits for setup, then releases:
 
 ```c
 child_pid = SAFE_FORK();
@@ -1197,7 +1197,7 @@ TST_CHECKPOINT_WAKE(0);
 
 NEVER let a child process return or fall through without an explicit exit:
 
-WRONG — missing exit, child may fall through into parent code:
+WRONG -- missing exit, child may fall through into parent code:
 
 ```c
 child_pid = SAFE_FORK();
@@ -1209,12 +1209,12 @@ if (!child_pid) {
 
 ALWAYS call `exit(0)` at the end of the child block.
 
-MUST NOT use `_exit()` — use `exit(0)` instead so the LTP
+MUST NOT use `_exit()` -- use `exit(0)` instead so the LTP
 framework can propagate test results from child to parent.
 
 Example:
 
-CORRECT — child always exits explicitly:
+CORRECT -- child always exits explicitly:
 
 ```c
 child_pid = SAFE_FORK();
@@ -1231,9 +1231,9 @@ NEVER add `SAFE_WAITPID()` solely to reap a child before the test exits.
 The LTP framework calls `tst_reap_children()` on exit and reaps leftover
 children automatically. `SAFE_WAITPID()` remains appropriate when the
 parent must observe the child's exit status or serialize on its
-termination — the rule below targets the redundant case only:
+termination -- the rule below targets the redundant case only:
 
-WRONG — explicit waitpid is redundant:
+WRONG -- explicit waitpid is redundant:
 
 ```c
 static void run(void)
@@ -1251,7 +1251,7 @@ static void run(void)
 
 ALWAYS rely on the framework to reap children:
 
-CORRECT — let the framework reap the child:
+CORRECT -- let the framework reap the child:
 
 ```c
 static void run(void)
@@ -1267,9 +1267,9 @@ static void run(void)
 Static variables whose value is fully derived from other statics already set
 in `setup()` MUST be initialized in `setup()` as well, NOT inside `run()`.
 Recomputing a constant derived value on every iteration is redundant and
-misleading — it implies the value may change across iterations when it does not.
+misleading -- it implies the value may change across iterations when it does not.
 
-WRONG — derived value recomputed on every call to `run()`:
+WRONG -- derived value recomputed on every call to `run()`:
 
 ```c
 static long page_size;
@@ -1287,7 +1287,7 @@ static void run(void)
 }
 ```
 
-CORRECT — derived value computed once in `setup()`:
+CORRECT -- derived value computed once in `setup()`:
 
 ```c
 static long page_size;
@@ -1310,7 +1310,7 @@ static void run(void)
 NEVER manually save and restore `/proc` or `/sys` values in
 setup/cleanup. ALWAYS use `.save_restore` in `struct tst_test`:
 
-WRONG — manual save/restore of proc/sys values:
+WRONG -- manual save/restore of proc/sys values:
 
 ```c
 static char old_val[64];
@@ -1327,7 +1327,7 @@ static void cleanup(void)
 }
 ```
 
-CORRECT — framework handles save/restore automatically:
+CORRECT -- framework handles save/restore automatically:
 
 ```c
 static struct tst_test test = {
@@ -1344,7 +1344,7 @@ static struct tst_test test = {
 MUST return `TCONF` (not `TFAIL`) when a syscall or feature is
 unavailable at runtime:
 
-WRONG — TFAIL for unsupported feature:
+WRONG -- TFAIL for unsupported feature:
 
 ```c
 TEST(syscall(__NR_foo, args));
@@ -1352,7 +1352,7 @@ if (TST_RET == -1 && TST_ERR == ENOSYS)
     tst_res(TFAIL, "foo() not supported");
 ```
 
-CORRECT — TCONF for unsupported feature:
+CORRECT -- TCONF for unsupported feature:
 
 ```c
 TEST(syscall(__NR_foo, args));
@@ -1366,16 +1366,16 @@ if (TST_RET == -1 && TST_ERR == ENOSYS)
 the test immediately exit with TCONF. Because it is a struct definition, strict
 placement rules apply:
 
-- MUST appear at **file scope** only — never inside a function body
+- MUST appear at **file scope** only -- never inside a function body
 - MUST be inside an `#else` branch of a preprocessor conditional, immediately
   followed by `#endif`
 - MUST use a **literal string**, not a macro constant (e.g. `NUMA_ERROR_MSG`)
-- MUST be the **only** `struct tst_test` in its compilation path — the normal
+- MUST be the **only** `struct tst_test` in its compilation path -- the normal
   `struct tst_test test = {...}` goes in the `#ifdef` branch,
   `TST_TEST_TCONF` goes in the `#else` branch (mutual exclusion is enforced
   by the compiler)
 
-WRONG — TST_TEST_TCONF inside a function body:
+WRONG -- TST_TEST_TCONF inside a function body:
 
 ```c
 #ifndef HAVE_LIBCAP
@@ -1386,7 +1386,7 @@ static void run(void)
 #endif
 ```
 
-WRONG — macro constant instead of literal string:
+WRONG -- macro constant instead of literal string:
 
 ```c
 #else
@@ -1394,7 +1394,7 @@ TST_TEST_TCONF(NUMA_ERROR_MSG);
 #endif
 ```
 
-CORRECT — file scope, literal string, in `#else` before `#endif`:
+CORRECT -- file scope, literal string, in `#else` before `#endif`:
 
 ```c
 #ifdef HAVE_LIBCAP
@@ -1413,14 +1413,14 @@ TST_TEST_TCONF("test requires libcap development packages");
 
 ### Helper Binaries (`TST_NO_DEFAULT_MAIN`)
 
-Some `.c` files under `testcases/` are not standalone tests — they are
+Some `.c` files under `testcases/` are not standalone tests -- they are
 helper binaries spawned by tests. They have their own `main()` and are
 NOT listed in any `runtest/` file.
 
 Helper binaries MUST use the new API but MUST NOT use `struct tst_test`.
 Instead, define `TST_NO_DEFAULT_MAIN` before including `tst_test.h`.
 
-WRONG — helper using old API:
+WRONG -- helper using old API:
 
 ```c
 #include "test.h"
@@ -1436,7 +1436,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-CORRECT — helper using new API with TST_NO_DEFAULT_MAIN:
+CORRECT -- helper using new API with TST_NO_DEFAULT_MAIN:
 
 ```c
 #define TST_NO_DEFAULT_MAIN
