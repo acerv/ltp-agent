@@ -145,7 +145,7 @@ Skip code review.
 
 ### 5.5. False-positive verification
 
-Read `{{LTP_AGENT_DIR}}/rules/false-positive.md` and follow the entire file
+Read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow the entire file
 for each candidate.
 
 Drop any issue that fails. A rule violation surfaced by

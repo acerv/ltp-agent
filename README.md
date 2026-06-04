@@ -88,16 +88,16 @@ python3 ltp-agent/scripts/scan-old-api.py --root-dir <ltp directory>
 The `rules/` directory contains rule files that the agent loads on demand
 based on the task:
 
-| File                | Description                                        |
-| ------------------- | -------------------------------------------------- |
-| `ground-rules.md`   | Mandatory rules for all LTP code.                  |
-| `c-tests.md`        | Rules for LTP C tests.                             |
-| `shell-tests.md`    | Rules for LTP shell tests.                         |
-| `openposix.md`      | Rules for Open POSIX Test Suite.                   |
-| `classify.md`       | Classify rules for LTP files.                      |
-| `commit-message.md` | Rules for LTP commit messages.                     |
-| `false-positive.md` | Verification checklist run on every flagged issue. |
-| `email-template.md` | Complete format of a review reply email.           |
+| File                      | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `ground-rules.md`         | Mandatory rules for all LTP code.            |
+| `c-tests.md`              | Rules for LTP C tests.                       |
+| `shell-tests.md`          | Rules for LTP shell tests.                   |
+| `openposix.md`            | Rules for Open POSIX Test Suite.             |
+| `classify.md`             | Classify rules for LTP files.                |
+| `commit-message.md`       | Rules for LTP commit messages.               |
+| `false-positive-guide.md` | Verification checklist applied after review. |
+| `email-template.md`       | Complete format of a review reply email.     |
 
 ## Continuous Integration
 
