@@ -145,11 +145,8 @@ Skip code review.
 
 ### 5.5. False-positive verification
 
-Read `{{LTP_AGENT_DIR}}/rules/false-positive.md` and for each candidate issue:
-
-1. Apply the relevant "Common false-positive patterns" sections.
-2. Walk through TASK POSITIVE.1 and produce the required outputs.
-3. Pass the Final Filter.
+Read `{{LTP_AGENT_DIR}}/rules/false-positive.md` and follow the entire file
+for each candidate.
 
 Drop any issue that fails. A rule violation surfaced by
 `{{LTP_AGENT_DIR}}/rules/c-tests.md`,
