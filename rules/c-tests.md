@@ -5,7 +5,7 @@
 This file contains MANDATORY rules for C tests. Load this file when reviewing
 or writing any patch that modifies `*.c` or `*.h` files, EXCEPT files under
 `testcases/open_posix_testsuite/` — those tests use different APIs and
-conventions (see `agents/openposix.md`).
+conventions (see `{{LTP_AGENT_DIR}}/rules/openposix.md`).
 
 ## Required Test Structure
 
@@ -229,7 +229,7 @@ static struct tst_test test = { .test_all = run };
 
 ### 17. Commit Messages
 
-For commit-message rules, see `agents/commit-message.md`.
+For commit-message rules, see `{{LTP_AGENT_DIR}}/rules/commit-message.md`.
 
 ### 18. Deprecated Features
 

@@ -36,7 +36,7 @@ GNU Autotools for its build system and follows the Linux kernel coding style.
 - `ci/` — CI dependency installation scripts
 - `.github/workflows/` — GitHub Actions CI workflows
 - `tools/` — Release and maintenance tools
-- `agents/` — AI agent configuration files
+- `rules/` — Rule files loaded by skills on demand
 
 ## Environment Setup
 
@@ -73,7 +73,7 @@ make install
 
 ## Agent Instructions
 
-All agent configuration files live in the `agents/` directory. The
+All rule files live in the `rules/` directory. The
 per-task triggers below load the files relevant to that task.
 
 ### Task: Patch Review
@@ -95,25 +95,25 @@ API (`tst_test.h`).
 **Trigger**: User asks to write, fix, or modify a test in
 `testcases/open_posix_testsuite/`.
 
-**Action**: Load `agents/openposix.md`, `agents/ground-rules.md`, and
-`agents/commit-message.md` before writing the code.
+**Action**: Load `rules/openposix.md`, `rules/ground-rules.md`, and
+`rules/commit-message.md` before writing the code.
 
 **Note**: Open POSIX tests use different APIs and conventions than LTP C tests.
-Do NOT apply `agents/c-tests.md` rules to Open POSIX tests.
+Do NOT apply `rules/c-tests.md` rules to Open POSIX tests.
 
 ### Task: Write or Modify C Tests
 
 **Trigger**: User asks to write, fix, or modify a C test.
 
-**Action**: Load `agents/c-tests.md`, `agents/ground-rules.md`, and
-`agents/commit-message.md` before writing code.
+**Action**: Load `rules/c-tests.md`, `rules/ground-rules.md`, and
+`rules/commit-message.md` before writing code.
 
 ### Task: Write or Modify Shell Tests
 
 **Trigger**: User asks to write, fix, or modify a shell test.
 
-**Action**: Load `agents/shell-tests.md`, `agents/ground-rules.md`, and
-`agents/commit-message.md` before writing code.
+**Action**: Load `rules/shell-tests.md`, `rules/ground-rules.md`, and
+`rules/commit-message.md` before writing code.
 
 ### Task Precedence
 

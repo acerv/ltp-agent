@@ -18,11 +18,6 @@ message. Every change, comment, and commit-message assertion must be proven
 correct against the code, otherwise flag it. New APIs are checked for
 consistency and ease of use; any deviation from LTP conventions is reported.
 
-## Step 0: Setup
-
-All `agents/...` paths are relative to the repository root, not this skill
-directory.
-
 ## Step 1: Verify patches are applied
 
 Run `git rev-list --count master..HEAD`. If the count is 0 (no commits ahead
@@ -37,8 +32,8 @@ Do NOT proceed with the review.
 ## Step 2: Classify changed files
 
 Use `git diff --name-only master..HEAD` to list what files have been changed.
-Read `agents/classify.md` and classify each changed file. Produce a mapping
-`{file → category}` to be consumed by Step 5.4.
+Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify each changed file.
+Produce a mapping `{file → category}` to be consumed by Step 5.4.
 
 ## Step 3: Verify patch type
 
@@ -53,7 +48,7 @@ Using the file list and classification from Step 2:
 
 ## Step 4: Commit message review
 
-Read `agents/commit-message.md` and apply ALL rules.
+Read `{{LTP_AGENT_DIR}}/rules/commit-message.md` and apply ALL rules.
 
 ## Step 5: Code Review
 
@@ -86,7 +81,8 @@ memory issues such as:
 
 ### 5.3. Ground Rules (MANDATORY)
 
-Read `agents/ground-rules.md` and apply ALL the rules in there.
+Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md` and apply ALL the rules in
+there.
 These rules are MANDATORY and any violation means reject.
 
 ### 5.4. Verify rules
@@ -97,19 +93,19 @@ rules.
 
 #### 5.4.1. Open POSIX test
 
-Read `agents/openposix.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/openposix.md` and apply ALL the rules inside it.
 
 #### 5.4.2. LTP self-test
 
-Read `agents/c-tests.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
 #### 5.4.3. LTP test helper
 
-Read `agents/c-tests.md` and apply ALL Helper Binaries rules.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL Helper Binaries rules.
 
 #### 5.4.4. LTP test (old API)
 
-Read `agents/c-tests.md`.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md`.
 
 If the patch is NOT converting the file to the new API, skip coding style
 and API usage checks. Still apply file organization, result reporting,
@@ -117,7 +113,7 @@ syscall correctness, and ground rules.
 
 #### 5.4.5. LTP test
 
-Read `agents/c-tests.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
 Additional checks:
 
@@ -131,7 +127,8 @@ Additional checks:
 
 #### 5.4.6. LTP shell test
 
-Read `agents/shell-tests.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/shell-tests.md` and apply ALL the rules inside
+it.
 
 If the shell file uses the old API (`. test.sh`, `tst_resm`, `TCID`,
 `TST_TOTAL`) and the patch is NOT converting it to the new API, skip
@@ -140,7 +137,7 @@ ground rules.
 
 #### 5.4.7. LTP library
 
-Read `agents/c-tests.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
 #### 5.4.8. Others
 
@@ -148,19 +145,23 @@ Skip code review.
 
 ### 5.5. False-positive verification
 
-Read `agents/false-positive.md` and for each candidate issue:
+Read `{{LTP_AGENT_DIR}}/rules/false-positive.md` and for each candidate issue:
 
 1. Apply the relevant "Common false-positive patterns" sections.
 2. Walk through TASK POSITIVE.1 and produce the required outputs.
 3. Pass the Final Filter.
 
-Drop any issue that fails. A rule violation surfaced by `c-tests.md`,
-`shell-tests.md`, `openposix.md`, `ground-rules.md`, or `commit-message.md`
+Drop any issue that fails. A rule violation surfaced by
+`{{LTP_AGENT_DIR}}/rules/c-tests.md`,
+`{{LTP_AGENT_DIR}}/rules/shell-tests.md`,
+`{{LTP_AGENT_DIR}}/rules/openposix.md`,
+`{{LTP_AGENT_DIR}}/rules/ground-rules.md`, or
+`{{LTP_AGENT_DIR}}/rules/commit-message.md`
 is a candidate — not a confirmed finding — until it clears this step.
 
 ## Step 6: Writing Output
 
-Read `agents/email-template.md` and compose the review reply following ALL
-rules in `agents/email-template.md`.
+Read `{{LTP_AGENT_DIR}}/rules/email-template.md` and compose the review reply
+following ALL rules in `{{LTP_AGENT_DIR}}/rules/email-template.md`.
 
 Write the email to `./review-inline.txt`. Create, do not append.

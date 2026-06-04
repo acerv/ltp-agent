@@ -20,11 +20,6 @@ The goal is to answer: Is this test effective, and how can it be improved?
 
 ---
 
-## Step 0: Setup
-
-All `agents/...` paths are relative to the repository root, not this skill
-directory.
-
 ## Step 1: Resolve and classify the input
 
 The argument may be a file path or a test name. Resolve it first:
@@ -34,12 +29,15 @@ The argument may be a file path or a test name. Resolve it first:
   (search by basename). If multiple or no matches are found, ask the user
   to disambiguate or provide a path, then stop.
 
-Read `agents/classify.md` and classify the file. Then read these files
-according to the file type:
+Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify the file. Then read
+these files according to the file type:
 
-- C tests: `agents/c-tests.md` and `agents/ground-rules.md`.
-- Shell tests: `agents/shell-tests.md` and `agents/ground-rules.md`.
-- Open POSIX tests: `agents/openposix.md` and `agents/ground-rules.md`.
+- C tests: `{{LTP_AGENT_DIR}}/rules/c-tests.md` and
+  `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
+- Shell tests: `{{LTP_AGENT_DIR}}/rules/shell-tests.md` and
+  `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
+- Open POSIX tests: `{{LTP_AGENT_DIR}}/rules/openposix.md` and
+  `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
 
 If the file cannot be classified, stop and tell the user why.
 
@@ -174,8 +172,8 @@ Identify edge cases that could reveal kernel bugs:
 
 ## Step 6: API and Style Compliance (LTP C test only)
 
-Check compliance with the loaded rules. This is NOT a full patch review - it is
-a health check:
+Check compliance with the loaded rules (`{{LTP_AGENT_DIR}}/rules/c-tests.md`).
+This is NOT a full patch review - it is a health check:
 
 - Framework features: Are there manual patterns that the framework
   handles automatically? (e.g., manual save/restore vs `.save_restore`,

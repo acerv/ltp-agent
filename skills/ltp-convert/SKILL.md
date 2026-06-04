@@ -20,16 +20,11 @@ implementation, and write a clean new test using modern LTP idioms.
 
 ---
 
-## Step 0: Setup
-
-All `agents/...` paths are relative to the repository root, not this skill
-directory.
-
 ## 1. Load Rules
 
-- Read `agents/ground-rules.md`.
-- Read `agents/c-tests.md`. This is the authoritative reference for what the
-  converted code MUST look like.
+- Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
+- Read `{{LTP_AGENT_DIR}}/rules/c-tests.md`. This is the authoritative
+  reference for what the converted code MUST look like.
 
 ## 2. Resolve and classify the file
 
@@ -40,7 +35,7 @@ The argument may be a file path or a test name. Resolve it first:
   (search by basename). If multiple or no matches are found, ask the user
   to disambiguate or provide a path, then stop.
 
-Read `agents/classify.md` and classify the file.
+Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify the file.
 
 Only **LTP test (old API)** can be converted. Continue to the next step.
 
@@ -90,7 +85,8 @@ Produce a brief design summary before writing code.
 ## 5. Implement
 
 Write the new test from the design above, following all rules in
-`c-tests.md` and `ground-rules.md`.
+`{{LTP_AGENT_DIR}}/rules/c-tests.md` and
+`{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
 
 Critical rules:
 
@@ -118,5 +114,5 @@ Critical rules:
 ### Helper Conversion
 
 If the file is a helper, follow the `TST_NO_DEFAULT_MAIN` section in
-`c-tests.md`. Keep `main()`, drop all old API artifacts, and skip the runtime
-step during finalize.
+`{{LTP_AGENT_DIR}}/rules/c-tests.md`. Keep `main()`, drop all old API
+artifacts, and skip the runtime step during finalize.

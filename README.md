@@ -39,7 +39,7 @@ and run them.
    ```
 
    This symlinks the agent configuration (`AGENTS.md`, `GEMINI.md`,
-   `agents/`, `skills/`, `.claude/skills/`, `.agents/skills/`)
+   `rules/`, `skills/`, `.claude/skills/`, `.agents/skills/`)
    into the LTP tree.
 
 3. Build LTP once so that tests can be compiled:
@@ -156,7 +156,7 @@ use project documentation to answer.
 
 ## Rule Files
 
-The `agents/` directory contains rule files that the agent loads on demand
+The `rules/` directory contains rule files that the agent loads on demand
 based on the task:
 
 - **ground-rules.md** — Mandatory rules for all LTP code: no kernel bug

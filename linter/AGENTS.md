@@ -68,8 +68,8 @@ linter/
 - **Blank lines**: add a blank line after each `if ... continue`
   guard and between separate logical blocks inside functions.
   Each guard-continue pair is its own block.
-- **Rule messages**: cross-check against `agents/c-tests.md` or
-  `agents/shell-tests.md` to ensure accuracy. The linter message
+- **Rule messages**: cross-check against `rules/c-tests.md` or
+  `rules/shell-tests.md` to ensure accuracy. The linter message
   should match the project guideline, not invent its own.
 
 ## Testing patterns
