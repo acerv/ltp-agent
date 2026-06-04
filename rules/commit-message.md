@@ -33,29 +33,19 @@ are not limited to:
 Only flag an empty commit body when understanding **why** the change was made
 requires explanation beyond what the subject line conveys.
 
-## 3. One logical change
-
-Each commit is a single, self-contained change. Each patch MUST compile on its
-own and MUST NOT introduce intermediate breakage. Flag patches that mix
-unrelated changes (e.g. a bugfix bundled with a rename, or a new test bundled
-with cleanup of an old one). A patch that adds a new test case MUST NOT add
-more than one new test case — split them into separate commits.
-
-## 4. Fixes tag
+## 3. Fixes tag
 
 If `Fixes:` tag is present, it MUST refer to a valid commit in the git history.
 
-## 5. Tags at the end
+## 4. Tags at the end
 
 All tags (e.g. `Signed-off-by:`, `Fixes:`, `Suggested-by:`, `Reviewed-by:`,
 `Acked-by:`, `Reported-by:`, `Link:`, `Closes:`, `Cc:`) MUST appear at the
 end of the commit message body, after the explanatory text — not at the
 beginning or interleaved within it. The `Signed-off-by:` tag MUST be present.
 
-## 6. Series ordering (multi-commit only)
+## 5. Series ordering (multi-commit only)
 
 Commits are in logical order (e.g. helper/library changes before the test that
 uses them, cleanup before new code that depends on it). Each intermediate
-commit must be self-contained — no commit should reference code added by a
-later commit. For each commit N, verify it does not call functions or use
-variables introduced by commit N+1 or later.
+commit must be self-contained - no commit should reference any a later commit.
