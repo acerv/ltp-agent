@@ -80,7 +80,7 @@ the new API.
 To find candidates for conversion, scan the tree with:
 
 ```sh
-python3 ltp-agent/scripts/scan-old-api.py --root-dir <ltp directory>
+python3 ltp-agent/tools/scan-old-api.py --root-dir <ltp directory>
 ```
 
 ## Rule Files

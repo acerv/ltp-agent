@@ -77,6 +77,6 @@ skip build-only definition tests (files without `test_main()` or
 ## Running tests
 
 ```bash
-cd linter
+cd tools/linter
 python3 -m pytest tests/ -v
 ```

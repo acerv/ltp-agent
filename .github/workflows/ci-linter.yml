@@ -34,10 +34,10 @@ jobs:
           pip install ruff pytest
 
       - name: ruff format --check
-        run: ruff format --check linter/
+        run: ruff format --check tools/linter/
 
       - name: ruff check
-        run: ruff check linter/
+        run: ruff check tools/linter/
 
       - name: pytest
-        run: python -m pytest linter/tests/ -v
+        run: python -m pytest tools/linter/tests/ -v

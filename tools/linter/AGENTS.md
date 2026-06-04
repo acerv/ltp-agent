@@ -16,7 +16,7 @@
 ## File layout
 
 ```
-linter/
+tools/linter/
   core.py          — Rule class, rule() decorator, run_rules(), SCOPE_MATCH
   main.py          — argparse entry point, _lint_file()
   repo.py          — git helpers (changed_files)
@@ -24,7 +24,7 @@ linter/
   rules_sh.py      — shell test rules (scope="sh")
   ltp-linter       — CLI entry script
   tests/
-    conftest.py    — adds linter/ to sys.path
+    conftest.py    — adds tools/linter/ to sys.path
     test_core.py   — tests for core module
     test_main.py   — tests for main module
     test_repo.py   — tests for repo module
@@ -42,7 +42,7 @@ linter/
 3. Decorate it with `@rule("Short message", scope="<scope>")`.
 4. Add a multi-line docstring explaining what the rule checks.
 5. Add tests in the corresponding `tests/test_rules_<type>.py`.
-6. Run `ruff format linter/` and `ruff check linter/` before
+6. Run `ruff format tools/linter/` and `ruff check tools/linter/` before
    committing.
 
 ## Adding a new scope
@@ -93,13 +93,13 @@ All Python code must be formatted with `ruff` before committing.
 
 ```bash
 # Format all files
-ruff format linter/
+ruff format tools/linter/
 
 # Check for lint issues
-ruff check linter/
+ruff check tools/linter/
 
 # Fix auto-fixable lint issues
-ruff check --fix linter/
+ruff check --fix tools/linter/
 ```
 
 Run `ruff format` after every change.
@@ -107,6 +107,6 @@ Run `ruff format` after every change.
 ## Running tests
 
 ```bash
-cd linter
+cd tools/linter
 python3 -m pytest tests/ -v
 ```
