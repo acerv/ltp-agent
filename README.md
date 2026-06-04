@@ -8,7 +8,7 @@ AI agent configuration for reviewing, converting, and testing
 Supported AI coding agents:
 
 - [Claude Code](https://github.com/anthropics/claude-code)
-- [pi](https://github.com/earendil-works/pi-coding-agent)
+- [pi](https://github.com/earendil-works/pi)
 - [OpenCode](https://github.com/sst/opencode)
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli)
 - [GitHub Copilot CLI](https://github.com/github/copilot-cli)
