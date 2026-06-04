@@ -12,10 +12,8 @@ and run them.
 
 ## Prerequisites
 
-- An AI coding agent that supports `AGENTS.md` and skill files (e.g.
-  [Claude Code](https://claude.com/claude-code),
-  [Gemini CLI](https://github.com/google-gemini/gemini-cli),
-  [OpenCode](https://opencode.ai))
+- An AI coding agent supporting skill files: Claude Code, pi, OpenCode,
+  Gemini CLI, or GitHub Copilot CLI
 - An LTP git checkout
 - Build dependencies for LTP: `git`, `gcc`, `make`, `autoconf`, `automake`,
   `m4`, `pkgconf`, Linux/libc headers
@@ -28,29 +26,30 @@ and run them.
 
    ```sh
    git clone --recurse-submodules https://github.com/linux-test-project/ltp.git
-   cd ltp
    ```
 
-2. Clone this repository and run the setup script:
+2. Clone this repository and install the skills for your agent:
 
    ```sh
    git clone <this-repo-url> ltp-agent
-   ./ltp-agent/setup.sh
+   ./ltp-agent/setup.sh <agent>
    ```
 
-   This symlinks the agent configuration (`AGENTS.md`, `GEMINI.md`,
-   `rules/`, `skills/`, `.claude/skills/`, `.agents/skills/`)
-   into the LTP tree.
+   `<agent>` is one of: `claude`, `pi`, `opencode`, `gemini`, `copilot`.
+   The skills are copied into the agent's native skill directory.
+   The LTP source tree is not touched.
 
 3. Build LTP once so that tests can be compiled:
 
    ```sh
+   cd ltp
    make autotools
    ./configure
    make
    ```
 
-4. Start your AI coding agent from the LTP directory.
+4. Start your AI coding agent from the LTP directory. The skills are
+   discovered automatically from their installed location.
 
 ## Usage
 
@@ -109,9 +108,9 @@ at the LTP tree root.
 
 For a one-shot review without manually cloning, applying, and invoking the
 agent, use `scripts/start-review.sh`. It clones LTP into a temporary
-directory, links the agent config, applies a patch from any source supported
-by `apply-patch.sh`, runs `/ltp-review`, and prints the email reply on
-stdout.
+directory, installs the skills for the chosen agent, applies a patch from
+any source supported by `apply-patch.sh`, runs `/ltp-review`, and prints
+the email reply on stdout.
 
 ```sh
 # Auto-detect the agent (gemini, claude, or opencode)
