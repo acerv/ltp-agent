@@ -7,12 +7,6 @@ reviewing any patch.
 
 For EACH commit, judge whether the message is **clear and informative**:
 
-## 0. Exceptions
-
-If the commit message contains `b4-submit-tracking` tag, rules are not
-applicable. In this case, commit message is a cover letter used by the `b4`
-tool.
-
 ## 1. Subject is clear
 
 Describes WHAT changed concisely. Flag if the subject is generic (e.g.
