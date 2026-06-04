@@ -12,10 +12,6 @@ on:
       SERIES_ID:
         description: Patchwork series ID
         required: true
-      VERBOSE:
-        description: Show full Copilot output in the step log
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -123,25 +119,34 @@ jobs:
         run: |
           set -o pipefail
 
-          SILENT_FLAG=""
-          if [ "${{ inputs.VERBOSE }}" != "true" ]; then
-            SILENT_FLAG="-s"
-          fi
-
           copilot -p "The latest stable kernel release is ${LATEST_KERNEL}. Use this for staging checks instead of fetching kernel.org. Run /ltp-review." \
-            --allow-tool='shell(git log:*)' \
-            --allow-tool='shell(git show:*)' \
-            --allow-tool='shell(git diff:*)' \
-            --allow-tool='shell(git rev-list:*)' \
-            --allow-tool='shell(git rev-parse:*)' \
-            --allow-tool='shell(git format-patch:*)' \
-            --allow-tool='shell(man:*)' \
-            --allow-tool='read(${{ github.workspace }}/ltp/*)' \
-            --allow-tool='read(${{ github.workspace }}/ltp-agent/rules/*)' \
-            --allow-tool='read(/usr/src/linux/*)' \
-            --allow-tool='write(${{ github.workspace }}/ltp/review-inline.txt)' \
-            --no-ask-user \
-            $SILENT_FLAG
+            --allow-all-tools \
+            --deny-tool='shell(curl:*)' \
+            --deny-tool='shell(wget:*)' \
+            --deny-tool='shell(nc:*)' \
+            --deny-tool='shell(ncat:*)' \
+            --deny-tool='shell(ssh:*)' \
+            --deny-tool='shell(scp:*)' \
+            --deny-tool='shell(rsync:*)' \
+            --deny-tool='shell(sendmail:*)' \
+            --deny-tool='shell(mail:*)' \
+            --deny-tool='shell(mailx:*)' \
+            --deny-tool='shell(msmtp:*)' \
+            --deny-tool='shell(git send-email:*)' \
+            --deny-tool='shell(git push:*)' \
+            --deny-tool='shell(pwclient:*)' \
+            --deny-tool='shell(sudo:*)' \
+            --deny-tool='shell(apt:*)' \
+            --deny-tool='shell(apt-get:*)' \
+            --deny-tool='shell(npm:*)' \
+            --deny-tool='shell(pip:*)' \
+            --deny-tool='shell(pipx:*)' \
+            --deny-tool='shell(docker:*)' \
+            --deny-tool=web_fetch \
+            --deny-tool=web_search \
+            --add-dir="${{ github.workspace }}/ltp-agent" \
+            --add-dir=/usr/src/linux \
+            --no-ask-user
 
           # Extract verdict from review-inline.txt
           if [ -f review-inline.txt ] && grep -qi "Reviewed" review-inline.txt; then
