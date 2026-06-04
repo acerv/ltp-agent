@@ -29,6 +29,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           path: ltp-agent
+          persist-credentials: false
 
       - name: Clone LTP
         run: git clone --depth 1 "$LTP_UPSTREAM" ltp
@@ -54,7 +55,6 @@ jobs:
           [ltp]
           backend = rest
           url = $PATCHWORK_URL/api/
-          token = ${{ secrets.PATCHWORK_TOKEN }}
           EOF
 
       - name: Resolve series metadata
@@ -134,7 +134,6 @@ jobs:
             --deny-tool='shell(msmtp:*)' \
             --deny-tool='shell(git send-email:*)' \
             --deny-tool='shell(git push:*)' \
-            --deny-tool='shell(pwclient:*)' \
             --deny-tool='shell(sudo:*)' \
             --deny-tool='shell(apt:*)' \
             --deny-tool='shell(apt-get:*)' \
@@ -176,6 +175,8 @@ jobs:
             echo "PATCHWORK_TOKEN not set, skipping Patchwork update"
             exit 0
           fi
+
+          echo "token = ${{ secrets.PATCHWORK_TOKEN }}" >> ~/.pwclientrc
 
           target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           context="copilot-review"
