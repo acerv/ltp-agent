@@ -126,6 +126,7 @@ on static variable re-initialization).
   macro — never called bare
 - Safe macros are defined in `include/` directory (search `tst_*.h` headers)
 - If no `SAFE_*` version exists, verify whether one can be added; otherwise use manual error handling
+- Do not check the return value of `SAFE_*` macros — they abort on failure.
 
 ### 9. Runtime Feature Detection
 
