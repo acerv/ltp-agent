@@ -115,6 +115,10 @@ syscall correctness, and ground rules.
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
+Also read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply the
+high-level description block rules (section 4) to the `/*\ ... */` block
+at the top of the test.
+
 Additional checks:
 
 - If a new C test is added, read `<dir>/Makefile`. If it uses a wildcard
@@ -139,12 +143,21 @@ ground rules.
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
+Also read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply the
+kernel-doc rules (section 5) to any new or modified public function,
+struct, or macro.
+
 #### 5.4.8. Build system
 
 Read `{{LTP_AGENT_DIR}}/rules/build-system.md` and apply ALL the rules
 inside it.
 
-#### 5.4.9. Others
+#### 5.4.9. Documentation
+
+Read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply ALL the rules
+inside it.
+
+#### 5.4.10. Others
 
 Skip code review.
 
@@ -158,8 +171,9 @@ Drop any issue that fails. A rule violation surfaced by
 `{{LTP_AGENT_DIR}}/rules/shell-tests.md`,
 `{{LTP_AGENT_DIR}}/rules/openposix.md`,
 `{{LTP_AGENT_DIR}}/rules/build-system.md`,
-`{{LTP_AGENT_DIR}}/rules/ground-rules.md`, or
-`{{LTP_AGENT_DIR}}/rules/commit-message.md`
+`{{LTP_AGENT_DIR}}/rules/ground-rules.md`,
+`{{LTP_AGENT_DIR}}/rules/commit-message.md`, or
+`{{LTP_AGENT_DIR}}/rules/documentation.md`
 is a candidate -- not a confirmed finding -- until it clears this step.
 
 ## Step 6: Writing Output

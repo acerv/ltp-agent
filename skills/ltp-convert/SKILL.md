@@ -25,6 +25,9 @@ implementation, and write a clean new test using modern LTP idioms.
 - Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
 - Read `{{LTP_AGENT_DIR}}/rules/c-tests.md`. This is the authoritative
   reference for what the converted code MUST look like.
+- Read `{{LTP_AGENT_DIR}}/rules/documentation.md`. Section 4 is the
+  authoritative reference for the high-level description block of the
+  new test.
 
 ## 2. Resolve and classify the file
 
@@ -85,8 +88,10 @@ Produce a brief design summary before writing code.
 ## 5. Implement
 
 Write the new test from the design above, following all rules in
-`{{LTP_AGENT_DIR}}/rules/c-tests.md` and
-`{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
+`{{LTP_AGENT_DIR}}/rules/c-tests.md`,
+`{{LTP_AGENT_DIR}}/rules/ground-rules.md`, and the high-level
+description block rules in `{{LTP_AGENT_DIR}}/rules/documentation.md`
+(section 4).
 
 Critical rules:
 

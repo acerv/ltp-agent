@@ -32,8 +32,10 @@ The argument may be a file path or a test name. Resolve it first:
 Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify the file. Then read
 these files according to the file type:
 
-- C tests: `{{LTP_AGENT_DIR}}/rules/c-tests.md` and
-  `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
+- C tests: `{{LTP_AGENT_DIR}}/rules/c-tests.md`,
+  `{{LTP_AGENT_DIR}}/rules/ground-rules.md`, and
+  `{{LTP_AGENT_DIR}}/rules/documentation.md` (sections 4-6 for the
+  high-level description block and kernel-doc comments).
 - Shell tests: `{{LTP_AGENT_DIR}}/rules/shell-tests.md` and
   `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
 - Open POSIX tests: `{{LTP_AGENT_DIR}}/rules/openposix.md` and
