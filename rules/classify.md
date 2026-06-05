@@ -75,6 +75,13 @@ If ALL of the following rules apply to the file, it's a Build system file:
 
 - MUST be named `Makefile` or have extension `.mk`.
 
-### 9. Others
+### 9. Documentation
+
+If ANY of the following rules apply to the file, it's a Documentation file:
+
+- MUST have extension `.rst`.
+- MUST be under `doc/` (any depth).
+
+### 10. Others
 
 Any other file will be classified as `Others`.
