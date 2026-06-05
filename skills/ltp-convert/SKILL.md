@@ -116,3 +116,10 @@ Critical rules:
 If the file is a helper, follow the `TST_NO_DEFAULT_MAIN` section in
 `{{LTP_AGENT_DIR}}/rules/c-tests.md`. Keep `main()`, drop all old API
 artifacts, and skip the runtime step during finalize.
+
+### Makefile updates
+
+If the conversion adds, removes, or renames test binaries, or changes
+linked libraries, update `<dir>/Makefile` accordingly and verify it
+against `{{LTP_AGENT_DIR}}/rules/build-system.md`. Drop manual `-lltp`,
+prefer per-target `LDLIBS +=`, and keep the standard template intact.

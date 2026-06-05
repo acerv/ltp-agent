@@ -96,6 +96,7 @@ based on the task:
 | `openposix.md`            | Rules for Open POSIX Test Suite.             |
 | `classify.md`             | Classify rules for LTP files.                |
 | `commit-message.md`       | Rules for LTP commit messages.               |
+| `build-system.md`         | Rules for LTP Makefiles and build system.    |
 | `false-positive-guide.md` | Verification checklist applied after review. |
 | `email-template.md`       | Complete format of a review reply email.     |
 

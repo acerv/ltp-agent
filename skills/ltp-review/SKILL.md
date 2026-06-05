@@ -42,8 +42,8 @@ Using the file list and classification from Step 2:
 - If the patch only deletes files (no added or modified code), skip code
   review entirely. Only review commit messages and verify that related
   entries (runtest, .gitignore, Makefile) are also removed.
-- If the patch only touches non-test files (runtest/\*, Makefile,
-  .gitignore, doc/, ci/, scripts/), skip the code review entirely. Only
+- If the patch only touches non-test files (runtest/\*, .gitignore,
+  doc/, ci/, scripts/), skip the code review entirely. Only
   review commit messages and verify the changes are correct.
 
 ## Step 4: Commit message review
@@ -139,7 +139,12 @@ ground rules.
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
-#### 5.4.8. Others
+#### 5.4.8. Build system
+
+Read `{{LTP_AGENT_DIR}}/rules/build-system.md` and apply ALL the rules
+inside it.
+
+#### 5.4.9. Others
 
 Skip code review.
 
@@ -152,6 +157,7 @@ Drop any issue that fails. A rule violation surfaced by
 `{{LTP_AGENT_DIR}}/rules/c-tests.md`,
 `{{LTP_AGENT_DIR}}/rules/shell-tests.md`,
 `{{LTP_AGENT_DIR}}/rules/openposix.md`,
+`{{LTP_AGENT_DIR}}/rules/build-system.md`,
 `{{LTP_AGENT_DIR}}/rules/ground-rules.md`, or
 `{{LTP_AGENT_DIR}}/rules/commit-message.md`
 is a candidate -- not a confirmed finding -- until it clears this step.

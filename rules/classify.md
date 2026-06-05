@@ -69,6 +69,12 @@ If ALL of the following rules apply to the file, it's an LTP library:
 - Can be a `*.c` or `*.h` file.
 - MUST be inside `lib/` folder.
 
-### 8. Others
+### 8. Build system
+
+If ALL of the following rules apply to the file, it's a Build system file:
+
+- MUST be named `Makefile` or have extension `.mk`.
+
+### 9. Others
 
 Any other file will be classified as `Others`.
