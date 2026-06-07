@@ -35,7 +35,9 @@ requires explanation beyond what the subject line conveys.
 
 ## 3. Fixes tag
 
-If `Fixes:` tag is present, it MUST refer to a valid commit in the git history.
+If a `Fixes:` tag is present, it MUST refer to a valid commit in the local
+LTP git history. Verify it offline using a `git` command against the local
+LTP checkout.
 
 ## 4. Tags at the end
 
