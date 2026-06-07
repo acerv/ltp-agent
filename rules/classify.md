@@ -67,7 +67,7 @@ If ALL of the following rules apply to the file, it's an LTP shell test:
 If ALL of the following rules apply to the file, it's an LTP library:
 
 - Can be a `*.c` or `*.h` file.
-- MUST be inside `lib/` folder.
+- MUST be inside `lib/` or `include/` folder.
 
 ### 8. Build system
 
