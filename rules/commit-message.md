@@ -36,8 +36,9 @@ requires explanation beyond what the subject line conveys.
 ## 3. Fixes tag
 
 If a `Fixes:` tag is present, it MUST refer to a valid commit in the local
-LTP git history. Verify it offline using a `git` command against the local
-LTP checkout.
+LTP git history. Verify it offline against the local repository using exactly
+this command: `git rev-parse --verify <hash>^{commit}`. A non-zero exit code
+means the commit does not exist or it's invalid.
 
 ## 4. Tags at the end
 
