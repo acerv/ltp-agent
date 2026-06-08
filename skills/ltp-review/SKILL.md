@@ -166,7 +166,7 @@ inside it.
 
 #### 5.4.11. Others
 
-Skip code review.
+Otherwise review them based on the file extension.
 
 ### 5.5. False-positive verification
 

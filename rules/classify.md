@@ -16,9 +16,7 @@ match.
 
 If ALL of the following rules apply to the file, it's an Open POSIX test:
 
-- MUST be a `*.c` file.
 - MUST be inside `testcases/open_posix_testsuite/` folder.
-- MUST define `test_main`.
 
 ### 2. LTP self-test
 
