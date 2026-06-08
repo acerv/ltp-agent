@@ -10,7 +10,7 @@ import re
 from core import rule
 
 
-@rule("Missing GPL license header", scope="openposix")
+@rule("Missing GPL license header", scope="openposix", rule_id="LTP-O001")
 def check_gpl_header(lines):
     """
     Check that the GPL license header is present in the file.
@@ -26,7 +26,7 @@ def check_gpl_header(lines):
     yield 1, "GPL license header is missing"
 
 
-@rule("Missing copyright", scope="openposix")
+@rule("Missing copyright", scope="openposix", rule_id="LTP-O002")
 def check_copyright(lines):
     """
     Check that a copyright line with year is present.
@@ -49,7 +49,7 @@ def _has_entry_point(lines):
     return False
 
 
-@rule("Missing posixtest.h include", scope="openposix_only")
+@rule("Missing posixtest.h include", scope="openposix_only", rule_id="LTP-O003")
 def check_posixtest_header(lines):
     """
     Check that posixtest.h is included. Also accepts testfrmw.h which
@@ -67,7 +67,7 @@ def check_posixtest_header(lines):
     yield 1, 'must include "posixtest.h"'
 
 
-@rule("Must use test_main(), not main()", scope="openposix_only")
+@rule("Must use test_main(), not main()", scope="openposix_only", rule_id="LTP-O004")
 def check_test_main(lines):
     """
     Check that test_main() is defined as the entry point instead of
@@ -88,14 +88,14 @@ def check_test_main(lines):
     if has_main:
         yield (
             main_line,
-            "define test_main() instead of main() — main() is provided by lib/common.c",
+            "define test_main() instead of main() - main() is provided by lib/common.c",
         )
 
     if not has_test_main and not has_main and _has_entry_point(lines):
         yield 1, "no test_main() entry point found"
 
 
-@rule("Missing PTS return codes", scope="openposix_only")
+@rule("Missing PTS return codes", scope="openposix_only", rule_id="LTP-O005")
 def check_pts_return_codes(lines):
     """
     Check that at least one PTS return code is used (PTS_PASS,

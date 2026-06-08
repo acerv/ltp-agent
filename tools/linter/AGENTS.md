@@ -71,6 +71,7 @@ tools/linter/
 - **Rule messages**: cross-check against `rules/c-tests.md` or
   `rules/shell-tests.md` to ensure accuracy. The linter message
   should match the project guideline, not invent its own.
+- **Text**: use ASCII characters only.
 
 ## Testing patterns
 

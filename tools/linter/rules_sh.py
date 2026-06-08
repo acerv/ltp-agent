@@ -10,7 +10,7 @@ import re
 from core import rule
 
 
-@rule("Wrong shebang", scope="sh")
+@rule("Wrong shebang", scope="sh", rule_id="LTP-S001")
 def check_shebang(lines):
     """
     Check that the first line is exactly #!/bin/sh.
@@ -22,7 +22,7 @@ def check_shebang(lines):
         yield 1, "shebang must be exactly #!/bin/sh"
 
 
-@rule("Missing SPDX header", scope="sh")
+@rule("Missing SPDX header", scope="sh", rule_id="LTP-S002")
 def check_spdx(lines):
     """
     Check that the second line contains the SPDX license identifier.
@@ -34,7 +34,7 @@ def check_spdx(lines):
         yield 2, "second line must contain SPDX-License-Identifier"
 
 
-@rule("Missing copyright", scope="sh")
+@rule("Missing copyright", scope="sh", rule_id="LTP-S003")
 def check_copyright(lines):
     """
     Check that a copyright line with year is present.
@@ -73,7 +73,7 @@ def _is_new_shell_api(lines):
     return False
 
 
-@rule("Missing doc block", scope="sh")
+@rule("Missing doc block", scope="sh", rule_id="LTP-S004")
 def check_doc_block(lines):
     """
     Check that a # --- doc ... # --- block is present.
@@ -99,7 +99,7 @@ def check_doc_block(lines):
     yield 1, "missing # --- doc ... # --- block"
 
 
-@rule("Missing env block", scope="sh")
+@rule("Missing env block", scope="sh", rule_id="LTP-S005")
 def check_env_block(lines):
     """
     Check that a # --- env ... # --- block is present.
@@ -121,7 +121,7 @@ def check_env_block(lines):
     yield 1, "missing # --- env ... # --- block"
 
 
-@rule("Missing tst_run as last line", scope="sh")
+@rule("Missing tst_run as last line", scope="sh", rule_id="LTP-S006")
 def check_tst_run_last(lines):
     """
     Check that the last non-empty line is . tst_run.sh (new API)
@@ -142,7 +142,7 @@ def check_tst_run_last(lines):
     yield 1, "empty file"
 
 
-@rule("Bash-ism: [[ ]]", scope="sh")
+@rule("Bash-ism: [[ ]]", scope="sh", rule_id="LTP-S007")
 def check_no_double_bracket(lines):
     """
     Flag [[ ]] usage. Shell tests must use [ ] for POSIX portability.
@@ -164,7 +164,7 @@ def check_no_double_bracket(lines):
         yield line_num, "use [ ] instead of [[ ]] (POSIX portability)"
 
 
-@rule("Bash-ism: function keyword", scope="sh")
+@rule("Bash-ism: function keyword", scope="sh", rule_id="LTP-S008")
 def check_no_function_keyword(lines):
     """
     Flag the function keyword. POSIX shell uses name() { syntax.
@@ -185,7 +185,7 @@ def check_no_function_keyword(lines):
         )
 
 
-@rule("Bash-ism: process substitution", scope="sh")
+@rule("Bash-ism: process substitution", scope="sh", rule_id="LTP-S009")
 def check_no_process_substitution(lines):
     """
     Flag <() and >() process substitution which is not POSIX.
@@ -210,7 +210,7 @@ def check_no_process_substitution(lines):
         )
 
 
-@rule("Bash-ism: array", scope="sh")
+@rule("Bash-ism: array", scope="sh", rule_id="LTP-S010")
 def check_no_arrays(lines):
     """
     Flag bash array syntax which is not POSIX.

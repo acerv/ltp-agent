@@ -141,6 +141,20 @@ class TestCheckTstTestHeader:
         lines = ['#include "test.h"\n']
         results = list(check_tst_test_header(lines))
         assert len(results) == 1
+        assert results[0][0] == 1
+
+    def test_old_header_reports_actual_line(self):
+        """
+        Verify finding reports the actual include line, not line 1.
+        """
+        lines = [
+            "// SPDX\n",
+            "// Copyright\n",
+            '#include "test.h"\n',
+        ]
+        results = list(check_tst_test_header(lines))
+        assert len(results) == 1
+        assert results[0][0] == 3
 
     def test_new_header(self):
         """

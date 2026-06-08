@@ -2,6 +2,7 @@
 Tests for main module: run() entry point.
 """
 
+import json
 import os
 import tempfile
 from unittest.mock import patch
@@ -55,6 +56,32 @@ class TestRunFileMode:
         finally:
             os.unlink(path)
 
+    def test_json_output(self, monkeypatch, capsys):
+        """
+        Verify JSON output contains structured findings.
+        """
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".c", delete=False) as fh:
+            fh.write(BAD_FILE)
+            path = fh.name
+
+        try:
+            monkeypatch.setattr(
+                "sys.argv",
+                ["ltp-linter", "-f", path, "--format", "json"],
+            )
+            with pytest.raises(SystemExit) as exc:
+                main.run()
+            assert exc.value.code == 1
+
+            output = json.loads(capsys.readouterr().out)
+            assert output["version"] == 1
+            assert output["scope"] == "file"
+            assert output["findings"][0]["file"] == path
+            assert output["findings"][0]["rule_id"] == "LTP-C001"
+            assert output["findings"][0]["confidence"] == "mechanical"
+        finally:
+            os.unlink(path)
+
     def test_bad_file_exits_one(self, monkeypatch, capsys):
         """
         Verify exit code 1 and printed findings for a bad file.
@@ -71,7 +98,7 @@ class TestRunFileMode:
 
             output = capsys.readouterr().out
             assert path in output
-            assert "Missing SPDX header" in output
+            assert "LTP-C001: Missing SPDX header" in output
         finally:
             os.unlink(path)
 
@@ -113,6 +140,31 @@ class TestRunBranchMode:
         assert exc.value.code == 0
         assert capsys.readouterr().out == ""
 
+    def test_branch_patch_scope_filters_findings(self, monkeypatch, capsys):
+        """
+        Verify --scope patch reports only findings on changed lines.
+        """
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".c", delete=False) as fh:
+            fh.write(BAD_FILE)
+            path = fh.name
+
+        try:
+            monkeypatch.setattr(
+                "sys.argv",
+                ["ltp-linter", "-b", "--scope", "patch"],
+            )
+            with patch("main.repo.changed_files", return_value=[path]):
+                with patch("main.repo.changed_lines", return_value={path: {1}}):
+                    with pytest.raises(SystemExit) as exc:
+                        main.run()
+
+            assert exc.value.code == 1
+            output = capsys.readouterr().out
+            assert "Missing SPDX header" in output
+            assert "Unexpected main" not in output
+        finally:
+            os.unlink(path)
+
     def test_branch_clean_files(self, monkeypatch, capsys):
         """
         Verify exit code 0 when all changed files are clean.
@@ -151,6 +203,18 @@ class TestArgParsing:
         Verify that passing both -f and -b causes an error.
         """
         monkeypatch.setattr("sys.argv", ["ltp-linter", "-f", "foo.c", "-b"])
+        with pytest.raises(SystemExit) as exc:
+            main.run()
+        assert exc.value.code != 0
+
+    def test_patch_scope_without_branch_exits_error(self, monkeypatch):
+        """
+        Verify that --scope patch requires branch mode.
+        """
+        monkeypatch.setattr(
+            "sys.argv",
+            ["ltp-linter", "-f", "foo.c", "--scope", "patch"],
+        )
         with pytest.raises(SystemExit) as exc:
             main.run()
         assert exc.value.code != 0

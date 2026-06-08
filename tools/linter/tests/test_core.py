@@ -19,6 +19,26 @@ class TestRule:
         r = core.Rule("test message", lambda lines: iter([]))
         assert r.message == "test message"
 
+    def test_metadata_properties(self):
+        """
+        Verify that rule metadata properties are exposed.
+        """
+        r = core.Rule(
+            "test message",
+            lambda lines: iter([]),
+            rule_id="LTP-T001",
+            confidence="mechanical",
+        )
+        assert r.rule_id == "LTP-T001"
+        assert r.confidence == "mechanical"
+
+    def test_invalid_confidence_raises(self):
+        """
+        Verify that an invalid confidence raises ValueError.
+        """
+        with pytest.raises(ValueError, match="invalid confidence"):
+            core.Rule("test message", lambda lines: iter([]), confidence="bad")
+
     def test_check_delegates_to_function(self):
         """
         Verify that check() calls the wrapped function with lines.
@@ -91,6 +111,25 @@ class TestRuleDecorator:
                 """
                 yield 1, "bad"
 
+    def test_decorator_sets_rule_metadata(self):
+        """
+        Verify that the decorator passes rule metadata to Rule.
+        """
+        initial_count = len(core._rules)
+
+        @core.rule("metadata test", rule_id="LTP-T002", confidence="semantic")
+        def metadata_rule(lines):
+            """
+            Dummy rule for testing metadata.
+            """
+            yield 1, "dummy"
+
+        assert len(core._rules) == initial_count + 1
+        assert core._rules[-1].rule_id == "LTP-T002"
+        assert core._rules[-1].confidence == "semantic"
+
+        core._rules.pop()
+
 
 class TestRunRules:
     """
@@ -119,10 +158,38 @@ class TestRunRules:
             yield 3, "detail B"
 
         findings = core.run_rules(["line1\n", "line2\n", "line3\n"])
-        assert findings == [
+        assert [tuple(finding) for finding in findings] == [
             ("rule A", 1, "detail A"),
             ("rule B", 3, "detail B"),
         ]
+        assert findings[0].file == ""
+        assert findings[0].confidence == "mechanical"
+
+        core._rules.clear()
+        core._rules.extend(saved)
+
+    def test_patch_lines_filter_findings(self):
+        """
+        Verify that patch_lines keeps only findings on changed lines.
+        """
+        saved = core._rules[:]
+        core._rules.clear()
+
+        @core.rule("rule A")
+        def rule_a(lines):
+            """
+            First test rule.
+            """
+            yield 1, "detail A"
+            yield 3, "detail B"
+
+        findings = core.run_rules(
+            ["line1\n", "line2\n", "line3\n"],
+            filepath="foo.c",
+            patch_lines={3},
+        )
+        assert len(findings) == 1
+        assert findings[0].line == 3
 
         core._rules.clear()
         core._rules.extend(saved)

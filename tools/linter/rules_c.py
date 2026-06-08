@@ -10,7 +10,7 @@ import re
 from core import rule
 
 
-@rule("Missing SPDX header")
+@rule("Missing SPDX header", rule_id="LTP-C001")
 def check_spdx(lines):
     """
     Check that the first line contains an SPDX license identifier.
@@ -19,7 +19,7 @@ def check_spdx(lines):
         yield 1, "first line must contain SPDX-License-Identifier"
 
 
-@rule("Missing copyright")
+@rule("Missing copyright", rule_id="LTP-C002")
 def check_copyright(lines):
     """
     Check that a Copyright line with a year is present.
@@ -31,7 +31,7 @@ def check_copyright(lines):
     yield 1, "no Copyright line with year found"
 
 
-@rule("Missing doc comment block", scope="c_only")
+@rule("Missing doc comment block", scope="c_only", rule_id="LTP-C003")
 def check_doc_comment(lines):
     """
     Check that a doc comment block (/*\\) is present.
@@ -45,7 +45,7 @@ def check_doc_comment(lines):
     yield 1, "no doc comment block (/*\\) found"
 
 
-@rule("Deprecated [Description] tag")
+@rule("Deprecated [Description] tag", rule_id="LTP-C004")
 def check_description_tag(lines):
     """
     Flag any use of the deprecated [Description] tag in doc comments.
@@ -55,25 +55,25 @@ def check_description_tag(lines):
             yield line_num, "[Description] is deprecated, use a plain comment"
 
 
-@rule("Wrong test header")
+@rule("Wrong test header", rule_id="LTP-C005")
 def check_tst_test_header(lines):
     """
     Check that tst_test.h is used instead of the legacy test.h.
     """
-    has_old = False
+    old_line = 0
     has_new = False
 
     for line_num, line in enumerate(lines, 1):
         if re.match(r'^\s*#\s*include\s*[<"]test\.h[>"]', line):
-            has_old = True
+            old_line = line_num
         if re.match(r'^\s*#\s*include\s*[<"]tst_test\.h[>"]', line):
             has_new = True
 
-    if has_old and not has_new:
-        yield 1, 'use #include "tst_test.h" instead of #include "test.h"'
+    if old_line and not has_new:
+        yield old_line, 'use #include "tst_test.h" instead of #include "test.h"'
 
 
-@rule("Unexpected main() definition", scope="c_only")
+@rule("Unexpected main() definition", scope="c_only", rule_id="LTP-C006")
 def check_no_main(lines):
     """
     Flag main() definitions when TST_NO_DEFAULT_MAIN is not set.
@@ -87,7 +87,7 @@ def check_no_main(lines):
             yield line_num, "define struct tst_test instead of main()"
 
 
-@rule("Missing struct tst_test", scope="c_only")
+@rule("Missing struct tst_test", scope="c_only", rule_id="LTP-C007")
 def check_struct_tst_test(lines):
     """
     Check that struct tst_test is defined, unless TST_NO_DEFAULT_MAIN is set.
@@ -103,7 +103,7 @@ def check_struct_tst_test(lines):
     yield 1, "no struct tst_test found"
 
 
-@rule("FD not initialized to -1")
+@rule("FD not initialized to -1", rule_id="LTP-C008")
 def check_fd_init(lines):
     """
     Flag static file descriptor declarations that are not initialized to -1.
@@ -118,11 +118,11 @@ def check_fd_init(lines):
 
         yield (
             line_num,
-            (f"initialize {match.group(1)} to -1, not 0 (0 is a valid fd — stdin)"),
+            (f"initialize {match.group(1)} to -1, not 0 (0 is a valid fd - stdin)"),
         )
 
 
-@rule("Wrong FD validity check")
+@rule("Wrong FD validity check", rule_id="LTP-C009")
 def check_fd_validity(lines):
     """
     Flag fd >= 0 or fd > 0 checks. LTP convention is fd != -1 to match
@@ -149,7 +149,7 @@ def check_fd_validity(lines):
         )
 
 
-@rule("Redundant fd reset after SAFE_CLOSE")
+@rule("Redundant fd reset after SAFE_CLOSE", rule_id="LTP-C010")
 def check_fd_reset_after_safe_close(lines):
     """
     Flag manual fd = -1 after SAFE_CLOSE(). SAFE_CLOSE() already sets
@@ -169,11 +169,15 @@ def check_fd_reset_after_safe_close(lines):
         if re.match(rf"^{re.escape(fd_name)}\s*=\s*-1\s*;$", lines[line_num].strip()):
             yield (
                 line_num + 1,
-                (f"{fd_name} = -1 is redundant — SAFE_CLOSE() already resets it to -1"),
+                (f"{fd_name} = -1 is redundant - SAFE_CLOSE() already resets it to -1"),
             )
 
 
-@rule("HAVE_* guard inside function")
+@rule(
+    "HAVE_* guard inside function",
+    rule_id="LTP-C011",
+    confidence="semantic",
+)
 def check_have_guard_placement(lines):
     """
     Flag #ifdef HAVE_* guards inside functions. They must wrap all test
@@ -194,7 +198,12 @@ def check_have_guard_placement(lines):
             )
 
 
-@rule("Missing .needs_tmpdir", scope="c_only")
+@rule(
+    "Missing .needs_tmpdir",
+    scope="c_only",
+    rule_id="LTP-C012",
+    confidence="semantic",
+)
 def check_needs_tmpdir(lines):
     """
     Flag tests that create files (SAFE_OPEN, SAFE_CREAT, SAFE_FILE_PRINTF,
@@ -219,12 +228,12 @@ def check_needs_tmpdir(lines):
         if create_re.search(line) or open_create_re.search(line):
             yield (
                 line_num,
-                "test creates files — set .needs_tmpdir = 1 in struct tst_test",
+                "test creates files - set .needs_tmpdir = 1 in struct tst_test",
             )
             return
 
 
-@rule("Legacy cleanup_fn parameter")
+@rule("Legacy cleanup_fn parameter", rule_id="LTP-C013")
 def check_cleanup_fn_param(lines):
     """
     Flag safe_* function definitions that include a cleanup_fn parameter.
@@ -242,13 +251,13 @@ def check_cleanup_fn_param(lines):
             yield (
                 line_num,
                 (
-                    "cleanup_fn parameter is legacy API — use tst_brk_()"
+                    "cleanup_fn parameter is legacy API - use tst_brk_()"
                     " instead of tst_brkm_() and remove cleanup_fn"
                 ),
             )
 
 
-@rule("Raw syscall() instead of tst_syscall()")
+@rule("Raw syscall() instead of tst_syscall()", rule_id="LTP-C014")
 def check_tst_syscall(lines):
     """
     Flag plain syscall() calls. Use tst_syscall() which automatically
@@ -272,13 +281,18 @@ def check_tst_syscall(lines):
             yield (
                 line_num,
                 (
-                    "use tst_syscall() instead of raw syscall() —"
+                    "use tst_syscall() instead of raw syscall() -"
                     " tst_syscall() automatically handles ENOSYS"
                 ),
             )
 
 
-@rule("Missing .supported_archs", scope="c_only")
+@rule(
+    "Missing .supported_archs",
+    scope="c_only",
+    rule_id="LTP-C015",
+    confidence="semantic",
+)
 def check_supported_archs(lines):
     """
     Flag #if defined(__arch__) guards when .supported_archs should be
@@ -306,7 +320,7 @@ def check_supported_archs(lines):
             return
 
 
-@rule("Use exit() instead of _exit() in child blocks")
+@rule("Use exit() instead of _exit() in child blocks", rule_id="LTP-C016")
 def check_exit_in_child(lines):
     """
     Flag _exit() in forked child blocks. LTP requires exit() so the
@@ -322,7 +336,7 @@ def check_exit_in_child(lines):
         if pattern.search(line):
             yield (
                 line_num,
-                "use exit() instead of _exit() — _exit() bypasses "
+                "use exit() instead of _exit() - _exit() bypasses "
                 "LTP result propagation from child to parent",
             )
 
@@ -334,7 +348,7 @@ _TYPE_TOKEN_RE = (
 )
 
 
-@rule("Identifier starts with underscore")
+@rule("Identifier starts with underscore", rule_id="LTP-C017")
 def check_underscore_identifier(lines):
     """
     Flag function definitions and prototypes whose name starts with an
@@ -379,13 +393,18 @@ def check_underscore_identifier(lines):
             yield (
                 line_num,
                 (
-                    f"{match.group(1)} starts with underscore — "
+                    f"{match.group(1)} starts with underscore - "
                     "reserved for compiler/libc/kernel"
                 ),
             )
 
 
-@rule("Missing .needs_kconfigs", scope="c_only")
+@rule(
+    "Missing .needs_kconfigs",
+    scope="c_only",
+    rule_id="LTP-C018",
+    confidence="semantic",
+)
 def check_needs_kconfigs(lines):
     """
     Flag manual kernel config checks at runtime (TCONF with CONFIG_ in
