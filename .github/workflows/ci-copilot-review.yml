@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
 
       - name: Clone LTP
-        run: git clone --depth 1 "$LTP_UPSTREAM" ltp
+        run: git clone --filter=blob:none "$LTP_UPSTREAM" ltp
 
       - name: Install ltp-agent skills for Copilot
         run: $AGENT_DIR/setup.sh copilot
