@@ -97,13 +97,19 @@ Read `{{LTP_AGENT_DIR}}/rules/openposix.md` and apply ALL the rules inside it.
 
 #### 5.4.2. LTP self-test
 
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
+Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
 
 #### 5.4.3. LTP test helper
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL Helper Binaries rules.
 
-#### 5.4.4. LTP test (old API)
+#### 5.4.4. LTP test header
+
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
+Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
+
+#### 5.4.5. LTP test (old API)
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md`.
 
@@ -111,7 +117,7 @@ If the patch is NOT converting the file to the new API, skip coding style
 and API usage checks. Still apply file organization, result reporting,
 syscall correctness, and ground rules.
 
-#### 5.4.5. LTP test
+#### 5.4.6. LTP test
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
@@ -129,7 +135,7 @@ Additional checks:
   or online at `https://github.com/torvalds/linux`. If unverifiable, flag as
   **Needs discussion**.
 
-#### 5.4.6. LTP shell test
+#### 5.4.7. LTP shell test
 
 Read `{{LTP_AGENT_DIR}}/rules/shell-tests.md` and apply ALL the rules inside
 it.
@@ -139,25 +145,26 @@ If the shell file uses the old API (`. test.sh`, `tst_resm`, `TCID`,
 structural checks. Still apply coding style, result reporting, and
 ground rules.
 
-#### 5.4.7. LTP library
+#### 5.4.8. LTP library
 
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
+Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
+Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
 
 Also read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply the
 kernel-doc rules (section 5) to any new or modified public function,
 struct, or macro.
 
-#### 5.4.8. Build system
+#### 5.4.9. Build system
 
 Read `{{LTP_AGENT_DIR}}/rules/build-system.md` and apply ALL the rules
 inside it.
 
-#### 5.4.9. Documentation
+#### 5.4.10. Documentation
 
 Read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply ALL the rules
 inside it.
 
-#### 5.4.10. Others
+#### 5.4.11. Others
 
 Skip code review.
 

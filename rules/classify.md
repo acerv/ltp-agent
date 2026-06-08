@@ -34,7 +34,15 @@ If ALL of the following rules apply to the file, it's an LTP test helper:
 - MUST be a `*.c` file.
 - MUST define `TST_NO_DEFAULT_MAIN`.
 
-### 4. LTP test (old API)
+### 4. LTP test header
+
+If ALL of the following rules apply to the file, it's an LTP test
+header:
+
+- MUST be a `*.h` file.
+- MUST be inside `testcases/` folder.
+
+### 5. LTP test (old API)
 
 If ALL of the following rules apply to the file, it's an LTP test using the
 old API:
@@ -44,7 +52,7 @@ old API:
 - MUST import `test.h`.
 - MUST declare `TCID`.
 
-### 5. LTP test
+### 6. LTP test
 
 If ALL of the following rules apply to the file, it's an LTP test:
 
@@ -53,7 +61,7 @@ If ALL of the following rules apply to the file, it's an LTP test:
 - MUST import `tst_test.h`.
 - MUST define `struct tst_test` instance.
 
-### 6. LTP shell test
+### 7. LTP shell test
 
 If ALL of the following rules apply to the file, it's an LTP shell test:
 
@@ -62,26 +70,27 @@ If ALL of the following rules apply to the file, it's an LTP shell test:
 - MUST import `tst_test.sh`.
 - MUST run `tst_run`.
 
-### 7. LTP library
+### 8. LTP library
 
 If ALL of the following rules apply to the file, it's an LTP library:
 
 - Can be a `*.c` or `*.h` file.
 - MUST be inside `lib/` or `include/` folder.
 
-### 8. Build system
+### 9. Build system
 
 If ALL of the following rules apply to the file, it's a Build system file:
 
 - MUST be named `Makefile` or have extension `.mk`.
 
-### 9. Documentation
+### 10. Documentation
 
-If ANY of the following rules apply to the file, it's a Documentation file:
+If ANY of the following rules apply to the file, it's a Documentation
+file:
 
 - MUST have extension `.rst`.
 - MUST be under `doc/` (any depth).
 
-### 10. Others
+### 11. Others
 
 Any other file will be classified as `Others`.
