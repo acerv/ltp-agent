@@ -58,7 +58,6 @@ If ALL of the following rules apply to the file, it's an LTP test:
 
 - MUST be a `*.c` file.
 - MUST be inside `testcases/` folder.
-- MUST import `tst_test.h`.
 - MUST define `struct tst_test` instance.
 
 ### 7. LTP shell test
