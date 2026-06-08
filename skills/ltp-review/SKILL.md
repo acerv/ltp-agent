@@ -46,20 +46,31 @@ Using the file list and classification from Step 2:
   doc/, ci/, scripts/), skip the code review entirely. Only
   review commit messages and verify the changes are correct.
 
-## Step 4: Commit message review
+## Step 4: Run Linter
 
-Read `{{LTP_AGENT_DIR}}/rules/commit-message.md` and apply ALL rules.
+Run linter on the current branch:
 
-## Step 5: Code Review
+```sh
+python3 {{LTP_AGENT_DIR}}/tools/linter/ltp-linter --branch --format json > ./findings.json
+```
 
-### 5.1. Read the Diff
+Read `./findings.json` and apply all the rules inside
+`{{LTP_AGENT_DIR}}/rules/findings.md` during the review process.
+
+## Step 5: Commit message review
+
+Read `{{LTP_AGENT_DIR}}/rules/commit-message.md` and apply ALL rules inside it.
+
+## Step 6: Code Review
+
+### 6.1. Read the Diff
 
 For each commit in the series, run `git show <hash>` to read the individual
 diff. Then read the full content of each changed file for surrounding context.
 Use `git diff master..HEAD` for the combined diff when checking cross-commit
 consistency.
 
-### 5.2. Scope
+### 6.2. Scope
 
 Read full changed files for context, but only flag issues that meet one of:
 
@@ -79,37 +90,36 @@ memory issues such as:
 - uninitialized reads.
 - buffer overflows.
 
-### 5.3. Ground Rules (MANDATORY)
+### 6.3. Ground Rules (MANDATORY)
 
-Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md` and apply ALL the rules in
-there.
-These rules are MANDATORY and any violation means reject.
+Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md` and apply ALL the rules
+inside it. These rules are MANDATORY and any violation means reject.
 
-### 5.4. Verify rules
+### 6.4. Verify rules
 
 For each changed file, use the classification produced in Step 2 to
 determine which rule files to load. MUST NOT diverge from any of the
 rules.
 
-#### 5.4.1. Open POSIX test
+#### 6.4.1. Open POSIX test
 
 Read `{{LTP_AGENT_DIR}}/rules/openposix.md` and apply ALL the rules inside it.
 
-#### 5.4.2. LTP self-test
+#### 6.4.2. LTP self-test
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
 Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
 
-#### 5.4.3. LTP test helper
+#### 6.4.3. LTP test helper
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL Helper Binaries rules.
 
-#### 5.4.4. LTP test header
+#### 6.4.4. LTP test header
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
 Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
 
-#### 5.4.5. LTP test (old API)
+#### 6.4.5. LTP test (old API)
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md`.
 
@@ -117,7 +127,7 @@ If the patch is NOT converting the file to the new API, skip coding style
 and API usage checks. Still apply file organization, result reporting,
 syscall correctness, and ground rules.
 
-#### 5.4.6. LTP test
+#### 6.4.6. LTP test
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
 
@@ -135,7 +145,7 @@ Additional checks:
   or online at `https://github.com/torvalds/linux`. If unverifiable, flag as
   **Needs discussion**.
 
-#### 5.4.7. LTP shell test
+#### 6.4.7. LTP shell test
 
 Read `{{LTP_AGENT_DIR}}/rules/shell-tests.md` and apply ALL the rules inside
 it.
@@ -145,7 +155,7 @@ If the shell file uses the old API (`. test.sh`, `tst_resm`, `TCID`,
 structural checks. Still apply coding style, result reporting, and
 ground rules.
 
-#### 5.4.8. LTP library
+#### 6.4.8. LTP library
 
 Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
 Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
@@ -154,38 +164,47 @@ Also read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply the
 kernel-doc rules (section 5) to any new or modified public function,
 struct, or macro.
 
-#### 5.4.9. Build system
+#### 6.4.9. Build system
 
 Read `{{LTP_AGENT_DIR}}/rules/build-system.md` and apply ALL the rules
 inside it.
 
-#### 5.4.10. Documentation
+#### 6.4.10. Documentation
 
 Read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply ALL the rules
 inside it.
 
-#### 5.4.11. Others
+#### 6.4.11. Others
 
 Otherwise review them based on the file extension.
 
-### 5.5. False-positive verification
+### 6.5. Write findings.json
 
-Read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow the entire file
-for each candidate.
+Update `./findings.json` with ALL reviewer findings applying the rules
+described into `{{LTP_AGENT_DIR}}/rules/findings.md`.
 
-Drop any issue that fails. A rule violation surfaced by
-`{{LTP_AGENT_DIR}}/rules/c-tests.md`,
-`{{LTP_AGENT_DIR}}/rules/shell-tests.md`,
-`{{LTP_AGENT_DIR}}/rules/openposix.md`,
-`{{LTP_AGENT_DIR}}/rules/build-system.md`,
-`{{LTP_AGENT_DIR}}/rules/ground-rules.md`,
-`{{LTP_AGENT_DIR}}/rules/commit-message.md`, or
-`{{LTP_AGENT_DIR}}/rules/documentation.md`
-is a candidate -- not a confirmed finding -- until it clears this step.
+### 6.6. False-positive verification
 
-## Step 6: Writing Output
+Read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow the
+entire file for each issue present in `./findings.json`:
 
-Read `{{LTP_AGENT_DIR}}/rules/email-template.md` and compose the review reply
-following ALL rules in `{{LTP_AGENT_DIR}}/rules/email-template.md`.
+Apply false-positive verification ONLY to findings where:
+
+- Rules have `"source": "reviewer"`.
+- Rules have `"source": "linter"` with `semantic` or `experimental` confidence.
+
+SKIP false-positive checks for ALL rules which have `mechanical` confidence.
+
+After verification, remove dismissed findings from `./findings.json`.
+
+## Step 7: Writing Output
+
+Read `{{LTP_AGENT_DIR}}/rules/email-template.md` and compose the review
+following ALL rules inside it.
+
+The final `./findings.json` is the authoritative list of confirmed
+issues. Use it as the source for composing the review email — every
+finding in the file MUST appear in the output. Include both linter
+and reviewer findings.
 
 Write the email to `./review-inline.txt`. Create, do not append.
