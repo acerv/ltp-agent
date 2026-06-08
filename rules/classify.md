@@ -66,8 +66,7 @@ If ALL of the following rules apply to the file, it's an LTP shell test:
 
 - MUST be a `*.sh` script.
 - MUST be inside `testcases/` folder.
-- MUST import `tst_test.sh`.
-- MUST run `tst_run`.
+- MUST call `tst_run`.
 
 ### 8. LTP library
 
