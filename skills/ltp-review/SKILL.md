@@ -94,8 +94,8 @@ the loaded rules.
 
 ### 5.5. False-positive verification
 
-Read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow the entire file
-for each candidate.
+Re-read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow
+the entire file for each candidate.
 
 Drop any issue that fails. A rule violation surfaced by any rule
 file loaded during this review is a candidate -- not a confirmed
@@ -103,7 +103,7 @@ finding -- until it clears this step.
 
 ## Step 6: Writing Output
 
-Read `{{LTP_AGENT_DIR}}/rules/email-template.md` and compose the review reply
-following ALL rules in `{{LTP_AGENT_DIR}}/rules/email-template.md`.
+Re-read `{{LTP_AGENT_DIR}}/rules/email-template.md` and compose the
+review reply following ALL rules inside it.
 
 Write the email to `./review-inline.txt`. Create, do not append.
