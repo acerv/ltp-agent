@@ -87,101 +87,19 @@ These rules are MANDATORY and any violation means reject.
 
 ### 5.4. Verify rules
 
-For each changed file, use the classification produced in Step 2 to
-determine which rule files to load. MUST NOT diverge from any of the
-rules.
-
-#### 5.4.1. Open POSIX test
-
-Read `{{LTP_AGENT_DIR}}/rules/openposix.md` and apply ALL the rules inside it.
-
-#### 5.4.2. LTP self-test
-
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
-Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
-
-#### 5.4.3. LTP test helper
-
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL Helper Binaries rules.
-
-#### 5.4.4. LTP test header
-
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
-Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
-
-#### 5.4.5. LTP test (old API)
-
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md`.
-
-If the patch is NOT converting the file to the new API, skip coding style
-and API usage checks. Still apply file organization, result reporting,
-syscall correctness, and ground rules.
-
-#### 5.4.6. LTP test
-
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply ALL the rules inside it.
-
-Also read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply the
-high-level description block rules (section 4) to the `/*\ ... */` block
-at the top of the test.
-
-Additional checks:
-
-- If a new C test is added, read `<dir>/Makefile`. If it uses a wildcard
-  (e.g. no explicit file list), the new test is picked up automatically. If
-  it lists targets explicitly, verify the new test binary name appears.
-- Verify the test's syscall usage matches documented kernel behavior.
-  Cross-check with: man pages, local kernel source at `/usr/src/linux`,
-  or online at `https://github.com/torvalds/linux`. If unverifiable, flag as
-  **Needs discussion**.
-
-#### 5.4.7. LTP shell test
-
-Read `{{LTP_AGENT_DIR}}/rules/shell-tests.md` and apply ALL the rules inside
-it.
-
-If the shell file uses the old API (`. test.sh`, `tst_resm`, `TCID`,
-`TST_TOTAL`) and the patch is NOT converting it to the new API, skip
-structural checks. Still apply coding style, result reporting, and
-ground rules.
-
-#### 5.4.8. LTP library
-
-Read `{{LTP_AGENT_DIR}}/rules/c-tests.md` and apply the rules inside it.
-Do NOT flag missing `struct tst_test`, missing doc block, or missing `main()`.
-
-Also read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply the
-kernel-doc rules (section 5) to any new or modified public function,
-struct, or macro.
-
-#### 5.4.9. Build system
-
-Read `{{LTP_AGENT_DIR}}/rules/build-system.md` and apply ALL the rules
-inside it.
-
-#### 5.4.10. Documentation
-
-Read `{{LTP_AGENT_DIR}}/rules/documentation.md` and apply ALL the rules
-inside it.
-
-#### 5.4.11. Others
-
-Otherwise review them based on the file extension.
+Read `{{LTP_AGENT_DIR}}/rules/dispatch.md` and load ONLY the rule
+files matching each file's classification from Step 2. Follow the
+instructions in the dispatch table. MUST NOT diverge from any of
+the loaded rules.
 
 ### 5.5. False-positive verification
 
 Read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow the entire file
 for each candidate.
 
-Drop any issue that fails. A rule violation surfaced by
-`{{LTP_AGENT_DIR}}/rules/c-tests.md`,
-`{{LTP_AGENT_DIR}}/rules/shell-tests.md`,
-`{{LTP_AGENT_DIR}}/rules/openposix.md`,
-`{{LTP_AGENT_DIR}}/rules/build-system.md`,
-`{{LTP_AGENT_DIR}}/rules/ground-rules.md`,
-`{{LTP_AGENT_DIR}}/rules/commit-message.md`, or
-`{{LTP_AGENT_DIR}}/rules/documentation.md`
-is a candidate -- not a confirmed finding -- until it clears this step.
+Drop any issue that fails. A rule violation surfaced by any rule
+file loaded during this review is a candidate -- not a confirmed
+finding -- until it clears this step.
 
 ## Step 6: Writing Output
 

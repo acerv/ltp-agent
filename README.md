@@ -95,6 +95,7 @@ based on the task:
 | `shell-tests.md`          | Rules for LTP shell tests.                   |
 | `openposix.md`            | Rules for Open POSIX Test Suite.             |
 | `classify.md`             | Classify rules for LTP files.                |
+| `dispatch.md`             | Maps classifications to rule files.          |
 | `commit-message.md`       | Rules for LTP commit messages.               |
 | `build-system.md`         | Rules for LTP Makefiles and build system.    |
 | `documentation.md`        | Rules for LTP Sphinx docs and doc-comments.  |
