@@ -44,11 +44,9 @@ This file contains MANDATORY rules for LTP documentation.
   - `:repo:` for non-blob repo paths.
   - `:shell_lib:` for shell library files.
   - `:kernel_tree:` for files in the upstream Linux tree.
-  - `:kernel_doc:` for `docs.kernel.org` pages.
+  - `:kernel_doc:` for `docs.kernel.org` pages and kernel-internal APIs.
   - `:kselftest:` for selftest paths.
-- Reference manpages with the `:manpage:` role and an explicit section,
-  e.g. ``:manpage:`execve(2)` ``. The `manpages_url` config maps these
-  to `man7.org`. Do NOT hand-write `https://man7.org/...` links.
+  - `:manpage:` for syscall/library calls with a real man page section.
 - Reference C API symbols with the C domain roles:
   - `:c:func:` for functions.
   - `:c:struct:` for structs.
@@ -61,10 +59,8 @@ This file contains MANDATORY rules for LTP documentation.
   and ` */` to close. Each interior line begins with `*`. The block
   MUST be valid reStructuredText; it is rendered as-is in the test
   catalog.
-- Inside the block, follow the reST rules above:
-  - blank line before lists, code-blocks, and section markers;
-  - inline literals with double backticks;
-  - manpage and `:master:` roles for syscall and file references.
+- Blank line before lists, code-blocks, and section markers.
+- Inline literals with double backticks.
 - The optional `[Algorithm]` section MUST be a literal `[Algorithm]`
   header followed by a blank line and a bulleted list using `-`. Do NOT
   use the deprecated `[Description]` header.
