@@ -48,7 +48,7 @@ Hi <firstname>,
 On <date>, <author> wrote:
 > <patch subject line>
 
-Verdict: Reviewed
+Verdict - Reviewed
 
 ---
 Note:
@@ -81,7 +81,7 @@ On <date>, <author> wrote:
 
 [...]
 
-Verdict: Needs revision
+Verdict - Needs revision
 
 <pre-existing issues, or omit this block entirely if none>
 
@@ -122,7 +122,7 @@ On <date>, <author> wrote:
 
 [...]
 
-Verdict: Needs revision
+Verdict - Needs revision
 
 <pre-existing issues, or omit this block entirely if none>
 
