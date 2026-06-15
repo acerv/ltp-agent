@@ -346,6 +346,33 @@ CORRECT -- use SAFE\_\* macros:
 int fd = SAFE_OPEN("test_file", O_RDWR | O_CREAT, 0644);
 ```
 
+#### Don't define SAFE\_\* macros inside the test
+
+The `SAFE_*` prefix is reserved by the LTP core library. Tests MUST NOT
+define their own `SAFE_*` macros.
+
+WRONG -- test defines its own SAFE\_\* macro:
+
+```c
+#define SAFE_TRY_UNLINK(path) do { \
+    if (unlink(path) == -1 && errno != ENOENT) \
+        tst_brk(TBROK | TERRNO, "unlink(%s) failed", path); \
+} while (0)
+```
+
+CORRECT -- use a plain helper or open-code the call:
+
+```c
+static void try_unlink(const char *path)
+{
+    if (unlink(path) == -1 && errno != ENOENT)
+        tst_brk(TBROK | TERRNO, "unlink(%s) failed", path);
+}
+```
+
+If the wrapper is generic enough, add it to `include/tst_safe_*.h`
+following the conventions in the section below.
+
 ### New SAFE\_\* macros definition
 
 #### Don't use `cleanup_fn` in newly added `safe_*` definitions
