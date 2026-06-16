@@ -85,7 +85,7 @@ jobs:
 
           cat series.txt
 
-      - name: Filter already-reviewed series
+      - name: Filter series that should not be reviewed
         id: filter
         run: |
           touch dispatch.txt
@@ -93,8 +93,25 @@ jobs:
           while read -r series_id; do
             [ -z "$series_id" ] && continue
 
-            patch_ids=$(pwclient list -p ltp -S "$series_id" -f '%{id}')
+            output=$(pwclient list -p ltp -S "$series_id" -f $'%{id}\t%{state}')
 
+            # Skip series with patches in 'new' or
+            # 'changes-requested' state
+            skip=false
+            while IFS=$'\t' read -r pid pstate; do
+              [ -z "$pid" ] && continue
+              case "$pstate" in
+                changes-requested|rejected)
+                  echo "Series $series_id: skip (patch $pid is '$pstate')"
+                  skip=true
+                  break
+                  ;;
+              esac
+            done <<< "$output"
+            [ "$skip" = true ] && continue
+
+            # Skip series already reviewed by CI
+            patch_ids=$(echo "$output" | cut -f1)
             reviewed=false
             for patch_id in $patch_ids; do
               context=$(pwclient check-get -p ltp "$patch_id" -f '%{context}' 2>/dev/null || true)
