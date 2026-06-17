@@ -29,37 +29,46 @@ user:
 
 Do NOT proceed with the review.
 
-## Step 2: Classify changed files
+## Step 2: Enumerate commits
 
-Use `git diff --name-only master..HEAD` to list what files have been changed.
+Run `git log --reverse --oneline master..HEAD` to list all commits.
+Store the list of SHAs. You will process each commit **one at a time**
+in order (Steps 3-7), writing findings to disk after each one.
+
+This is critical: do NOT read multiple diffs at once. Complete the
+full review cycle for one commit before moving to the next.
+
+## Step 3: Classify changed files
+
+For the current commit SHA, run `git diff-tree --no-commit-id --name-only
+-r <sha>` to list its changed files.
 Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify each changed file.
-Produce a mapping `{file -> category}` to be consumed by Step 5.4.
+Produce a mapping `{file -> category}` for this commit only.
 
-## Step 3: Verify patch type
+## Step 4: Verify patch type
 
-Using the file list and classification from Step 2:
+Using the file list and classification from Step 3:
 
-- If the patch only deletes files (no added or modified code), skip code
-  review entirely. Only review commit messages and verify that related
+- If the commit only deletes files (no added or modified code), skip code
+  review entirely. Only review the commit message and verify that related
   entries (runtest, .gitignore, Makefile) are also removed.
-- If the patch only touches non-test files (runtest/\*, .gitignore,
+- If the commit only touches non-test files (runtest/\*, .gitignore,
   doc/, ci/, scripts/), skip the code review entirely. Only
-  review commit messages and verify the changes are correct.
+  review the commit message and verify the changes are correct.
 
-## Step 4: Commit message review
+## Step 5: Commit message review
 
-Read `{{LTP_AGENT_DIR}}/rules/commit-message.md` and apply ALL rules.
+Read `{{LTP_AGENT_DIR}}/rules/commit-message.md` and apply ALL rules to
+the current commit message (`git log -1 --format=%B <sha>`).
 
-## Step 5: Code Review
+## Step 6: Code Review
 
-### 5.1. Read the Diff
+### 6.1. Read the Diff
 
-For each commit in the series, run `git show <hash>` to read the individual
-diff. Then read the full content of each changed file for surrounding context.
-Use `git diff master..HEAD` for the combined diff when checking cross-commit
-consistency.
+Run `git show <sha>` to read ONLY the current commit's diff.
+Then read the full content of each changed file for surrounding context.
 
-### 5.2. Scope
+### 6.2. Scope
 
 Read full changed files for context, but only flag issues that meet one of:
 
@@ -79,20 +88,18 @@ memory issues such as:
 - uninitialized reads.
 - buffer overflows.
 
-### 5.3. Ground Rules (MANDATORY)
+### 6.3. Ground Rules
 
 Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md` and apply ALL the rules in
-there.
-These rules are MANDATORY and any violation means reject.
+there. These rules are MANDATORY and any violation means reject.
 
-### 5.4. Verify rules
+### 6.4. Verify rules
 
-Read `{{LTP_AGENT_DIR}}/rules/dispatch.md` and load ONLY the rule
-files matching each file's classification from Step 2. Follow the
-instructions in the dispatch table. MUST NOT diverge from any of
-the loaded rules.
+Read `{{LTP_AGENT_DIR}}/rules/dispatch.md` and load ONLY the rule files
+matching each file's classification from Step 3. Follow the instructions
+in the dispatch table. MUST NOT diverge from any of the loaded rules.
 
-### 5.5. False-positive verification
+### 6.5. False-positive verification
 
 Re-read `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md` and follow
 the entire file for each candidate.
@@ -101,9 +108,39 @@ Drop any issue that fails. A rule violation surfaced by any rule
 file loaded during this review is a candidate -- not a confirmed
 finding -- until it clears this step.
 
-## Step 6: Writing Output
+## Step 7: Write per-commit findings to disk
 
+Write findings for the current commit to `./review-<N>.txt` where `<N>`
+is the 1-based commit position in the series (e.g. `review-1.txt`,
+`review-2.txt`). Create, do not append.
+
+Each per-commit file must contain:
+
+- The commit SHA and subject line
+- All findings (or "No issues found")
+- Severity of each finding
+
+After writing the file, move to the NEXT commit and repeat from Step 3.
+Do NOT keep the current commit's diff or detailed findings in your
+working memory for subsequent commits.
+
+## Step 8: Cross-commit consistency check
+
+After ALL commits are reviewed individually, run
+`git diff master..HEAD` and check ONLY for:
+
+- Inconsistencies between patches (e.g. patch 2 renames a function that
+  patch 4 still uses under the old name).
+- Missing co-dependencies (e.g. patch 1 adds a helper but patch 3 that
+  uses it is missing an include).
+
+Do NOT re-review individual patch correctness here.
+
+## Step 9: Writing Final Output
+
+Read each `./review-<N>.txt` file back from disk.
 Re-read `{{LTP_AGENT_DIR}}/rules/email-template.md` and compose the
-review reply following ALL rules inside it.
+unified review reply following ALL rules inside it.
 
-Write the email to `./review-inline.txt`. Create, do not append.
+Write the final email to `./review-inline.txt`. Create, do not append.
+Delete the intermediate `./review-<N>.txt` files.
