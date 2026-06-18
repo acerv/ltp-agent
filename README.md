@@ -113,11 +113,11 @@ original submission. It is triggered manually by series ID via
 
 ## Additional Resources
 
-- LTP documentation: https://linux-test-project.readthedocs.io/
-- LTP source code: https://github.com/linux-test-project/ltp
-- LTP mailing list: https://lore.kernel.org/ltp/
-- Patchwork: https://patchwork.ozlabs.org/project/ltp/list/
-- Kirk test runner: https://github.com/linux-test-project/kirk
+- [LTP documentation](https://linux-test-project.readthedocs.io/)
+- [LTP source code](https://github.com/linux-test-project/ltp)
+- [LTP mailing list](https://lore.kernel.org/ltp/)
+- [Patchwork](https://patchwork.ozlabs.org/project/ltp/list/)
+- [Kirk test runner](https://github.com/linux-test-project/kirk)
 
 ## License
 
