@@ -5,5 +5,5 @@
 # Sourced by setup.sh.
 
 export SKILL_BASE_DIR="$HOME/.pi/agent/skills"
-export COMMANDS_DIR="$SKILL_BASE_DIR"
+export COMMANDS_DIR="$HOME/.pi/agent/prompts"
 export SKILL_FILE_NAME="SKILL.md"
