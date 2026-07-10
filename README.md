@@ -35,6 +35,15 @@ Supported AI coding agents:
 3. Start your AI coding agent from the LTP directory. The skills are
    discovered automatically from their installed location.
 
+## Entry Point
+
+The `ltp` skill is an automatic entry point. When you work inside an LTP
+tree, it loads on its own and makes the agent aware that LTP-specific rules
+apply to every code change, review, analysis, and commit message. It routes
+the agent to the relevant rule files under `rules/` and to the specialized
+skills (`ltp-review`, `ltp-analyze`, `ltp-convert`). You do not invoke it
+directly; it activates whenever the working directory looks like an LTP tree.
+
 ## Usage
 
 ### Reviewing a Patch
