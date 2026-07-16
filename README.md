@@ -107,6 +107,7 @@ based on the task:
 | `dispatch.md`             | Maps classifications to rule files.          |
 | `commit-message.md`       | Rules for LTP commit messages.               |
 | `build-system.md`         | Rules for LTP Makefiles and build system.    |
+| `git.md`                  | Rules for LTP git configuration files.       |
 | `documentation.md`        | Rules for LTP Sphinx docs and doc-comments.  |
 | `false-positive-guide.md` | Verification checklist applied after review. |
 | `email-template.md`       | Complete format of a review reply email.     |

@@ -23,6 +23,7 @@ All rule file paths below are relative to this file's directory.
 | LTP test           | `c-tests.md`, `documentation.md` |
 | LTP shell test     | `shell-tests.md`                 |
 | LTP library        | `c-tests.md`, `documentation.md` |
+| Git configuration  | `git.md`                         |
 | Build system       | `build-system.md`                |
 | Documentation      | `documentation.md`               |
 | Others             | _(none)_                         |
@@ -59,6 +60,7 @@ All rule file paths below are relative to this file's directory.
   doc block, or missing `main()`. From `documentation.md` apply
   ONLY the kernel-doc rules (section 5) to any new or modified
   public function, struct, or macro.
+- Git configuration: Apply ALL rules.
 - Build system: Apply ALL rules.
 - Documentation: Apply ALL rules.
 - Others: Review based on the file extension.

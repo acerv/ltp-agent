@@ -73,13 +73,23 @@ If ALL of the following rules apply to the file, it's an LTP library:
 - Can be a `*.c` or `*.h` file.
 - MUST be inside `lib/` or `include/` folder.
 
-### 9. Build system
+### 9. Git configuration
+
+If ANY of the following rules apply to the file, it's a Git configuration
+file:
+
+- MUST be named `.gitmodules`.
+- MUST be named `.gitignore` (at any depth).
+- MUST be named `.gitattributes`.
+- MUST be named `.mailmap`.
+
+### 10. Build system
 
 If ALL of the following rules apply to the file, it's a Build system file:
 
 - MUST be named `Makefile` or have extension `.mk`.
 
-### 10. Documentation
+### 11. Documentation
 
 If ANY of the following rules apply to the file, it's a Documentation
 file:
@@ -87,6 +97,6 @@ file:
 - MUST have extension `.rst`.
 - MUST be under `doc/` (any depth).
 
-### 11. Others
+### 12. Others
 
 Any other file will be classified as `Others`.

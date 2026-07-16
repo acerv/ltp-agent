@@ -65,6 +65,7 @@ Load these on demand, according to the task and the file classification:
 | `shell-tests.md`          | Editing or reviewing an LTP shell test.     |
 | `openposix.md`            | Editing or reviewing an Open POSIX test.    |
 | `build-system.md`         | Touching Makefiles or the build system.     |
+| `git.md`                  | Touching git config files.                  |
 | `documentation.md`        | Writing docs or kernel-doc test comments.   |
 | `commit-message.md`       | Writing or reviewing an LTP commit message. |
 | `false-positive-guide.md` | Verifying findings before reporting them.   |
