@@ -23,8 +23,9 @@ Supported AI coding agents:
    ```
 
    `<agent>` is one of: `claude`, `pi`, `opencode`, `gemini`, `copilot`.
-   The skills are copied into the agent's native skill directory.
-   The LTP source tree is not touched.
+   The skills are copied into the agent's native skill directory. For
+   `opencode`, the multi-agent conversion pipeline is also installed into
+   `~/.config/opencode/agent/`. The LTP source tree is not touched.
 
 2. Clone the LTP source tree:
 
@@ -79,8 +80,10 @@ To convert a test from the legacy `test.h` API to the modern `tst_test.h` API:
 /ltp-convert
 ```
 
-The agent will analyze the old test, show a conversion plan, rewrite it using
-the new API.
+For every test the skill evaluates two conversion strategies (a semantic
+rewrite using new-API idioms, or a faithful port that preserves the original
+structure), chooses the best one, and presents a Conversion Plan that you must
+confirm before any file is changed. The original test intent is never dropped.
 
 > [!NOTE]
 > Converted test is just a draft, most of the times the developer will need to
@@ -91,6 +94,51 @@ To find candidates for conversion, scan the tree with:
 ```sh
 python3 ltp-agent/tools/scan-old-api.py --root-dir <ltp directory>
 ```
+
+#### Multi-agent conversion (opencode)
+
+On opencode, an orchestrated multi-agent pipeline is also installed. Switch to
+the `ltp-convert` primary agent and give it a test path or name. It delegates
+to five subagents:
+
+- `ltp-analyzer` builds a punctual Intent Contract and decides the strategy.
+- `ltp-creator` implements the converted test, bound to that contract.
+- `ltp-builder` compiles the converted test with the LTP build system and
+  reports errors and warnings before review.
+- `ltp-runner` (opt-in) runs the original and converted test in a sandbox and
+  compares their outcomes when the test is sandbox-runnable.
+- `ltp-reviewer` audits the result against the contract and LTP rules.
+
+The orchestrator loops create/build/(run)/review until the intent is fully
+preserved, and still stops for Conversion Plan approval before writing any
+file.
+
+##### Pinning models per agent
+
+The pipeline ships with no `model:` pinning so it runs anywhere opencode does.
+To pin a model per role, put an `agent` block in **your** opencode config
+(global `~/.config/opencode/opencode.json`/`.jsonc`, or per-project
+`.opencode/opencode.json` in your LTP checkout). The keys are the agent file
+basenames. Example:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "ltp-convert":  { "model": "<provider>/claude-sonnet-5" },
+    "ltp-analyzer": { "model": "<provider>/claude-opus-4.8" },
+    "ltp-creator":  { "model": "<provider>/claude-opus-4.8" },
+    "ltp-builder":  { "model": "<provider>/claude-haiku-4-5@20251001" },
+    "ltp-runner":   { "model": "<provider>/claude-haiku-4-5@20251001" },
+    "ltp-reviewer": { "model": "<provider>/claude-sonnet-5" }
+  }
+}
+```
+
+Replace `<provider>` with the provider key from your `provider` block (e.g.
+`google-vertex`, `anthropic`, `opencode`). Anything you leave out falls back
+to the primary agent's model (opencode default for subagents). This repo
+intentionally does not ship model IDs.
 
 ## Rule Files
 
@@ -111,6 +159,7 @@ based on the task:
 | `documentation.md`        | Rules for LTP Sphinx docs and doc-comments.  |
 | `false-positive-guide.md` | Verification checklist applied after review. |
 | `email-template.md`       | Complete format of a review reply email.     |
+| `conversion-strategy.md`  | Choosing an old-to-new API conversion path.  |
 
 ## Continuous Integration
 

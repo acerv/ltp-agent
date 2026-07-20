@@ -10,7 +10,9 @@ tests. It does NOT contain LTP tests itself.
 ## Repository Layout
 
 - `agents/` — per-agent installer scripts (`claude.sh`, `pi.sh`,
-  `opencode.sh`, `gemini.sh`, `copilot.sh`). Invoked by `setup.sh`.
+  `opencode.sh`, `gemini.sh`, `copilot.sh`), invoked by `setup.sh`. Agent-
+  specific assets live in subdirectories, e.g. `agents/opencode/agent/*.md`
+  holds the opencode multi-agent conversion pipeline definitions.
 - `skills/` — skill bundles (`ltp-review`, `ltp-analyze`, `ltp-convert`).
   Each skill has a `SKILL.md` and supporting prompt or template files.
 - `rules/` — rule files loaded on demand by skills. One topic per file.

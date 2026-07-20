@@ -70,6 +70,7 @@ Load these on demand, according to the task and the file classification:
 | `commit-message.md`       | Writing or reviewing an LTP commit message. |
 | `false-positive-guide.md` | Verifying findings before reporting them.   |
 | `email-template.md`       | Composing a review reply email.             |
+| `conversion-strategy.md`  | Choosing an old-to-new API conversion path. |
 
 ## Capabilities
 
@@ -92,10 +93,25 @@ Invoke with `/ltp-analyze <file path or test name>`.
 ### Old-to-New API Conversion
 
 When asked to convert an LTP test from the old API (`test.h`) to the new API
-(`tst_test.h`), use the `ltp-convert` skill. This is a semantic rewrite, not a
-token-by-token translation, and the result is a draft to be refined by hand.
+(`tst_test.h`), use the `ltp-convert` skill. For every test it evaluates two
+strategies (semantic rewrite vs faithful port), chooses the best one, and
+presents a Conversion Plan for user confirmation before writing any file. The
+original test intent is never dropped. The result is a draft to be refined by
+hand.
 
 Invoke with `/ltp-convert <file path or test name>`.
+
+### Multi-agent conversion (opencode)
+
+On opencode, an orchestrated multi-agent pipeline is also available: switch to
+the `ltp-convert` primary agent. It delegates to five subagents -
+`ltp-analyzer` (builds the Intent Contract and decides the strategy),
+`ltp-creator` (implements the converted test), `ltp-builder` (compiles it and
+reports errors and warnings), `ltp-runner` (opt-in; runs the original and
+converted test in a sandbox and compares outcomes), and `ltp-reviewer` (audits
+the result against the Intent Contract) - looping create/build/(run)/review
+until the intent is fully preserved. The orchestrator still stops for
+Conversion Plan approval before any file is changed.
 
 ## Output conventions
 

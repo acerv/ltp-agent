@@ -10,9 +10,21 @@ description: LTP Old-to-New API Converter
 You are an agent that converts LTP tests from the old API (`test.h`) to the
 new API (`tst_test.h`).
 
-The conversion is NOT a mechanical token-by-token translation. It is a
-**semantic rewrite**: you extract _what_ the test does, discard the old
-implementation, and write a clean new test using modern LTP idioms.
+There are two valid conversion strategies, and you MUST choose the best one
+for each test:
+
+- **Semantic rewrite**: extract _what_ the test does, discard the old
+  implementation, and write a clean new test using modern LTP idioms.
+- **Faithful port**: preserve the original structure, control flow, and
+  ordering, swapping old-API calls for new-API equivalents with minimal
+  restructuring.
+
+Neither strategy is a mechanical token-by-token translation, and neither may
+lose the original test intent.
+
+The single invariant of this protocol: the original test intent MUST NEVER be
+lost. Every scenario and every pass/fail oracle of the old test must survive
+into the converted test, unless the user explicitly approves dropping it.
 
 ## Invocation
 
@@ -28,6 +40,8 @@ implementation, and write a clean new test using modern LTP idioms.
 - Read `{{LTP_AGENT_DIR}}/rules/documentation.md`. Section 4 is the
   authoritative reference for the high-level description block of the
   new test.
+- Read `{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`. This defines the two
+  conversion strategies and how to choose between them.
 
 ## 2. Resolve and classify the file
 
@@ -45,32 +59,37 @@ Only **LTP test (old API)** can be converted. Continue to the next step.
 For any other classification, stop and tell the user `/ltp-convert` only
 converts old-API LTP tests.
 
-## 3. Intent summary
+## 3. Build the Intent Contract
 
 Before doing any conversion work, evaluate the test using the `/ltp-analyze`
-skill.
+skill. From that analysis, build the **Intent Contract** using the structure
+defined in `{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`. Capture every
+scenario and its exact oracle with zero loss; it is the single source of truth
+for the rest of the conversion.
 
-Present the following to the user:
+## 4. Decide the conversion strategy
 
-1. Test analysis: the full output from `/ltp-analyze`.
-2. Conversion complexity: simple, moderate, or complex; and why.
-3. Droppable features: the list of features that can be dropped.
-4. Recommendation one of:
-   - Convert: test has clear value, proceed
-   - Convert with reservations: test is marginal but may still be useful;
-     explain concerns
-   - Recommend skip/delete: test is trivial, duplicate, or doesn't test what
-     it claims; suggest alternative action.
+Evaluate BOTH strategies against ALL criteria in
+`{{LTP_AGENT_DIR}}/rules/conversion-strategy.md` for this test, and produce the
+strategy decision output that file requires. This decision is mandatory for
+every test; intent fidelity overrides all other criteria.
 
-ALWAYS wait for user confirmation before proceeding to the next step.
+## 5. Present the Conversion Plan and STOP for confirmation
 
-If the user says to proceed despite reservations, proceed. If the user
-asks to skip, stop here.
+Present a written Conversion Plan to the user, following the Conversion Plan
+contents defined in `{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`. Do NOT
+modify any file before the user approves it.
 
-## 4. Design the New Test
+ALWAYS wait for user confirmation before proceeding. Accept: proceed / adjust
+/ skip. On "adjust", revise the plan and present it again. On "skip", stop
+here. Only on "proceed" continue to the next step.
 
-Starting ONLY from the Intent summary, design the new test from
-scratch. Do NOT reference the old code during this step. Decide:
+## 6. Design the New Test
+
+Design the new test to satisfy every item of the approved Intent Contract,
+applying the chosen strategy. For a semantic rewrite, start ONLY from the
+Intent Contract and do NOT reference the old code's structure. For a faithful
+port, keep the original structure and ordering. Decide:
 
 1. Test structure: `.test` + `.tcnt` (multiple cases) vs `.test_all`
    (single case) with `struct tcase` array.
@@ -85,7 +104,7 @@ scratch. Do NOT reference the old code during this step. Decide:
 
 Produce a brief design summary before writing code.
 
-## 5. Implement
+## 7. Implement
 
 Write the new test from the design above, following all rules in
 `{{LTP_AGENT_DIR}}/rules/c-tests.md`,
@@ -93,28 +112,11 @@ Write the new test from the design above, following all rules in
 description block rules in `{{LTP_AGENT_DIR}}/rules/documentation.md`
 (section 4).
 
-Critical rules:
+Implement every scenario and every pass/fail oracle in the Intent Contract.
+You MAY drop only the features on the approved droppable list, nothing else.
 
-- The old code MUST NOT be used as a structural template - only the
-  intent and algorithm extracted in the Intent summary guide the
-  implementation.
-- NEVER preserve the old test's control flow - the structure comes from
-  new API idioms, not the old code.
-- NEVER do token-by-token replacement - from `tst_resm()` to `tst_res()` is
-  transliteration, not conversion.
-- NEVER keep helper functions that only existed because of old API
-  limitations (e.g., separate `parent_test1()` / `parent_test2()` when a
-  `struct tcase` array works).
-- NEVER preserve manual error-accumulation patterns (`rval` flags,
-  return-code propagation) - call `tst_res()` directly at the point where
-  the outcome is determined.
-- NEVER keep forward declarations - reorder functions so callees precede
-  callers.
-- NEVER preserve per-test-case setup/cleanup function pointers - redesign
-  using framework callbacks and static state.
-- ALWAYS handle iterations with `-i` option.
-- ALWAYS handle verbosity with `TDEBUG` messages and `-v` option.
-- ALWAYS keep the original copyright if it's not `GPL-2` compatible.
+Apply the chosen strategy following its implementation rules (and the rules
+for both strategies) in `{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`.
 
 ### Helper Conversion
 

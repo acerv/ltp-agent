@@ -63,38 +63,53 @@ AGENT_SCRIPT="$AGENT_DIR/agents/$AGENT.sh"
 [ -n "${SKILL_FILE_NAME:-}" ] || die "$AGENT_SCRIPT did not export SKILL_FILE_NAME"
 : "${COMMANDS_DIR:=$SKILL_BASE_DIR}"
 
-# Default skill installer. Per-agent scripts may override by redefining
-# this function before setup.sh reaches its install loop.
-install_skills() {
-	src_dir="$AGENT_DIR/skills"
+# Default skill installer. Per-agent scripts may override it by defining
+# install_skills() before setup.sh is sourced; the guard below keeps that
+# override in place instead of clobbering it.
+if ! command -v install_skills >/dev/null 2>&1; then
+	install_skills() {
+		src_dir="$AGENT_DIR/skills"
 
-	[ -d "$src_dir" ] ||
-		die "no skills directory at $src_dir"
+		[ -d "$src_dir" ] ||
+			die "no skills directory at $src_dir"
 
-	mkdir -p "$SKILL_BASE_DIR"
+		mkdir -p "$SKILL_BASE_DIR"
 
-	for skill_dir in "$src_dir"/*/; do
-		[ -d "$skill_dir" ] || continue
-		skill_name="$(basename "$skill_dir")"
-		src_skill="$skill_dir/SKILL.md"
+		for skill_dir in "$src_dir"/*/; do
+			[ -d "$skill_dir" ] || continue
+			skill_name="$(basename "$skill_dir")"
+			src_skill="$skill_dir/SKILL.md"
 
-		[ -f "$src_skill" ] ||
-			die "missing $src_skill"
+			[ -f "$src_skill" ] ||
+				die "missing $src_skill"
 
-		dest_dir="$SKILL_BASE_DIR/$skill_name"
-		dest="$dest_dir/$SKILL_FILE_NAME"
+			dest_dir="$SKILL_BASE_DIR/$skill_name"
+			dest="$dest_dir/$SKILL_FILE_NAME"
 
-		mkdir -p "$dest_dir"
-		sed "s|{{LTP_AGENT_DIR}}|$AGENT_DIR|g" "$src_skill" > "$dest"
+			mkdir -p "$dest_dir"
+			sed "s|{{LTP_AGENT_DIR}}|$AGENT_DIR|g" "$src_skill" > "$dest"
 
-		echo "  $dest"
-	done
-}
+			echo "  $dest"
+		done
+	}
+fi
+
+# Optional agent-definition installer. Agents that support subagents (e.g.
+# opencode) define install_agents() in their per-agent script. The default
+# is a no-op so other agents are unaffected.
+if ! command -v install_agents >/dev/null 2>&1; then
+	install_agents() {
+		:
+	}
+fi
 
 echo "ltp-agent: $AGENT_DIR"
 echo "Installing skills for: $AGENT"
 echo ""
 echo "Installed skills:"
 install_skills
+echo ""
+echo "Installed agents:"
+install_agents
 echo ""
 echo "Done."
