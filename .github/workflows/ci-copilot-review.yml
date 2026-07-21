@@ -144,7 +144,7 @@ jobs:
             --deny-tool='shell(docker:*)' \
             --deny-tool=web_fetch \
             --deny-tool=web_search \
-            --add-dir="${{ github.workspace }}/ltp-agent" \
+            --add-dir="${{ github.workspace }}" \
             --add-dir=/usr/src/linux \
             --no-ask-user
 
