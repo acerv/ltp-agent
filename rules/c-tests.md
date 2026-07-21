@@ -479,19 +479,11 @@ the code.
 WRONG -- redundant reset after SAFE_CLOSE():
 
 ```c
-if (fd != -1)
-    SAFE_CLOSE(fd);
+SAFE_CLOSE(fd);
 fd = -1;
 ```
 
-ALWAYS rely on `SAFE_CLOSE()` to handle the reset:
-
-CORRECT -- SAFE_CLOSE() handles the reset:
-
-```c
-if (fd != -1)
-    SAFE_CLOSE(fd);
-```
+ALWAYS rely on `SAFE_CLOSE()` to handle the reset.
 
 #### Ensure resources are released in `cleanup()` after `tst_brk()` or failing `SAFE_*` macros
 
