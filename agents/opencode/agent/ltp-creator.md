@@ -46,6 +46,9 @@ implementation authorities:
 - Apply the strategy handed to you per
   `{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`, following the c-tests.md
   rules for that strategy.
+- You MUST preserve the original copyright lines and add a new copyright line
+  crediting `Linux Test Project` for the conversion, e.g.
+  `Copyright (c) <year> Linux Test Project`.
 
 ## Handling revision requests
 
