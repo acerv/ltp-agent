@@ -4,7 +4,7 @@ description: >-
   Contract and LTP rules, returning PASS or REVISE. Used as a subagent by the
   ltp-converter orchestrator.
 mode: subagent
-temperature: 0.1
+reasoningEffort: high
 permission:
   edit: deny
   task: deny

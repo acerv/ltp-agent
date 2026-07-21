@@ -5,7 +5,7 @@ description: >-
   output. Opt-in and only for sandbox-runnable tests. Used as a subagent by
   the ltp-converter orchestrator.
 mode: subagent
-temperature: 0.1
+reasoningEffort: low
 permission:
   edit: deny
   task: deny

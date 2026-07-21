@@ -4,7 +4,7 @@ description: >-
   converted test with the LTP build system and reports errors and warnings.
   Used as a subagent by the ltp-converter orchestrator.
 mode: subagent
-temperature: 0.1
+reasoningEffort: low
 permission:
   edit: deny
   task: deny

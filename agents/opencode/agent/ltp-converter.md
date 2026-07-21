@@ -4,7 +4,7 @@ description: >-
   (test.h) to the new API (tst_test.h). Delegates analysis, creation, and
   review to specialized subagents and enforces an intent-preserving plan gate.
 mode: primary
-temperature: 0.1
+reasoningEffort: low
 permission:
   edit: deny
   task: allow

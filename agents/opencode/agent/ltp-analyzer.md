@@ -4,7 +4,7 @@ description: >-
   old-API test and decides the best conversion strategy. Used as a subagent by
   the ltp-converter orchestrator.
 mode: subagent
-temperature: 0.1
+reasoningEffort: high
 permission:
   edit: deny
   task: deny

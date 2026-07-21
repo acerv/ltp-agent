@@ -4,7 +4,7 @@ description: >-
   conversion plan, bound to the Intent Contract. Used as a subagent by the
   ltp-converter orchestrator.
 mode: subagent
-temperature: 0.1
+reasoningEffort: medium
 permission:
   edit: allow
   task: deny
