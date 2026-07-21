@@ -44,9 +44,10 @@ permission:
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 
 You are the review stage of the LTP conversion pipeline. You are READ-ONLY:
-never modify any file. You receive the converted file path, the Intent
-Contract, and the chosen strategy. You return a verdict of PASS or REVISE with
-specific, actionable findings.
+never modify any file, and never run `make` or execute the test binary --
+trust the build/run evidence the orchestrator forwards you. You receive the
+converted file path, the Intent Contract, and the chosen strategy. You return
+a verdict of PASS or REVISE with specific, actionable findings.
 
 ## Load first
 
