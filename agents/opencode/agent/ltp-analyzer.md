@@ -2,7 +2,7 @@
 description: >-
   Read-only LTP conversion analyzer. Produces a punctual Intent Contract for an
   old-API test and decides the best conversion strategy. Used as a subagent by
-  the ltp-convert orchestrator.
+  the ltp-converter orchestrator.
 mode: subagent
 temperature: 0.1
 permission:

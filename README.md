@@ -98,7 +98,7 @@ python3 ltp-agent/tools/scan-old-api.py --root-dir <ltp directory>
 #### Multi-agent conversion (opencode)
 
 On opencode, an orchestrated multi-agent pipeline is also installed. Switch to
-the `ltp-convert` primary agent and give it a test path or name. It delegates
+the `ltp-converter` primary agent and give it a test path or name. It delegates
 to five subagents:
 
 - `ltp-analyzer` builds a punctual Intent Contract and decides the strategy.
@@ -125,12 +125,12 @@ basenames. Example:
 {
   "$schema": "https://opencode.ai/config.json",
   "agent": {
-    "ltp-convert":  { "model": "<provider>/claude-sonnet-5" },
-    "ltp-analyzer": { "model": "<provider>/claude-opus-4.8" },
-    "ltp-creator":  { "model": "<provider>/claude-opus-4.8" },
-    "ltp-builder":  { "model": "<provider>/claude-haiku-4-5@20251001" },
-    "ltp-runner":   { "model": "<provider>/claude-haiku-4-5@20251001" },
-    "ltp-reviewer": { "model": "<provider>/claude-sonnet-5" }
+    "ltp-converter": { "model": "<provider>/claude-sonnet-5" },
+    "ltp-analyzer":  { "model": "<provider>/claude-opus-4.8" },
+    "ltp-creator":   { "model": "<provider>/claude-opus-4.8" },
+    "ltp-builder":   { "model": "<provider>/claude-haiku-4-5@20251001" },
+    "ltp-runner":    { "model": "<provider>/claude-haiku-4-5@20251001" },
+    "ltp-reviewer":  { "model": "<provider>/claude-sonnet-5" }
   }
 }
 ```

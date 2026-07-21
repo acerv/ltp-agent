@@ -2,7 +2,7 @@
 description: >-
   Implements the new-API (tst_test.h) version of an LTP test from an approved
   conversion plan, bound to the Intent Contract. Used as a subagent by the
-  ltp-convert orchestrator.
+  ltp-converter orchestrator.
 mode: subagent
 temperature: 0.1
 permission:

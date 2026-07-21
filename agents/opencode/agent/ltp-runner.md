@@ -3,7 +3,7 @@ description: >-
   Read-only execution comparator for the LTP conversion pipeline. Runs the
   original and converted test in a sandbox and compares their pass/fail
   output. Opt-in and only for sandbox-runnable tests. Used as a subagent by
-  the ltp-convert orchestrator.
+  the ltp-converter orchestrator.
 mode: subagent
 temperature: 0.1
 permission:

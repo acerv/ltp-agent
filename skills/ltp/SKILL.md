@@ -104,7 +104,7 @@ Invoke with `/ltp-convert <file path or test name>`.
 ### Multi-agent conversion (opencode)
 
 On opencode, an orchestrated multi-agent pipeline is also available: switch to
-the `ltp-convert` primary agent. It delegates to five subagents -
+the `ltp-converter` primary agent. It delegates to five subagents -
 `ltp-analyzer` (builds the Intent Contract and decides the strategy),
 `ltp-creator` (implements the converted test), `ltp-builder` (compiles it and
 reports errors and warnings), `ltp-runner` (opt-in; runs the original and

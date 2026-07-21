@@ -2,7 +2,7 @@
 description: >-
   Read-only reviewer that audits a converted LTP test against its Intent
   Contract and LTP rules, returning PASS or REVISE. Used as a subagent by the
-  ltp-convert orchestrator.
+  ltp-converter orchestrator.
 mode: subagent
 temperature: 0.1
 permission:
