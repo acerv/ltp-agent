@@ -18,7 +18,7 @@ permissions:
 
 env:
   LTP_UPSTREAM: https://github.com/linux-test-project/ltp.git
-  AGENT_DIR: ${{ github.workspace }}/ltp-agent
+  AGENT_DIR: ${{ github.workspace }}
   PATCHWORK_URL: https://patchwork.ozlabs.org
 
 jobs:
@@ -28,7 +28,6 @@ jobs:
       - name: Checkout ltp-agent
         uses: actions/checkout@v5
         with:
-          path: ltp-agent
           persist-credentials: false
 
       - name: Clone LTP
