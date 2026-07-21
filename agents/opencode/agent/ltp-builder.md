@@ -6,12 +6,39 @@ description: >-
 mode: subagent
 reasoningEffort: low
 permission:
+  read: allow
+  glob: allow
+  grep: allow
+  list: allow
   edit: deny
   task: deny
+  skill: deny
+  lsp: deny
+  question: deny
+  todowrite: deny
+  webfetch: deny
+  websearch: deny
+  doom_loop: ask
+  external_directory:
+    "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "make *": allow
-    "git *": allow
-    "*": ask
+    "*": allow
+    "rm *": ask
+    "rmdir *": ask
+    "shred *": ask
+    "unlink *": ask
+    "truncate *": ask
+    "dd *": ask
+    "mkfs*": ask
+    "sudo *": ask
+    "git commit *": ask
+    "git push *": ask
+    "git reset --hard*": ask
+    "git clean *": ask
+    "git checkout -- *": ask
+    "git restore *": ask
+    "git branch -D *": ask
+    "git rebase*": ask
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->

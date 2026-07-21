@@ -6,11 +6,45 @@ description: >-
 mode: primary
 reasoningEffort: low
 permission:
+  read: allow
+  glob: allow
+  grep: allow
+  list: allow
   edit: deny
-  task: allow
+  skill: allow
+  lsp: deny
+  question: allow
+  todowrite: allow
+  webfetch: deny
+  websearch: deny
+  doom_loop: ask
+  task:
+    "*": deny
+    "ltp-analyzer": allow
+    "ltp-creator": allow
+    "ltp-builder": allow
+    "ltp-runner": allow
+    "ltp-reviewer": allow
+  external_directory:
+    "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "git *": allow
-    "*": ask
+    "*": allow
+    "rm *": ask
+    "rmdir *": ask
+    "shred *": ask
+    "unlink *": ask
+    "truncate *": ask
+    "dd *": ask
+    "mkfs*": ask
+    "sudo *": ask
+    "git commit *": ask
+    "git push *": ask
+    "git reset --hard*": ask
+    "git clean *": ask
+    "git checkout -- *": ask
+    "git restore *": ask
+    "git branch -D *": ask
+    "git rebase*": ask
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
