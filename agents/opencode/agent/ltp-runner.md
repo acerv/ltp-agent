@@ -5,39 +5,16 @@ description: >-
 mode: subagent
 reasoningEffort: low
 permission:
+  "*": deny
   read: allow
   glob: allow
   grep: allow
   list: allow
-  edit: deny
-  task: deny
-  skill: deny
-  lsp: deny
-  question: deny
-  todowrite: deny
-  webfetch: deny
-  websearch: deny
-  doom_loop: ask
   external_directory:
     "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "*": allow
-    "rm *": ask
-    "rmdir *": ask
-    "shred *": ask
-    "unlink *": ask
-    "truncate *": ask
-    "dd *": ask
-    "mkfs*": ask
-    "sudo *": ask
-    "git commit *": ask
-    "git push *": ask
-    "git reset --hard*": ask
-    "git clean *": ask
-    "git checkout -- *": ask
-    "git restore *": ask
-    "git branch -D *": ask
-    "git rebase*": ask
+    "*": deny
+    "{{LTP_AGENT_DIR}}/tools/ltp-run.sh *": allow
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
@@ -67,44 +44,62 @@ Refuse and return RUN_SKIP if ANY of the following hold for the test:
 
 ## Step 1: Run three passes
 
-Run the converted binary three times, capturing stdout, stderr, and the exit
-code for each. Use a single combined command so the user approves the run once.
+Invoke the run helper with the path to the converted test binary (the test
+directory is derived from it):
 
-| Pass          | Command    | Exercises            | Passes when                         |
-| ------------- | ---------- | -------------------- | ----------------------------------- |
-| Setup/cleanup | `-i 0 -v`  | setup + cleanup only | no `TBROK`/crash/leak               |
-| Default       | `-v`       | one normal run       | only `TPASS`/`TCONF`, no crash/hang |
-| Iteration     | `-i 10 -v` | test body x10        | as Default + no resource growth     |
+    {{LTP_AGENT_DIR}}/tools/ltp-run.sh <binary path>
 
-Constraints: do NOT run as root, mount anything, or raise the count above 10.
-If the binary requires root or a missing feature, record the output as
-`<TCONF: requires ...>` and return RUN_SKIP.
+It runs the binary three times and prints a bounded summary per pass
+(`<pass>_exit=<rc>`, the `Summary:` block, result-tag counts, and capped
+failing lines):
+
+| Pass          | Command | Exercises            | Passes when                         |
+| ------------- | ------- | -------------------- | ----------------------------------- |
+| Setup/cleanup | `-i 0`  | setup + cleanup only | no `TBROK`/crash/leak               |
+| Default       | (none)  | one normal run       | only `TPASS`/`TCONF`, no crash/hang |
+| Iteration     | `-i 10` | test body x10        | as Default + no resource growth     |
+
+Each pass runs under a timeout; a pass killed by it reports `exit=124`
+(treat as a hang).
 
 ## Step 2: Verdict
 
+Classify each pass from its `<pass>_exit` value plus the `Summary:` counts.
+LTP ORs its result flags into the process exit code:
+
+| `rc`        | Meaning             | Effect          |
+| ----------- | ------------------- | --------------- |
+| `0`         | all passed          | pass            |
+| `& 1`       | `TFAIL` present     | RUN_FAIL        |
+| `& 2`       | `TBROK` present     | RUN_FAIL        |
+| `& 32`      | `TCONF` (skip)      | RUN_SKIP        |
+| `124`       | `timeout` killed it | RUN_FAIL (hang) |
+| other non-0 | crash/signal        | RUN_FAIL        |
+
 - RUN_PASS: all three passes meet their "Passes when" criteria.
-- RUN_FAIL: any pass does not. Name the exact pass/iteration and quote the
-  failing output.
-- RUN_SKIP: you could not run the binary at all.
+- RUN_FAIL: any pass does not. Name the exact pass and quote the capped
+  failing lines from its summary.
+- RUN_SKIP: the binary reported `TCONF` or could not be run at all.
 
 When RUN_FAIL, state the likely cause:
 
 - `-i 0` pass failed -> broken or leaking setup/cleanup scaffolding.
 - Default pass failed -> the test body is broken on a normal single run.
-- `-i 10` pass failed only on iteration 2+ -> iteration-safety bug (static or
-  global state not reset between runs).
+- `-i 10` pass failed while the Default pass passed -> iteration-safety bug
+  (static or global state not reset between runs).
 
 ## Output
 
-Return, in this order:
+Return, in this order (all values come from the helper's bounded summary; no
+raw log is read):
 
 1. Verdict: RUN_PASS / RUN_FAIL / RUN_SKIP.
-2. Setup/cleanup pass (`-i 0`): command, exit code, normalized result lines.
-3. Default pass (no `-i`): command, exit code, normalized result lines.
-4. Iteration pass (`-i 10`): command, exit code, normalized result lines for
-   all 10 iterations (or a summary if all 10 are identical).
-5. Failures: per failing pass/iteration, what broke and the quoted output, or
-   "none".
+2. Setup/cleanup pass (`-i 0`): exit code, `Summary:` counts, tag counts.
+3. Default pass (no `-i`): exit code, `Summary:` counts, tag counts.
+4. Iteration pass (`-i 10`): exit code, `Summary:` counts, tag counts. Stable
+   counts across the run imply no iteration-safety regression.
+5. Failures: per failing pass, the cause and the capped `TFAIL/TBROK/TWARN`
+   lines, or "none".
 
 You provide empirical evidence that the converted test's setup/cleanup is
 sound without any assumption about the test code.
