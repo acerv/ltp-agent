@@ -5,39 +5,16 @@ description: >-
 mode: subagent
 reasoningEffort: low
 permission:
+  "*": deny
   read: allow
   glob: allow
   grep: allow
   list: allow
-  edit: deny
-  task: deny
-  skill: deny
-  lsp: deny
-  question: deny
-  todowrite: deny
-  webfetch: deny
-  websearch: deny
-  doom_loop: ask
   external_directory:
     "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "*": allow
-    "rm *": ask
-    "rmdir *": ask
-    "shred *": ask
-    "unlink *": ask
-    "truncate *": ask
-    "dd *": ask
-    "mkfs*": ask
-    "sudo *": ask
-    "git commit *": ask
-    "git push *": ask
-    "git reset --hard*": ask
-    "git clean *": ask
-    "git checkout -- *": ask
-    "git restore *": ask
-    "git branch -D *": ask
-    "git rebase*": ask
+    "*": deny
+    "{{LTP_AGENT_DIR}}/tools/ltp-build.sh *": allow
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
@@ -68,22 +45,18 @@ source is missing, return FAIL with the missing path.
 
 ## Step 2: Compile
 
-Run, from the converted test's directory:
+Invoke the build helper with the path to the target binary (the test
+directory and target name are derived from it):
 
-- `make clean` first, to rule out stale objects from a prior build.
-- `make` (or `make <binary>` if the directory builds multiple targets), with
-  `top_srcdir` resolved by the Makefile itself.
+    {{LTP_AGENT_DIR}}/tools/ltp-build.sh <binary path>
 
-Capture full stdout and stderr. Do NOT run `make install`; the goal is to
-compile, not to deploy.
-
-If the directory has dependencies elsewhere in the tree that are not yet
-built, run `make` at the LTP root once to build `libltp`, then retry the
-leaf directory. Report this only if the root build itself fails.
+Collect output as `build_exit=<rc>` with capped error and warning lines.
+Do NOT run `make install`; the goal is to compile, not deploy.
 
 ## Step 3: Classify diagnostics
 
-Walk the compiler/linker output and classify each diagnostic:
+Using `build_exit` and the capped error/warning lines from the summary,
+classify each diagnostic:
 
 - ERROR: fatal, blocks a passing build (return FAIL).
 - WARNING: non-fatal but a real issue (e.g. unused variable, format string
