@@ -57,10 +57,8 @@ NEVER review the code, only run.
 
 ## When you are NOT applicable
 
-Refuse and return SKIP if ANY of the following hold for the test:
+Refuse and return RUN_SKIP if ANY of the following hold for the test:
 
-- Requires `{{LTP_AGENT_DIR}}` to be set.
-- Requires the test binary to run.
 - Requires root (`.needs_root`).
 - Requires non-default kernel config (`.needs_kconfigs`).
 - Requires a device, loop device, mount, or network (`needs_device`,
