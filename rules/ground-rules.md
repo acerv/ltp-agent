@@ -72,8 +72,6 @@ Prefer framework helpers over manual setup/teardown when available.
 - Architecture-specific tests MUST still compile everywhere
 - Shell tests MUST be portable POSIX shell (no bash-isms)
 
-Verify with `make check`.
-
 ## Rule 7: One Logical Change Per Patch
 
 - Each patch MUST contain exactly ONE logical change
