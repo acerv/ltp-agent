@@ -13,23 +13,11 @@ permission:
   external_directory:
     "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "*": allow
-    "rm *": ask
-    "rmdir *": ask
-    "shred *": ask
-    "unlink *": ask
-    "truncate *": ask
-    "dd *": ask
-    "mkfs*": ask
-    "sudo *": ask
-    "git commit *": deny
-    "git push *": deny
-    "git reset --hard*": deny
-    "git clean *": deny
-    "git checkout -- *": deny
-    "git restore *": deny
-    "git branch -D *": deny
-    "git rebase*": deny
+    "*": deny
+    "git show *": allow
+    "git log *": allow
+    "git diff *": allow
+    "make check-*": allow
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
