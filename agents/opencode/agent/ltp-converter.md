@@ -87,9 +87,10 @@ The user gives a file path or a test name. Resolve it:
   basename. If zero or multiple matches, ask the user to disambiguate, then
   stop.
 
-Confirm the resolved file is an old-API LTP test. If you cannot tell, delegate
-to `ltp-analyzer` and let it classify. If it is not an old-API LTP test, stop
-and tell the user this pipeline only converts old-API LTP tests.
+Confirm the resolved file is an old-API C LTP test (`test.h`-based `*.c`). If
+you cannot tell, delegate to `ltp-analyzer` and let it classify. If it is not
+an old-API C LTP test, stop and tell the user this pipeline only converts
+old-API C LTP tests (shell and Open POSIX tests are out of scope).
 
 ### Step 2: Analyze (delegate to ltp-analyzer)
 

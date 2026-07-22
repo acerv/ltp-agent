@@ -60,8 +60,8 @@ intent with zero loss and to decide the best conversion strategy.
 ## Step 1: Classify
 
 Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify the file. If it is not
-an old-API LTP test (or an old-API helper), stop and report that it cannot be
-converted by this pipeline.
+an old-API C LTP test (or an old-API C helper), stop and report that it cannot
+be converted by this pipeline (shell and Open POSIX tests are out of scope).
 
 ## Step 2: Build the Intent Contract
 
