@@ -6,18 +6,14 @@ description: >-
 mode: primary
 reasoningEffort: medium
 permission:
+  "*": deny
   read: allow
   glob: allow
   grep: allow
   list: allow
-  edit: deny
   skill: allow
-  lsp: deny
   question: allow
   todowrite: allow
-  webfetch: deny
-  websearch: deny
-  doom_loop: ask
   task:
     "*": deny
     "ltp-analyzer": allow
@@ -28,23 +24,11 @@ permission:
   external_directory:
     "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "*": allow
-    "rm *": ask
-    "rmdir *": ask
-    "shred *": ask
-    "unlink *": ask
-    "truncate *": ask
-    "dd *": ask
-    "mkfs*": ask
-    "sudo *": ask
-    "git commit *": ask
-    "git push *": ask
-    "git reset --hard*": ask
-    "git clean *": ask
-    "git checkout -- *": ask
-    "git restore *": ask
-    "git branch -D *": ask
-    "git rebase*": ask
+    "*": deny
+    "git show *": allow
+    "git log *": allow
+    "git status*": allow
+    "git diff *": allow
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
@@ -110,7 +94,8 @@ whether to stop or proceed anyway.
 ### Step 3: Present the Conversion Plan and STOP for confirmation
 
 Assemble and present a written Conversion Plan to the user, following the
-Conversion Plan contents.
+structure defined under "The Conversion Plan" in
+`{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`.
 
 The plan MUST also state whether the test is sandbox-runnable, based on the
 analyzer's Resources, which determines whether the Step 5b execution run can
@@ -187,5 +172,7 @@ needs hand review before submission.
   PASS_WITH_WARNINGS. Reviewing uncompilable code wastes a review round.
 - NEVER let a subagent drop a scenario or oracle that is not on the approved
   droppable list.
+- NEVER build, run, edit, or otherwise modify tests yourself; every such
+  action is delegated to a subagent. You have no write or build access.
 - Keep your own context lean: summarize subagent outputs, do not paste entire
   file contents between steps.
