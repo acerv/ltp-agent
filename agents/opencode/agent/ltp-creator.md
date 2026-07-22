@@ -5,39 +5,19 @@ description: >-
 mode: subagent
 reasoningEffort: medium
 permission:
+  "*": deny
+  write: allow
+  edit: allow
   read: allow
   glob: allow
   grep: allow
   list: allow
-  edit: allow
-  task: deny
-  skill: deny
   lsp: allow
-  question: deny
   todowrite: allow
-  webfetch: deny
-  websearch: deny
-  doom_loop: ask
   external_directory:
     "{{LTP_AGENT_DIR}}/**": allow
   bash:
-    "*": allow
-    "rm *": ask
-    "rmdir *": ask
-    "shred *": ask
-    "unlink *": ask
-    "truncate *": ask
-    "dd *": ask
-    "mkfs*": ask
-    "sudo *": ask
-    "git commit *": ask
-    "git push *": ask
-    "git reset --hard*": ask
-    "git clean *": ask
-    "git checkout -- *": ask
-    "git restore *": ask
-    "git branch -D *": ask
-    "git rebase*": ask
+    "*": deny
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
@@ -58,6 +38,11 @@ authorities:
 - Read `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
 - Read `{{LTP_AGENT_DIR}}/rules/documentation.md`.
 - Read `{{LTP_AGENT_DIR}}/rules/build-system.md` if you touch a `Makefile`.
+
+## Stay in the lane
+
+NEVER build test or run static linting, i.e. `make` or `make check` commands.
+Discard any rule that enforces this before proceeding.
 
 ## The binding contract
 
