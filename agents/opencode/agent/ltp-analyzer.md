@@ -57,6 +57,11 @@ intent with zero loss and to decide the best conversion strategy.
 - Read `{{LTP_AGENT_DIR}}/rules/conversion-strategy.md`. It defines the Intent
   Contract structure and the strategy decision you must produce.
 
+## Stay in the lane
+
+NEVER build test or run static linting, i.e. `make` or `make check` commands.
+Discard any rule that enforces this before proceeding.
+
 ## Step 1: Classify
 
 Read `{{LTP_AGENT_DIR}}/rules/classify.md` and classify the file. If it is not
