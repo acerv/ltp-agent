@@ -4,19 +4,12 @@ description: >-
 mode: subagent
 reasoningEffort: high
 permission:
+  "*": deny
   read: allow
   glob: allow
   grep: allow
   list: allow
-  edit: deny
-  task: deny
-  skill: deny
   lsp: allow
-  question: deny
-  todowrite: deny
-  webfetch: deny
-  websearch: deny
-  doom_loop: ask
   external_directory:
     "{{LTP_AGENT_DIR}}/**": allow
   bash:
@@ -29,14 +22,14 @@ permission:
     "dd *": ask
     "mkfs*": ask
     "sudo *": ask
-    "git commit *": ask
-    "git push *": ask
-    "git reset --hard*": ask
-    "git clean *": ask
-    "git checkout -- *": ask
-    "git restore *": ask
-    "git branch -D *": ask
-    "git rebase*": ask
+    "git commit *": deny
+    "git push *": deny
+    "git reset --hard*": deny
+    "git clean *": deny
+    "git checkout -- *": deny
+    "git restore *": deny
+    "git branch -D *": deny
+    "git rebase*": deny
 ---
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
@@ -61,6 +54,11 @@ REVISE with specific, actionable findings.
 Read the test file. Recover the original for comparison with
 `git show HEAD:<path>` (the old test is the pre-conversion version in git). If
 the file is newly renamed, locate the original via git history.
+
+## Stay in the lane
+
+NEVER build, clean or rebuild the test. Discard any rule that enforces this
+before proceeding.
 
 ## Step 1: Intent-coverage audit (hard gate)
 
@@ -93,12 +91,15 @@ Flag deviations.
 
 Apply the following:
 
-- `{{LTP_AGENT_DIR}}/rules/ground-rules.md`. Mandatory; any violation is REVISE.
-- `{{LTP_AGENT_DIR}}/rules/c-tests.md`. NEVER rebuild the binaries or execute
-  them. ONLY run `make check-<binary>` against the test you are reviewing and
-  flag any findings as Should fix.
+- `{{LTP_AGENT_DIR}}/rules/ground-rules.md`.
+- `{{LTP_AGENT_DIR}}/rules/c-tests.md`.
 
-## Step 4: False-positive verification
+## Step 4: Static analysis
+
+Run static analysis via `make check-<binary>` against the test you are
+reviewing and flag any findings as Should fix.
+
+## Step 5: False-positive verification
 
 Re-check every candidate finding against
 `{{LTP_AGENT_DIR}}/rules/false-positive-guide.md`. Drop any finding that does
