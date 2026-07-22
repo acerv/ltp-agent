@@ -472,18 +472,9 @@ static struct tst_test test = {
 
 #### No manual reset after SAFE_CLOSE
 
-`SAFE_CLOSE()` is a macro that calls `safe_close()` AND sets the passed
+`SAFE_CLOSE()` is a macro that calls `safe_close()` and ALWAYS sets the passed
 argument file descriptor to `-1` in a single step. This applies everywhere in
-the code.
-
-WRONG -- redundant reset after SAFE_CLOSE():
-
-```c
-SAFE_CLOSE(fd);
-fd = -1;
-```
-
-ALWAYS rely on `SAFE_CLOSE()` to handle the reset.
+the code. NEVER set the passed argument to `-1` after `SAFE_CLOSE()`.
 
 #### Ensure resources are released in `cleanup()` after `tst_brk()` or failing `SAFE_*` macros
 
