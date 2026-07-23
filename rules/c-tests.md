@@ -275,10 +275,7 @@ syscalls updated:
 
 ## Code Examples
 
-The following sections contain examples which are considered reference when
-rewriting old LTP tests or when writing new LTP tests.
-
-ALWAYS follow these rules.
+ALWAYS follow these rules when working with new LTP API.
 
 ### Architecture-Specific Tests
 
