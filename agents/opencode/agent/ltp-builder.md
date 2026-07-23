@@ -29,14 +29,6 @@ return a structured verdict.
 
 NEVER review the code, only build.
 
-## Load first
-
-- Read `{{LTP_AGENT_DIR}}/rules/build-system.md` for the Makefile layout and
-  per-target `LDLIBS` rules.
-
-Abort with a clear message if `{{LTP_AGENT_DIR}}` is unset or any rule file
-fails to load.
-
 ## Step 1: Locate the build context
 
 You receive the directory holding the converted `Makefile` and the target
