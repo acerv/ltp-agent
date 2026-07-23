@@ -104,9 +104,13 @@ to five subagents:
 - `ltp-analyzer` builds a punctual Intent Contract and decides the strategy.
 - `ltp-creator` implements the converted test, bound to that contract.
 - `ltp-builder` compiles the converted test with the LTP build system and
-  reports errors and warnings before review.
-- `ltp-runner` (opt-in) runs the original and converted test in a sandbox and
-  compares their outcomes when the test is sandbox-runnable.
+  reports errors and warnings before review. It builds through the
+  `tools/ltp-build.sh` helper, which builds both the 32-bit and (when the
+  test directory defines one) the 64-bit large-file variant in a single
+  invocation.
+- `ltp-runner` (opt-in) runs the converted test in a sandbox and reports its
+  outcome when the test is sandbox-runnable. It runs through the
+  `tools/ltp-run.sh` helper.
 - `ltp-reviewer` audits the result against the contract and LTP rules.
 
 The orchestrator loops create/build/(run)/review until the intent is fully
@@ -126,12 +130,12 @@ basenames. Example:
   "$schema": "https://opencode.ai/config.json",
   "agent": {
     "ltp-converter": { "model": "<provider>/claude-sonnet-5" },
-    "ltp-analyzer":  { "model": "<provider>/claude-opus-4.8" },
-    "ltp-creator":   { "model": "<provider>/claude-opus-4.8" },
-    "ltp-builder":   { "model": "<provider>/claude-haiku-4-5@20251001" },
-    "ltp-runner":    { "model": "<provider>/claude-haiku-4-5@20251001" },
-    "ltp-reviewer":  { "model": "<provider>/claude-sonnet-5" }
-  }
+    "ltp-analyzer": { "model": "<provider>/claude-opus-4.8" },
+    "ltp-creator": { "model": "<provider>/claude-opus-4.8" },
+    "ltp-builder": { "model": "<provider>/claude-haiku-4-5@20251001" },
+    "ltp-runner": { "model": "<provider>/claude-haiku-4-5@20251001" },
+    "ltp-reviewer": { "model": "<provider>/claude-sonnet-5" },
+  },
 }
 ```
 

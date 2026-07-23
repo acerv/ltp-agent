@@ -50,13 +50,17 @@ directory and target name are derived from it):
 
     {{LTP_AGENT_DIR}}/tools/ltp-build.sh <binary path>
 
-Collect output as `build_exit=<rc>` with capped error and warning lines.
-Do NOT run `make install`; the goal is to compile, not deploy.
+The helper builds the 32-bit target and, when the directory defines a `%_64`
+rule, the 64-bit large-file variant too, in one invocation. Collect the
+output as `build_exit=<rc>` (32-bit) and, when present, `build_exit_64=<rc>`
+(64-bit), with capped error and warning lines. A non-zero exit for either
+width variant is a build failure. Do NOT run `make install`; the goal is to
+compile, not deploy.
 
 ## Step 3: Classify diagnostics
 
-Using `build_exit` and the capped error/warning lines from the summary,
-classify each diagnostic:
+Using `build_exit` (and `build_exit_64` when present) plus the capped
+error/warning lines from the summary, classify each diagnostic:
 
 - ERROR: fatal, blocks a passing build (return FAIL).
 - WARNING: non-fatal but a real issue (e.g. unused variable, format string
@@ -70,8 +74,9 @@ NOT propose fixes. State the failing line and the diagnostic verbatim.
 
 Return, in this order:
 
-1. Verdict: PASS / PASS_WITH_WARNINGS / FAIL. (Pass = exit code 0, no
-   ERROR diagnostics. FAIL = any ERROR or non-zero exit.)
+1. Verdict: PASS / PASS_WITH_WARNINGS / FAIL. (Pass = every build exit code
+   0, no ERROR diagnostics. FAIL = any ERROR or non-zero exit for either the
+   32-bit or 64-bit variant.)
 2. Build command(s) run, with exit codes.
 3. Errors: each as `file:line: <diagnostic>`, or "none".
 4. Warnings: each as `file:line: <diagnostic>`, or "none".
