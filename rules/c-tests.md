@@ -2,10 +2,9 @@
 
 # C Test Rules
 
-This file contains MANDATORY rules for C tests. Load this file when reviewing
-or writing any patch that modifies `*.c` or `*.h` files, EXCEPT files under
-`testcases/open_posix_testsuite/` -- those tests use different APIs and
-conventions (see `{{LTP_AGENT_DIR}}/rules/openposix.md`).
+This file contains MANDATORY rules for C tests (`*.c` or `*.h` files), EXCEPT
+files under `testcases/open_posix_testsuite/` -- those tests use different
+APIs and conventions (see `{{LTP_AGENT_DIR}}/rules/openposix.md`).
 
 ## Required Test Structure
 
@@ -40,7 +39,7 @@ static struct tst_test test = {
 
 ## Checklist
 
-When reviewing or writing C tests, verify ALL of the following:
+When working with LTP tests verify ALL of the following:
 
 ### 1. Coding Style
 
