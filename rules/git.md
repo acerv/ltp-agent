@@ -41,6 +41,7 @@ Rules:
   test binary.
 - Do NOT commit a test binary because its `.gitignore` entry is missing;
   flag the missing entry instead.
+- Do NOT commit binary files.
 
 ## .gitmodules
 
