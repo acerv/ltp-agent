@@ -78,7 +78,7 @@ jobs:
             since_time=$((current_time - PATCHWORK_SINCE))
           fi
 
-          since=$(date -u -d @$since_time +"%Y-%m-%dT%H:%M:%SZ")
+          since=$(date -u -d @$since_time +"%Y-%m-%dT%H:%M:%S")
 
           pwclient event-list -p ltp -c series-completed \
             --since "$since" -f '%{series_id}' > series.txt
