@@ -59,8 +59,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo add-apt-repository -y ppa:git-core/ppa
-          sudo apt-get install -yqq man-db manpages-dev manpages-posix-dev git-email
+          sudo apt-get install -yqq git-email
           sudo git clone --depth 1 https://github.com/torvalds/linux /usr/src/linux
+          sudo git clone --depth 1 https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git /usr/src/man-pages
 
       - name: Resolve series metadata
         id: series
@@ -119,7 +120,7 @@ jobs:
         run: |
           set -o pipefail
 
-          copilot -p "The latest stable kernel release is ${LATEST_KERNEL}. Use this for staging checks instead of fetching kernel.org. Run /ltp-review." \
+          copilot -p "The latest stable kernel release is ${LATEST_KERNEL}. Use this for staging checks instead of fetching kernel.org. Man pages are available in /usr/src/man-pages. Run /ltp-review." \
             --allow-all-tools \
             --deny-tool='shell(curl:*)' \
             --deny-tool='shell(wget:*)' \
@@ -141,10 +142,12 @@ jobs:
             --deny-tool='shell(pip:*)' \
             --deny-tool='shell(pipx:*)' \
             --deny-tool='shell(docker:*)' \
+            --deny-tool='shell(man:*)' \
             --deny-tool=web_fetch \
             --deny-tool=web_search \
             --add-dir="${{ github.workspace }}" \
             --add-dir=/usr/src/linux \
+            --add-dir=/usr/src/man-pages \
             --no-ask-user
 
           # Extract verdict from review-inline.txt
