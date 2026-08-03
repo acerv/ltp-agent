@@ -19,7 +19,7 @@ permissions:
 env:
   LTP_UPSTREAM: https://github.com/linux-test-project/ltp.git
   AGENT_DIR: ${{ github.workspace }}
-  PATCHWORK_URL: https://patchwork.ozlabs.org
+  PATCHWORK_URL: ${{ vars.PATCHWORK_URL || 'https://patchwork.kernel.org' }}
 
 jobs:
   review:

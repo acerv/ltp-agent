@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  PATCHWORK_URL: https://patchwork.ozlabs.org
+  PATCHWORK_URL: ${{ vars.PATCHWORK_URL || 'https://patchwork.kernel.org' }}
   # Fallback lookback in seconds when no previous successful run exists
   PATCHWORK_SINCE: 4500
   # Maximum lookback in seconds (24h) to avoid flooding the API
