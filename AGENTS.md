@@ -17,7 +17,7 @@ tests. It does NOT contain LTP tests itself.
   Each skill has a `SKILL.md` and supporting prompt or template files.
 - `rules/` — rule files loaded on demand by skills. One topic per file.
 - `tools/` — helper scripts (`scan-old-api.py`, `ltp-build.sh`,
-  `ltp-run.sh`, `linter/`).
+  `ltp-run.sh`).
 - `setup.sh` — entry point that dispatches to `agents/<agent>.sh`.
 - `.github/workflows/` — CI that runs `/ltp-review` against Patchwork series.
 
