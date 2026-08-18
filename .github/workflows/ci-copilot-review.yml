@@ -146,6 +146,7 @@ jobs:
             --deny-tool=web_fetch \
             --deny-tool=web_search \
             --add-dir="${{ github.workspace }}" \
+            --add-dir="$HOME/.copilot" \
             --add-dir=/usr/src/linux \
             --add-dir=/usr/src/man-pages \
             --no-ask-user
