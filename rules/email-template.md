@@ -18,15 +18,21 @@ Anything that concerns how the email looks belongs here.
   separated by a blank line before and after.
 - End every review with a blank line.
 
-## Tone
+## Tone and Brevity
 
-- Factual. Technical observations, not accusations. Don't over explain.
-- Frame issues as **questions about the code**, not statements about the
-  author. Avoid "you" / "did you" -- ask about the code.
-- NEVER summarize or comment what is correct.
+- Factual and concise. State what is wrong and how to fix it in 1 to 3
+  sentences max per comment.
+- Frame issues as technical observations about the code, not statements about
+  the author. Avoid "you" / "did you" -- focus on the code.
+- Point directly to the fix or macro (e.g. `Use TST_EXP_PASS(foo())`).
+- NEVER write essays, background tutorials, or explanations of basic C/kernel
+  concepts.
+- NEVER explain why an LTP rule exists unless strictly necessary to resolve
+  ambiguity.
+- NEVER summarize or comment on what is correct.
+- NEVER use conversational filler or hedging ("I noticed that...",
+  "It might be worth...").
 - NEVER use ALL CAPS, except when quoting code that uses it.
-- Break up dense paragraphs into multiple small paragraphs.
-- Keep enough context that the comment makes sense without the full patch.
 
 ## Pre-existing issues
 
