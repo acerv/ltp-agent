@@ -18,6 +18,16 @@ message. Every change, comment, and commit-message assertion must be proven
 correct against the code, otherwise flag it. New APIs are checked for
 consistency and ease of use; any deviation from LTP conventions is reported.
 
+## Supported Systems
+
+Before starting the review, make sure to read the supported systems
+documentation in the LTP tree, located under
+`doc/users/supported_systems.rst`.
+
+You MUST be aware of the supported Linux distributions, architectures,
+toolchains, minimum kernel versions, and C library implementations
+(glibc, musl, etc).
+
 ## Step 1: Verify patches are applied
 
 Run `git rev-list --count master..HEAD`. If the count is 0 (no commits ahead
